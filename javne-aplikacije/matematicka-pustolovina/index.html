@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#4b3299">
+<title>Matematička pustolovina</title>
+</head>
+<body>
+<style>[hidden]{display:none!important}
+:root{--green:#1d603d;--amber:#733d13}
+
+
+
+
+
+:root{color-scheme:light;--ink:#182338;--muted:#44516a;--purple:#6554c0;--purple-dark:#48328f;--page:#f4f2fc;--lavender:#e8ddfb;--mint:#d7f6e4;--apricot:#ffead1;--line:#d9d2e9;font-family:ui-rounded,"Trebuchet MS",Arial,sans-serif,'Trebuchet MS',Arial,sans-serif;color:var(--ink);background:var(--page);font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;padding:28px 20px 36px;min-width:320px}button,input,a{-webkit-tap-highlight-color:transparent}button,input{font:inherit}button,a{touch-action:manipulation}button{cursor:pointer;border:0}button:disabled{cursor:default}a{color:var(--purple-dark)}button:focus-visible,a:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid #9b6500;outline-offset:4px}img{max-width:100%}.app-shell{max-width:1040px;margin:0 auto;border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:0 5px 18px #3421580b;overflow:hidden;min-height:650px}.app-header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding:15px 30px;min-height:82px}.brand{display:flex;align-items:center;gap:10px;color:var(--purple-dark);font-size:22px;font-weight:900;text-decoration:none;line-height:1.15}.brand img{width:48px;height:48px;object-fit:contain}.grade{font-size:17px;font-weight:800;white-space:nowrap;color:#443959}main{padding:30px 34px 16px;outline:none!important}h1,h2,p{margin:0}h1{font-size:40px;line-height:1.13;letter-spacing:-.8px;font-weight:900}h2{font-size:25px;line-height:1.25;font-weight:900}.primary,.secondary{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:10px;min-height:56px;padding:13px 24px;border-radius:14px;font-size:21px;font-weight:800;line-height:1.2;text-decoration:none;transition:transform .15s ease,background .15s ease}.primary{background:var(--purple);color:#fff;border:2px solid var(--purple)}.primary:hover:not(:disabled){background:var(--purple-dark);border-color:var(--purple-dark);transform:translateY(-2px)}.primary:active:not(:disabled),.secondary:active:not(:disabled){transform:translateY(1px)}.secondary{border:2px solid var(--purple);background:white;color:var(--purple-dark)}.secondary:hover{background:#f5f1ff}.text-button{background:transparent;color:var(--purple-dark);font-weight:800;font-size:18px;padding:12px 3px;min-height:48px}.text-button:hover{text-decoration:underline}.app-footer{text-align:center;color:var(--muted);padding:20px 24px;font-size:16px}.skip-link{position:absolute;top:-80px;left:20px;padding:16px;background:white;z-index:50}.skip-link:focus{top:12px}.hero{display:grid;grid-template-columns:1fr 210px;align-items:center;gap:24px;margin:0 8px 24px}.hero h1{max-width:610px}.hero p{font-size:23px;line-height:1.4;color:var(--muted);margin-top:14px}.hero img{height:200px;width:210px;object-fit:contain;animation:owl-arrive .6s ease-out}.levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.level-card{padding:22px 16px 20px;border-radius:24px;text-align:center;display:flex;flex-direction:column;align-items:center}.level-card.easy{background:var(--mint)}.level-card.medium{background:var(--lavender)}.level-card.hard{background:var(--apricot)}.level-card img{width:112px;height:102px;object-fit:contain;margin-bottom:12px;transition:transform .2s}.level-card:hover img{transform:translateY(-4px)}.level-card h2{font-size:25px;white-space:nowrap}.level-card p{font-size:17px;margin:10px 0 16px;color:#36425a;min-height:24px}.level-example{font-size:27px;font-weight:900;padding:10px 8px;border-radius:14px;background:#ffffffda;width:100%;margin:auto 0 18px;white-space:nowrap}.level-card .primary{width:100%;font-size:20px;padding:12px 8px}.resume{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:24px;border-top:1px solid var(--line);padding-top:22px}.resume p{color:var(--muted);font-size:17px;line-height:1.5}.resume strong{color:var(--ink);display:block;font-size:20px}.screen-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;min-height:50px;margin-bottom:12px}.back{justify-self:start}.level-pill{border-radius:30px;padding:8px 22px;font-weight:900;font-size:18px;line-height:1.2;color:var(--ink);white-space:nowrap;background:var(--lavender)}.level-pill.easy{background:var(--mint)}.level-pill.hard{background:var(--apricot)}.count{justify-self:end;color:#443959;font-size:17px;font-weight:800;white-space:nowrap}.page-title{text-align:center;margin:14px 0 30px}.topics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.topic-button{padding:20px 12px;background:#fff;border:2px solid var(--line);border-radius:20px;display:flex;flex-direction:column;align-items:center;gap:9px;color:var(--ink);transition:background .15s,transform .15s}.topic-button:hover{background:#f5f1ff;border-color:#a391d6;transform:translateY(-3px)}.topic-button strong{font-size:20px;font-weight:900}.topic-button small{font-size:14px;line-height:1.3;color:var(--muted)}.topic-icon{display:flex;align-items:center;justify-content:center;height:62px}.topic-icon img{width:62px;height:62px;object-fit:contain}.mix-action{display:flex;justify-content:center;margin-top:28px}.mix-action .primary{min-width:390px;min-height:62px}.progress{height:12px;background:#e4dcf4;border-radius:12px;overflow:hidden;margin:6px 0 24px}.progress-fill{height:100%;background:var(--purple);border-radius:12px;transition:width .4s ease}.exercise-sheet{position:relative;border:1px solid var(--line);border-radius:24px;padding:30px 38px 34px;min-height:360px;text-align:center;overflow:hidden}.eyebrow{text-transform:uppercase;font-size:16px;letter-spacing:.4px;font-weight:900;color:#51456e;margin-bottom:12px}.exercise-sheet h1{font-size:36px;line-height:1.2;margin-bottom:20px}.instruction{font-size:21px;line-height:1.5;color:var(--muted);margin:0 0 18px}.exercise-body{font-size:46px;font-weight:900;line-height:1.7;margin:24px 0;overflow-wrap:anywhere}.equation-line{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:12px;min-height:80px}.equation-line+.equation-line{margin-top:10px}.answer-input{width:112px;max-width:100%;height:84px;background:white;border:3px solid #8c62c9;border-radius:15px;text-align:center;color:var(--ink);font-weight:900;font-size:42px;padding:8px;box-shadow:none;appearance:textfield}.answer-input::-webkit-inner-spin-button{-webkit-appearance:none}.answer-input.text{width:400px;max-width:100%;font-size:26px;text-align:left;padding:12px 16px;height:68px}.answer-input.roman{width:155px;text-transform:uppercase}.answer-input.ordinal{width:132px}.answer-input:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:#fff}.answer-input.correct{border-color:#277243}.answer-input.incorrect{border-color:#b97800}.compose-prompt{background:#f0e9fc;border-radius:20px;padding:28px 22px;font-size:39px;line-height:1.35;margin-bottom:24px}.answer-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;font-size:27px;font-weight:800}.input-caption{color:var(--muted);font-size:15px;display:block;margin-top:6px}.story-text{text-align:left;font-size:27px;line-height:1.55;font-weight:700;max-width:700px;margin:24px auto}.story-answer{margin-top:25px}.story-art{width:105px;height:105px;object-fit:contain;float:right;margin:0 0 10px 20px}.exercise-mascot{position:absolute;right:14px;bottom:14px;width:102px;height:108px;object-fit:contain;pointer-events:none}.exercise-actions{display:flex;justify-content:center;gap:14px;align-items:center;margin-top:28px;padding:0 70px}.exercise-actions .primary{min-width:260px}.feedback{display:none;max-width:650px;margin:24px auto 0;padding:17px 22px;border-radius:16px;font-size:23px;font-weight:900;line-height:1.3}.feedback.show{display:block}.feedback.correct{color:var(--green);background:#dcf8e6}.feedback.incorrect,.feedback.empty{color:var(--amber);background:#fff0d5}.feedback-symbol{display:inline-block;margin-right:12px;font-size:28px;vertical-align:middle}.choices{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin:22px 0}.choice{min-width:92px;min-height:72px;background:#f5effc;border:2px solid #9774c7;border-radius:16px;padding:12px 20px;font-weight:900;font-size:31px;color:#3f276d;transition:background .15s,transform .15s}.choice:hover:not(:disabled){background:#e6d9f6;transform:translateY(-2px)}.choice.selected{background:var(--purple);border-color:var(--purple-dark);color:white}.choice:disabled{opacity:1}.choice.used{color:#5c536b;background:#ebe7f2;border-color:#b8adca}.choice.words{font-size:23px;max-width:100%}.comparison{display:flex;justify-content:center;align-items:center;gap:20px;flex-wrap:wrap;font-size:43px;font-weight:900;line-height:1.4;margin:26px 0}.comparison-part{white-space:nowrap}.sign-slot{display:inline-flex;align-items:center;justify-content:center;border:3px solid #8c62c9;border-radius:15px;min-width:90px;height:82px;color:#3f276d}.order-slots{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin:20px 0}.order-slot{width:88px;height:70px;border:2px dashed #8c62c9;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;background:#fff;color:var(--ink)}.order-slot.filled{border-style:solid;background:#ede4fa}.order-reset{font-size:17px;text-decoration:underline}.multi-instruction{font-size:17px;color:var(--muted);margin:10px 0}.success-mascot{animation:owl-cheer .7s ease-in-out 2}.celebration{position:absolute;inset:0;pointer-events:none;overflow:hidden}.confetto{position:absolute;left:50%;top:50%;width:9px;height:15px;border-radius:2px;animation:confetti 1s ease-out forwards}.summary-hero{display:flex;align-items:center;justify-content:center;gap:20px;margin:24px 0}.summary-hero img{width:150px;height:150px;object-fit:contain}.summary-hero p{font-size:21px;line-height:1.4;margin-top:12px;color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0}.stat{text-align:center;border:1px solid var(--line);border-radius:20px;padding:22px 12px}.stat strong{display:block;font-size:47px;font-weight:900;line-height:1.2;color:var(--ink)}.stat span{display:block;font-size:18px;line-height:1.35;font-weight:800;margin-top:8px}.practice{text-align:center;border-top:2px solid var(--line);padding:26px 8px 0;margin-top:30px}.practice p{font-size:20px;line-height:1.5;color:var(--muted);margin-top:10px}.summary-actions{display:flex;gap:18px;justify-content:center;margin:28px 0 8px}.summary-actions button{min-width:230px}.no-script{padding:20px;text-align:center}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.entering{animation:screen-in .25s ease-out}
+@keyframes screen-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes owl-arrive{from{transform:translateY(15px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes owl-cheer{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-10px) rotate(-5deg)}70%{transform:translateY(-6px) rotate(5deg)}}@keyframes confetti{from{opacity:1;transform:translate(0,0) rotate(0)}to{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+@media(min-width:1200px){body{padding-top:38px}.app-shell{min-height:720px}.hero{margin-top:8px;margin-bottom:30px}.level-card{padding-top:26px;padding-bottom:24px}.level-card img{height:116px;width:126px}.level-card h2{font-size:28px}.level-card p{font-size:18px}.level-example{font-size:30px}.exercise-sheet{min-height:415px;padding-top:34px}.exercise-body{font-size:54px}}
+@media(max-width:800px){main{padding:24px 22px 12px}.app-header{padding:13px 22px}.hero{grid-template-columns:1fr 150px;gap:10px}.hero img{width:150px;height:160px}h1{font-size:34px}.hero p{font-size:20px}.level-card{padding:18px 10px}.level-card h2{font-size:21px}.level-card p{font-size:15px}.level-example{font-size:23px}.level-card .primary{font-size:17px}.topic-button strong{font-size:18px}.topic-button small{display:none}.exercise-sheet{padding:26px 22px 30px}.exercise-sheet h1{font-size:31px}.exercise-body{font-size:38px}.comparison{font-size:34px;gap:12px}.exercise-mascot{width:80px;height:88px}.exercise-actions{padding:0 54px}.story-text{font-size:24px}}
+@media(max-width:600px){body{padding:0;background:#fff}.app-shell{border:0;border-radius:0;box-shadow:none;min-height:100svh}.app-header{min-height:74px;padding:12px 16px;gap:10px}.brand{font-size:17px;gap:8px;max-width:255px}.brand img{width:41px;height:41px}.grade{font-size:14px}main{padding:20px 16px 12px}.hero{grid-template-columns:1fr 95px;margin:0 0 22px;gap:4px}.hero h1{font-size:29px;letter-spacing:-.5px}.hero p{font-size:18px;line-height:1.4;margin-top:12px}.hero img{width:100px;height:126px}.levels{grid-template-columns:1fr;gap:14px}.level-card{display:grid;grid-template-columns:76px 1fr;gap:0 12px;text-align:left;padding:18px;border-radius:22px;align-items:center}.level-card img{grid-column:1;grid-row:1/4;width:76px;height:86px;margin:0}.level-card h2{grid-column:2;font-size:24px}.level-card p{grid-column:2;font-size:16px;margin:5px 0 12px;min-height:0}.level-example{grid-column:2;width:100%;font-size:23px;text-align:center;margin:0 0 13px;padding:8px}.level-card .primary{grid-column:1/-1;font-size:20px;margin-top:3px;min-height:52px}.resume{align-items:stretch;flex-direction:column;gap:12px}.resume .secondary{width:100%}.screen-top{grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}.screen-top .back{grid-column:1/-1;padding:4px 0;min-height:40px}.level-pill{justify-self:start;font-size:16px;padding:7px 18px}.count{font-size:15px}.page-title{font-size:30px;margin:12px 0 24px}.topics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.topic-button{min-height:135px;padding:16px 8px;gap:9px}.topic-button strong{font-size:18px;line-height:1.25}.topic-icon{height:50px}.topic-icon img{width:50px;height:50px}.mix-action{margin-top:22px}.mix-action .primary{min-width:0;width:100%;font-size:20px}.progress{height:10px;margin-bottom:18px}.exercise-sheet{padding:25px 14px 24px;border-radius:22px;min-height:420px;overflow:visible}.eyebrow{font-size:13px;letter-spacing:.15px;margin-bottom:13px}.exercise-sheet h1{font-size:28px;line-height:1.2;margin-bottom:18px;letter-spacing:-.4px}.instruction{font-size:18px}.exercise-body{font-size:33px;margin:24px 0;line-height:1.7}.equation-line{gap:8px;min-height:68px}.answer-input{width:86px;height:72px;font-size:35px;border-radius:13px}.answer-input.text{font-size:22px;width:100%;height:64px}.answer-input.roman{width:126px}.answer-input.ordinal{width:102px}.compose-prompt{font-size:29px;padding:24px 14px;margin-bottom:25px}.answer-row{font-size:23px;gap:10px}.exercise-actions{padding:0;margin-top:25px;flex-direction:column;gap:10px}.exercise-actions .primary{min-width:0;width:100%;font-size:21px;min-height:57px}.exercise-mascot{position:static;display:block;width:98px;height:98px;margin:18px auto 0}.feedback{padding:15px 12px;font-size:20px;margin-top:22px}.feedback-symbol{font-size:23px;margin-right:7px}.comparison{font-size:30px;gap:10px;margin:26px 0}.comparison-part{white-space:normal}.sign-slot{min-width:67px;height:65px}.choice{font-size:29px;min-width:78px;min-height:68px;padding:10px 15px}.choices{gap:11px}.choice.words{font-size:21px;min-width:90px}.order-slots{gap:9px}.order-slot{width:58px;height:59px;font-size:25px}.story-text{font-size:22px;line-height:1.55;margin:22px 0}.story-art{width:75px;height:75px;margin-left:12px}.summary-hero{flex-direction:column-reverse;text-align:center;margin-top:12px;gap:8px}.summary-hero img{width:125px;height:125px}.summary-hero h1{font-size:32px}.summary-hero p{font-size:18px}.stats{gap:8px;margin:24px 0}.stat{padding:17px 7px;border-radius:17px}.stat strong{font-size:32px}.stat span{font-size:14px;line-height:1.3}.practice{padding-top:24px}.practice h2{font-size:26px}.practice p{font-size:18px}.summary-actions{flex-direction:column;gap:12px}.summary-actions button{width:100%;min-width:0}.app-footer{font-size:15px;padding:20px 16px 26px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.celebration{display:none}}
+.primary[hidden],[hidden]{display:none!important}
+
+#math-page-root .mascot-emoji{display:inline-grid;place-items:center;font-size:clamp(64px,10vw,132px);line-height:1;filter:drop-shadow(0 10px 16px #3a275733)}
+#math-page-root .brand .mascot-emoji{font-size:38px;filter:none}
+#math-page-root .level-emoji{font-size:64px;line-height:1;margin:2px 0 14px}
+#math-page-root .topic-icon{font-size:36px;line-height:1}
+#math-page-root .story-art-emoji{float:right;font-size:54px;margin:-4px 0 10px 18px}
+@media(max-width:620px){#math-page-root .level-emoji{font-size:45px;grid-row:1/3;margin:0}#math-page-root .mascot-emoji{font-size:92px}}
+</style>
+
+<div id="math-page-root" lang="hr">
+  <a class="skip-link" href="#main">Preskoči na zadatak</a>
+  <div id="app" class="app-shell">
+    <header class="app-header">
+      <a class="brand" href="#" data-action="home" aria-label="Matematička pustolovina – početna"><span class="mascot-emoji" aria-hidden="true">🦉</span><span>Matematička pustolovina</span></a>
+      <span class="grade">2. razred</span>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="app-footer">Vježbaj svojim tempom.</footer>
+  </div>
+</div>
+<script>(function (scope) {
+  'use strict';
+  const levels = [
+    { id: 'easy', name: 'Lagani zadaci', subtitle: 'Jedan korak do odgovora', example: '30 + 6 = ?', action: 'Odaberi lagane', image: 'sprout' },
+    { id: 'medium', name: 'Teži zadaci', subtitle: 'Poveži i izračunaj', example: '37 + ? = 40', action: 'Odaberi teže', image: 'mountain' },
+    { id: 'hard', name: 'Teški zadaci', subtitle: 'Razmisli u dva koraka', example: '28 − 3 + 5 = ?', action: 'Odaberi teške', image: 'rocket' }
+  ];
+  const topics = [
+    { name: 'Brojevi do 100', description: 'Desetice, jedinice i nizovi', icon: 'numbers' },
+    { name: 'Usporedi i poredaj', description: 'Veće, manje, jednako', icon: 'compare' },
+    { name: 'Zbrajaj i oduzimaj', description: 'Računaj korak po korak', icon: 'arithmetic' },
+    { name: 'Nepoznati broj', description: 'Otkrij što nedostaje', icon: 'unknown' },
+    { name: 'Matematičke priče', description: 'Pročitaj, razmisli, izračunaj', icon: 'book' },
+    { name: 'Redni i rimski brojevi', description: 'Redoslijed i brojevi I–XII', icon: 'roman' }
+  ];
+  const romans = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+  const ordinal = ['', 'prvi', 'drugi', 'treći', 'četvrti', 'peti', 'šesti', 'sedmi', 'osmi', 'deveti', 'deseti', 'jedanaesti', 'dvanaesti'];
+  const digitWords = ['nula', 'jedan', 'dva', 'tri', 'četiri', 'pet', 'šest', 'sedam', 'osam', 'devet', 'deset', 'jedanaest', 'dvanaest', 'trinaest', 'četrnaest', 'petnaest', 'šesnaest', 'sedamnaest', 'osamnaest', 'devetnaest'];
+  const tensWords = ['', 'deset', 'dvadeset', 'trideset', 'četrdeset', 'pedeset', 'šezdeset', 'sedamdeset', 'osamdeset', 'devedeset'];
+  const numberWord = n => n === 100 ? 'sto' : n < 20 ? digitWords[n] : tensWords[Math.floor(n / 10)] + (n % 10 ? ' ' + digitWords[n % 10] : '');
+  const countWord = (n, one, few, many) => n % 100 >= 11 && n % 100 <= 14 ? many : n % 10 === 1 ? one : n % 10 >= 2 && n % 10 <= 4 ? few : many;
+  function random(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function normalize(value) { return String(value).normalize('NFC').trim().toLocaleLowerCase('hr').replace(/\s+/g, ' '); }
+  function sameNumber(a, b) { return /^\d+$/.test(String(a).trim()) && Number(a) === Number(b); }
+  function check(q, values) {
+    if (!Array.isArray(values) || values.length !== q.answers.length) return false;
+    if (q.type === 'multi') return q.answers.every(a => values.map(String).includes(a)) && new Set(values.map(String)).size === q.answers.length;
+    return q.answers.every((a, i) => q.numeric ? sameNumber(values[i], a) : normalize(values[i]) === normalize(a));
+  }
+  function makeQuestion(level, topic, variant, r, shuffle) {
+    const difficulty = levels.findIndex(l => l.id === level);
+    const q = { level, topic, variant, type: 'input', numeric: true, title: '', body: '', answers: [], labels: [], math: [] };
+    const set = (title, body, answers, extra) => Object.assign(q, { title, body, answers: answers.map(String) }, extra || {});
+    const choice = (title, body, answer, options, extra) => set(title, body, [answer], { type: 'choice', numeric: false, options: options.map(String), ...extra });
+    const order = (title, nums, descending = false, roman = false) => {
+      const sorted = nums.slice().sort((a, b) => descending ? b - a : a - b);
+      const strings = sorted.map(n => roman ? romans[n] : String(n));
+      let opts = shuffle(strings);
+      if (opts.join(',') === strings.join(',')) opts.push(opts.shift());
+      return set(title, 'Klikni brojeve pravilnim redom.', strings, { type: 'order', numeric: false, options: opts, direction: descending ? 'descending' : 'ascending', roman });
+    };
+    const relation = (a, b) => a < b ? '<' : a > b ? '>' : '=';
+    const calc = (text, result) => q.math.push({ text, result });
+    const tens = r(2, 8) * 10, u = r(1, 9), n = tens + u, k = r(21, 98);
+    const v = variant % 6;
+    if (topic === 0) {
+      if (difficulty === 0) {
+        if (v === 0) set('Sastavi broj.', `${tens / 10} desetice i ${u} jedinice`, [n], { format: 'compose' });
+        if (v === 1) set('Desetice i jedinice', `${n} = {0} D i {1} J`, [tens / 10, u], { labels: ['Broj desetica', 'Broj jedinica'] });
+        if (v === 2) set('Brojevi susjedi', `{0} ← ${k} → {1}`, [k - 1, k + 1], { labels: ['Prethodni broj', 'Sljedeći broj'] });
+        if (v === 3) set('Nastavi niz.', `${k - 2}, ${k - 1}, {0}, ${k + 1}`, [k]);
+        if (v === 4) set('Napiši broj brojkom.', numberWord(n), [n], { format: 'compose' });
+        if (v === 5) { const a = r(1, 7) * 10; choice('Koji je broj najveći?', 'Odaberi jedan broj.', a + 20, shuffle([a, a + 10, a + 20])); }
+      } else if (difficulty === 1) {
+        if (v === 0) { const a = r(1, 49); set('Nastavi niz.', `${a}, ${a + 10}, {0}, {1}, ${a + 40}`, [a + 20, a + 30], { labels: ['Treći broj', 'Četvrti broj'] }); }
+        if (v === 1) set('Napiši broj riječima.', `${n} = {0}`, [numberWord(n)], { numeric: false, textInput: true });
+        if (v === 2) set('Sastavi broj.', `${u} jedinice i ${tens / 10} desetice`, [n], { format: 'compose' });
+        if (v === 3) set('Koje desetice nedostaju?', `{0} < ${n} < {1}`, [tens, tens + 10], { instruction: 'Upiši prethodnu i sljedeću deseticu.', labels: ['Prethodna desetica', 'Sljedeća desetica'] });
+        if (v === 4) { const a = r(30, 80); set('Brojimo unatrag.', `${a}, ${a - 5}, {0}, {1}`, [a - 10, a - 15]); }
+        if (v === 5) { const a = r(2, 8), b = a === 8 ? 3 : a + 1; set('Zamijeni mjesta znamenkama.', `Broju ${10 * a + b} zamijeni mjesta desetica i jedinica.`, [10 * b + a], { format: 'story', answerLabel: 'Novi broj:' }); }
+      } else {
+        if (v === 0) { const a = r(2, 7), b = r(1, 8); set('Otkrij broj.', `Broj ima ${a} desetice. Jedinica je za 1 više nego broj ${b}. Koji je to broj?`, [10 * a + b + 1], { format: 'story', answerLabel: 'Broj:' }); }
+        if (v === 1) { const a = r(20, 45); set('Dopuni oba mjesta.', `${a}, ${a + 5}, {0}, ${a + 15}, {1}`, [a + 10, a + 20]); }
+        if (v === 2) { const a = r(3, 7), b = a - 2; const c = [a * 10 + b, b * 10 + a]; set('Dva broja od dvije znamenke', `Od znamenaka ${a} i ${b} sastavi dva dvoznamenkasta broja. Svaku znamenku upotrijebi jednom u svakom broju.`, c.sort((x, y) => x - y), { format: 'story', labels: ['Manji broj', 'Veći broj'] }); }
+        if (v === 3) { const a = r(3, 8); set('Otkrij skriveni broj.', `Broj je manji od ${a * 10 + 10}, veći od ${a * 10} i ima 7 jedinica.`, [a * 10 + 7], { format: 'story', answerLabel: 'Broj:' }); }
+        if (v === 4) { const a = r(70, 95); set('Brojimo unatrag.', `${a}, {0}, ${a - 20}, {1}, ${a - 40}`, [a - 10, a - 30]); }
+        if (v === 5) { const a = r(3, 8); set('Razmisli o susjedima.', `Prethodni broj ima ${a} desetice i 8 jedinica. Koji broj slijedi nakon njega?`, [a * 10 + 9], { format: 'story', answerLabel: 'Broj:' }); }
+      }
+    }
+    if (topic === 1) {
+      if (v < 2) {
+        if (difficulty === 0) { const b = v === 0 ? n + r(1, 9) : n; choice('Odaberi pravi znak.', `${n} {sign} ${b}`, relation(n, b), ['<', '=', '>'], { format: 'comparison' }); }
+        if (difficulty === 1) { const a = r(2, 8) * 10, b = r(1, 8), c = a + 10, d = v === 0 ? 10 - b : r(1, 9); choice('Odaberi pravi znak.', `${a} + ${b} {sign} ${c} − ${d}`, relation(a + b, c - d), ['<', '=', '>'], { format: 'comparison' }); calc(`${a}+${b}`, a + b); calc(`${c}-${d}`, c - d); }
+        if (difficulty === 2) { const a = r(2, 7) * 10, b = r(2, 5), c = r(1, b), d = r(1, 8); choice('Izračunaj pa usporedi.', `${a} + ${b} − ${c} {sign} ${a + 10} − ${d}`, relation(a + b - c, a + 10 - d), ['<', '=', '>'], { format: 'comparison' }); calc(`${a}+${b}-${c}`, a + b - c); calc(`${a + 10}-${d}`, a + 10 - d); }
+      }
+      if (v === 2 || v === 3) { const a = r(12, 22), b = r(31, 43), c = r(52, 65), d = r(76, 89); order(v === 2 ? 'Od najmanjeg do najvećeg' : 'Od najvećeg do najmanjeg', difficulty === 0 ? [a, b, c] : difficulty === 1 ? [a, b, c, d] : [a, b, c, d, r(93, 99)], v === 3); }
+      if (v === 4) {
+        const a = r(3, 7) * 10, opts = shuffle([a - 3, a, a + 2, a + 7, a + 10, a + 12]);
+        const answers = difficulty === 2 ? [a + 2, a + 7] : [a + 2, a + 7, a + 10, a + 12];
+        set(difficulty === 2 ? `Veći od ${a}, a manji od ${a + 10}` : `Koji su brojevi veći od ${a}?`, 'Odaberi sve brojeve koji odgovaraju.', answers, { type: 'multi', numeric: false, options: opts.map(String) });
+      }
+      if (v === 5) {
+        if (difficulty < 2) { const a = r(2, 8) * 10, b = r(1, 4); choice('Koja je desetica bliža?', `Broju ${a + b} bliža je desetica…`, a, [a, a + 10]); }
+        else { const a = r(3, 7) * 10; const opts = shuffle([a + 3, a + 6, a + 1, a - 2]); choice('Pronađi broj.', `Koji je broj veći od ${a + 2}, a manji od ${a + 5}?`, a + 3, opts); }
+      }
+    }
+    if (topic === 2) {
+      let expr, answer;
+      if (difficulty === 0) {
+        const a = r(2, 8) * 10, b = r(1, 4), c = r(1, 5);
+        if (v === 0) { expr = `${a} + ${u}`; answer = a + u; }
+        if (v === 1) { expr = `${a + u} − ${u}`; answer = a; }
+        if (v === 2) { expr = `${a + b} + ${c}`; answer = a + b + c; }
+        if (v === 3) { expr = `${a + b + c} − ${c}`; answer = a + b; }
+        if (v === 4) { const x = r(1, 5) * 10, y = r(1, 4) * 10; expr = `${x} + ${y}`; answer = x + y; }
+        if (v === 5) { const x = r(6, 9), y = r(3, 9); expr = `${x} + ${y}`; answer = x + y; }
+      } else if (difficulty === 1) {
+        const a = r(2, 9) * 10, b = r(1, 9);
+        if (v === 0 || v === 4) { expr = `${a - b} + ${b}`; answer = a; }
+        if (v === 1 || v === 5) { expr = `${a} − ${b}`; answer = a - b; }
+        if (v === 2) { const x = r(2, 6) * 10; expr = `${x} + 20 + ${b}`; answer = x + 20 + b; }
+        if (v === 3) { const x = r(4, 8) * 10; expr = `${x + b} − ${b} − 20`; answer = x - 20; }
+      } else {
+        const a = r(2, 7) * 10, b = r(2, 7), c = r(1, b);
+        if (v === 0) { expr = `${a + b} − ${c} + ${10 - b + c}`; answer = a + 10; }
+        if (v === 1) { expr = `${a + 10} − ${b} + ${c}`; answer = a + 10 - b + c; }
+        if (v === 2) { expr = `${a} + ${b} − ${c}`; answer = a + b - c; }
+        if (v === 3) { expr = `${a - b} + ${b} − ${c}`; answer = a - c; }
+        if (v === 4) { set('Računaj redom.', `Zbroj brojeva ${a} i ${b} umanji za ${c}.`, [a + b - c], { format: 'story', answerLabel: 'Rezultat:' }); calc(`${a}+${b}-${c}`, a + b - c); }
+        if (v === 5) { const x = r(4, 8) * 10; expr = `${x} − 20 + ${b}`; answer = x - 20 + b; }
+      }
+      if (expr) { set('Izračunaj.', `${expr} = {0}`, [answer]); calc(expr, answer); }
+    }
+    if (topic === 3) {
+      const total = difficulty === 0 ? r(10, 19) : r(3, 9) * 10, part = r(1, 8);
+      if (difficulty < 2) {
+        if (v === 0 || v === 3) set('Koji broj nedostaje?', `${total - part} + {0} = ${total}`, [part]);
+        if (v === 1 || v === 4) set('Koji broj nedostaje?', `{0} − ${part} = ${total - part}`, [total]);
+        if (v === 2 || v === 5) set('Koji broj nedostaje?', `${total} − {0} = ${total - part}`, [part]);
+      } else {
+        const a = r(3, 8) * 10, b = r(2, 5), c = r(1, 4);
+        if (v === 0) set('Otkrij nepoznati broj.', `{0} + ${b} = ${a} − ${c}`, [a - c - b]);
+        if (v === 1) set('Otkrij nepoznati broj.', `${a} − {0} = ${a - 10} + ${b}`, [10 - b]);
+        if (v === 2) set('Dopuni oba računa.', `${a} − ${b} = {0}|{1} + ${b} = ${a}`, [a - b, a - b], { labels: ['Razlika', 'Prvi pribrojnik'] });
+        if (v === 3) set('Koji broj nedostaje?', `{0} − ${c} = ${a} + ${b}`, [a + b + c]);
+        if (v === 4) set('Dopuni jednakost.', `${a - 10} + ${b} + {0} = ${a}`, [10 - b]);
+        if (v === 5) set('Otkrij broj iz priče.', `Zamislila sam broj. Kada mu pribrojim ${b}, dobijem ${a}. Koji sam broj zamislila?`, [a - b], { format: 'story', answerLabel: 'Zamišljeni broj:' });
+      }
+    }
+    if (topic === 4) {
+      const a = r(2, 6) * 10, b = r(2, 4), c = r(2, 5);
+      const cards = x => countWord(x, 'sličicu', 'sličice', 'sličica');
+      const crayons = x => countWord(x, 'bojicu', 'bojice', 'bojica');
+      if (difficulty === 0) {
+        if (v % 3 === 0) { set('Larina zbirka sličica', `Lara ima ${a} sličica. Dobila je još ${b} ${cards(b)}. Koliko sličica sada ima?`, [a + b], { format: 'story', answerLabel: 'Sada ima', unit: 'sličica.' }); calc(`${a}+${b}`, a + b); }
+        if (v % 3 === 1) { set('Bojice za prijateljicu', `Ema ima ${a + b} ${crayons(a + b)}. Poklonila je ${b} ${crayons(b)}. Koliko joj je bojica ostalo?`, [a], { format: 'story', answerLabel: 'Ostalo je', unit: 'bojica.' }); calc(`${a + b}-${b}`, a); }
+        if (v % 3 === 2) { choice('Tko ima više?', `Lara ima ${a} sličica, a Ema ${a + c} ${cards(a + c)}. Tko ima više sličica?`, 'Ema', shuffle(['Lara', 'Ema', 'Imaju jednako']), { format: 'story' }); }
+      } else if (difficulty === 1) {
+        if (v % 3 === 0) { set('Popuni album.', `U album stane ${a} sličica. Lara ima ${a - b} ${cards(a - b)}. Koliko joj sličica nedostaje da popuni album?`, [b], { format: 'story', answerLabel: 'Nedostaje', unit: 'sličica.' }); calc(`${a}-${a - b}`, b); }
+        if (v % 3 === 1) { set('Bojice u kutiji', `U kutiji je bilo ${a} bojica. Djeca su uzela ${c} ${crayons(c)}. Koliko je bojica ostalo?`, [a - c], { format: 'story', answerLabel: 'Ostalo je', unit: 'bojica.' }); calc(`${a}-${c}`, a - c); }
+        if (v % 3 === 2) { set('Za koliko više?', `Lara ima ${a} sličica, a Ema ${a + b} ${cards(a + b)}. Za koliko sličica Ema ima više?`, [b], { format: 'story', answerLabel: 'Za', unit: 'sličica.' }); calc(`${a + b}-${a}`, b); }
+      } else {
+        if (v % 3 === 0) { const start = a + 8; set('Larina zbirka sličica', `Lara ima ${start} sličica. Prijateljici pokloni 3 sličice, a zatim dobije još 5. Koliko sličica sada ima?`, [a + 10], { format: 'story', answerLabel: 'Sada ima', unit: 'sličica.' }); calc(`${start}-3+5`, a + 10); }
+        if (v % 3 === 1) { set('Mala knjižara', `Bilježnica stoji ${b} €, a bojice ${c} €. Lara kupi oboje i plati novčanicom od 10 €. Koliko eura treba dobiti natrag?`, [10 - b - c], { format: 'story', answerLabel: 'Dobit će', unit: '€.' }); calc(`10-${b}-${c}`, 10 - b - c); }
+        if (v % 3 === 2) { const start = a + b + c; set('Bojice za crtanje', `U kutiji je bilo ${start} ${countWord(start, 'bojica', 'bojice', 'bojica')}. Djeca su uzela ${b} ${crayons(b)}, a učiteljica je zatim dodala 2 bojice. Koliko je bojica sada u kutiji?`, [a + c + 2], { format: 'story', answerLabel: 'Sada je', unit: 'bojica.' }); calc(`${start}-${b}+2`, a + c + 2); }
+      }
+    }
+    if (topic === 5) {
+      const a = r(2, difficulty === 0 ? 6 : 12);
+      if (v === 0) set('Pročitaj rimski broj.', `${romans[a]} = {0}`, [a]);
+      if (v === 1) set('Napiši rimskim brojkama.', `${a} = {0}`, [romans[a]], { numeric: false, romanInput: true });
+      if (v === 2) set('Napiši redni broj brojkom.', ordinal[a], [a + '.'], { numeric: false, ordinalInput: true, format: 'compose' });
+      if (v === 3) {
+        if (difficulty === 0) { const idx = r(2, 5); choice(`Odaberi ${idx}. mjesto.`, 'Broji slijeva nadesno.', String(idx), ['1', '2', '3', '4', '5'], { format: 'positions' }); }
+        else order('Od najvećeg do najmanjeg', [r(1, 3), r(4, 6), r(7, 9), r(10, 12)], true, true);
+      }
+      if (v === 4) {
+        if (difficulty < 2) { const b = r(1, 12); choice('Odaberi pravi znak.', `${romans[a]} {sign} ${romans[b]}`, relation(a, b), ['<', '=', '>'], { format: 'comparison' }); }
+        else { const x = r(2, 6), y = r(1, 5); set('Rimska računica', `${romans[x]} + ${romans[y]} = {0}`, [romans[x + y]], { numeric: false, romanInput: true }); calc(`${x}+${y}`, x + y); }
+      }
+      if (v === 5) {
+        if (difficulty === 0) choice('Glavni ili redni broj?', `Koji zapis znači „${ordinal[a]}“?`, a + '.', [String(a), a + '.']);
+        if (difficulty === 1) { const x = r(3, 9); set('Koji rimski broj nedostaje?', `${romans[x - 1]}, {0}, ${romans[x + 1]}`, [romans[x]], { numeric: false, romanInput: true }); }
+        if (difficulty === 2) { const x = r(3, 10); set('Mjesto u redu', `Lara je ${x}. u redu. Ema je dva mjesta iza Lare. Na kojem je mjestu Ema?`, [x + 2 + '.'], { numeric: false, ordinalInput: true, format: 'story', answerLabel: 'Ema je na mjestu:' }); }
+      }
+    }
+    if (!q.title || !q.answers.length) throw new Error('Nedostaje predložak zadatka.');
+    // Natural Croatian forms for the displayed tens/ones, without changing numeric data.
+    q.body = q.body.replace(/(\d+) desetice/g, (_, x) => `${x} ${countWord(+x, 'desetica', 'desetice', 'desetica')}`).replace(/(\d+) jedinice/g, (_, x) => `${x} ${countWord(+x, 'jedinica', 'jedinice', 'jedinica')}`);
+    return q;
+  }
+  function build(level, topic = -1, seed = Date.now(), count = 12) {
+    if (!levels.some(l => l.id === level) || !Number.isInteger(topic) || topic < -1 || topic > 5) throw new Error('Nepoznata razina ili područje.');
+    if (!Number.isInteger(count) || count < 1 || count > 24) throw new Error('Neispravan broj zadataka.');
+    const rand = random(seed), r = (a, b) => a + Math.floor(rand() * (b - a + 1));
+    const shuffle = arr => { const copy = arr.slice(); for (let i = copy.length - 1; i > 0; i--) { const j = r(0, i); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy; };
+    const variants = topics.map(() => shuffle([0, 1, 2, 3, 4, 5]));
+    const seen = new Set(), result = [];
+    for (let i = 0; i < count; i++) {
+      const group = topic === -1 ? i % 6 : topic;
+      const round = topic === -1 ? Math.floor(i / 6) : i;
+      let q, key, tries = 0;
+      do { q = makeQuestion(level, group, variants[group][round % 6], r, shuffle); key = q.title + q.body + (q.options || []).slice().sort().join(','); } while (seen.has(key) && ++tries < 80);
+      if (seen.has(key)) { q = makeQuestion(level, group, (round + 1) % 6, r, shuffle); key = q.title + q.body; }
+      seen.add(key); q.id = `${level}-${group}-${seed}-${i}`; result.push(q);
+    }
+    return result;
+  }
+  function createSession(level, topic, seed) { return { version: 2, level, topic, seed, index: 0, questions: build(level, topic, seed), attempts: Array(12).fill(0), solved: Array(12).fill(false), given: Array(12).fill(null) }; }
+  function submit(session, values) {
+    const i = session.index, q = session.questions[i];
+    if (!q || session.solved[i]) return 'locked';
+    if (!Array.isArray(values) || !values.length || values.some(v => String(v).trim() === '') || (q.type !== 'multi' && values.length !== q.answers.length)) return 'empty';
+    session.attempts[i]++;
+    session.given[i] = values.map(String);
+    if (check(q, values)) { session.solved[i] = true; return 'correct'; }
+    return 'incorrect';
+  }
+  function summarize(s) {
+    return { total: s.questions.length, solved: s.solved.filter(Boolean).length, first: s.solved.filter((x, i) => x && s.attempts[i] === 1).length, retried: s.solved.filter((x, i) => x && s.attempts[i] > 1).length, practiceTopics: [...new Set(s.questions.filter((_, i) => s.attempts[i] > 1).map(q => q.topic))] };
+  }
+  const api = { levels, topics, romans, numberWord, build, check, createSession, submit, summarize };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else scope.MathAdventure = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>(() => {
+  'use strict';
+  const E = window.MathAdventure, main = document.getElementById('main');
+  const storageKey = 'math-adventure-session-v2';
+  const icons = ['🔢','⚖️','➕','❓','📖','🏁'];
+  let screen = 'home', level = 'easy', session = null, selected = [], feedback = '', seedCounter = 0;
+  const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const levelInfo = () => E.levels.find(l => l.id === level);
+  const pill = () => `<span class="level-pill ${level}">${levelInfo().name}</span>`;
+  const owl = (className = '', extra = '') => `<span class="mascot-emoji ${className}" aria-hidden="true" ${extra}>🦉</span>`;
+  function save() {
+    if (!session) return;
+    const { version, level, topic, seed, index, attempts, solved, given } = session;
+    try { localStorage.setItem(storageKey, JSON.stringify({ version, level, topic, seed, index, attempts, solved, given })); } catch (_) { /* Practice works when storage is disabled. */ }
+  }
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(storageKey));
+      if (!s || s.version !== 2 || !E.levels.some(l => l.id === s.level) || !Number.isInteger(s.topic) || s.topic < -1 || s.topic > 5 || !Number.isSafeInteger(s.seed)) return;
+      if (![s.attempts, s.solved, s.given].every(a => Array.isArray(a) && a.length === 12)) return;
+      if (!s.attempts.every(n => Number.isInteger(n) && n >= 0 && n < 100000)) return;
+      if (!s.solved.every(x => typeof x === 'boolean')) return;
+      if (!s.given.every(x => x === null || Array.isArray(x) && x.length <= 12 && x.every(v => typeof v === 'string' && v.length <= 100))) return;
+      const restored = E.createSession(s.level, s.topic, s.seed);
+      for (let i = 0; i < 12; i++) {
+        if (s.solved[i] && (!s.attempts[i] || !s.given[i] || !E.check(restored.questions[i], s.given[i]))) return;
+        if (i > 0 && s.solved[i] && !s.solved[i - 1]) return;
+      }
+      Object.assign(restored, { attempts: s.attempts, solved: s.solved, given: s.given });
+      const firstUnsolved = s.solved.indexOf(false);
+      restored.index = firstUnsolved === -1 ? 11 : firstUnsolved;
+      session = restored;
+    } catch (_) { /* Ignore incompatible or corrupt saves. */ }
+  }
+  function top(back, action, counter = '') {
+    return `<div class="screen-top"><button type="button" class="text-button back" data-action="${action}">← ${back}</button>${pill()}<span class="count">${counter}</span></div>`;
+  }
+  function home() {
+    const resume = session ? `<section class="resume"><p><strong>${session.solved.every(Boolean) ? 'Tvoja posljednja vježba' : 'Tvoja vježba te čeka'}</strong>${E.levels.find(l => l.id === session.level).name} · ${session.solved.filter(Boolean).length} od 12 riješeno</p><button class="secondary" data-action="resume">${session.solved.every(Boolean) ? 'Pogledaj rezultat' : 'Nastavi vježbu'}</button></section>` : '';
+    main.innerHTML = `<section class="hero"><div><h1>Spremna za novu pustolovinu?</h1><p>Odaberi težinu i kreni vježbati.</p></div>${owl('hero-owl')}</section><section class="levels" aria-label="Odaberi težinu">${E.levels.map(l => `<article class="level-card ${l.id}"><span class="level-emoji" aria-hidden="true">${l.id === 'easy' ? '🌱' : l.id === 'medium' ? '🧩' : '🚀'}</span><h2>${l.name}</h2><p>${l.subtitle}</p><div class="level-example" aria-hidden="true">${l.example}</div><button type="button" class="primary" data-action="level" data-level="${l.id}">${l.action}</button></article>`).join('')}</section>${resume}`;
+  }
+  function topics() {
+    main.innerHTML = `${top('Težina', 'home')}<h1 class="page-title">Što danas vježbamo?</h1><section class="topics" aria-label="Odaberi područje">${E.topics.map((t, i) => `<button class="topic-button" data-action="topic" data-topic="${i}"><span class="topic-icon">${icons[i]}</span><strong>${t.name}</strong><small>${t.description}</small></button>`).join('')}</section><div class="mix-action"><button class="primary" data-action="topic" data-topic="-1">Pomiješaj sve · 12 zadataka</button></div>`;
+  }
+  function input(q, i) {
+    const saved = session.given[session.index];
+    const value = saved && saved[i] !== undefined ? saved[i] : '';
+    const name = q.labels[i] || (q.answers.length > 1 ? `Odgovor ${i + 1}` : 'Tvoj odgovor');
+    const typeClass = q.textInput ? ' text' : q.romanInput ? ' roman' : q.ordinalInput ? ' ordinal' : '';
+    const mode = q.numeric ? 'numeric' : 'text';
+    return `<input id="answer-${i}" class="answer-input${typeClass}" type="text" inputmode="${mode}" maxlength="${q.textInput ? 60 : 12}" autocomplete="off" autocapitalize="${q.romanInput ? 'characters' : 'off'}" spellcheck="false" aria-label="${esc(name)}" aria-describedby="feedback" data-answer="${i}" value="${esc(value)}">`;
+  }
+  function equation(q) {
+    return q.body.split('|').map(line => `<div class="equation-line">${line.split(/(\{\d+\})/g).map(part => /^\{\d+\}$/.test(part) ? input(q, Number(part.slice(1, -1))) : `<span>${esc(part)}</span>`).join('')}</div>`).join('');
+  }
+  function body(q) {
+    if (q.format === 'comparison') {
+      const parts = q.body.split('{sign}');
+      return `<div class="comparison"><span class="comparison-part">${esc(parts[0])}</span><span class="sign-slot" id="sign-slot" aria-hidden="true"></span><span class="comparison-part">${esc(parts[1])}</span></div>`;
+    }
+    if (q.type !== 'input') return `<p class="${q.format === 'story' ? 'story-text' : 'instruction'}">${esc(q.body)}</p>`;
+    if (q.format === 'story') {
+      const fields = q.answers.map((_, i) => `<label class="answer-row">${esc(q.labels[i] || q.answerLabel || 'Tvoj odgovor:')} ${input(q, i)} ${esc(q.unit || '')}</label>`).join('');
+      return `<p class="story-text">${q.topic === 4 ? '<span class="story-art-emoji" aria-hidden="true">📖</span>' : ''}${esc(q.body)}</p><div class="story-answer">${fields}</div>`;
+    }
+    if (q.format === 'compose') return `<div class="compose-prompt">${esc(q.body)}</div><div class="answer-row"><label for="answer-0">${q.ordinalInput ? 'Zapis:' : 'To je broj:'}</label>${input(q, 0)}</div>`;
+    return `<div class="exercise-body">${equation(q)}</div>${q.answers.length === 1 ? '<span class="input-caption">Tvoj odgovor</span>' : ''}`;
+  }
+  function controls(q) {
+    if (!q.options) return '';
+    return `<div class="choices" role="group" aria-label="${q.type === 'order' ? 'Brojevi za slaganje' : 'Ponuđeni odgovori'}">${q.options.map((value, i) => `<button type="button" class="choice${value.length > 5 ? ' words' : ''}" data-action="choose" data-option="${i}" aria-pressed="false">${esc(value)}</button>`).join('')}</div>${q.type === 'order' ? `<div class="order-slots" id="order-slots" aria-live="polite" aria-label="Tvoj redoslijed"></div><button type="button" class="text-button order-reset" data-action="reset-order">Kreni ispočetka</button>` : ''}`;
+  }
+  function quiz() {
+    const q = session.questions[session.index], done = session.solved.filter(Boolean).length;
+    selected = q.type === 'input' ? [] : (session.given[session.index] || []).slice();
+    feedback = session.solved[session.index] ? 'correct' : '';
+    main.innerHTML = `${top('Područja', 'topics', `Zadatak ${session.index + 1} od ${session.questions.length}`)}<div class="progress" role="progressbar" aria-label="Riješeni zadaci" aria-valuemin="0" aria-valuemax="12" aria-valuenow="${done}"><div class="progress-fill" style="width:${done / 12 * 100}%"></div></div><section class="exercise-sheet" aria-labelledby="question-title"><p class="eyebrow">${E.topics[q.topic].name}</p><h1 id="question-title">${esc(q.title)}</h1>${q.instruction ? `<p class="instruction">${esc(q.instruction)}</p>` : ''}<form id="answer-form" novalidate>${body(q)}${controls(q)}<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"></div><div class="exercise-actions"><button class="primary" id="check-button" type="submit">Provjeri odgovor</button><button class="primary" id="next-button" type="button" data-action="next" hidden>${session.index === 11 ? 'Pogledaj rezultat →' : 'Sljedeći zadatak →'}</button></div></form>${owl('exercise-mascot')}<div class="celebration" aria-hidden="true"></div></section>`;
+    updateChoices();
+    if (feedback) showFeedback(feedback, false);
+  }
+  function summary() {
+    const s = E.summarize(session);
+    main.innerHTML = `${top('Područja', 'topics')}<section class="summary-hero"><div><h1>Bravo, završila si vježbu!</h1><p>Svaki pokušaj te vodi naprijed.</p></div>${owl('success-mascot')}</section><section class="stats" aria-label="Rezultat vježbe"><div class="stat"><strong>${s.solved} / ${s.total}</strong><span>Riješeno</span></div><div class="stat"><strong>${s.first}</strong><span>Iz prvog pokušaja</span></div><div class="stat"><strong>${s.retried}</strong><span>Nakon ponavljanja</span></div></section><section class="practice"><h2>${s.practiceTopics.length ? 'Još malo vježbe' : 'Odlično ti ide!'}</h2><p>${s.practiceTopics.length ? s.practiceTopics.map(i => E.topics[i].name).join(' · ') : 'Sve si zadatke riješila iz prvog pokušaja.'}</p></section><div class="summary-actions"><button class="primary" data-action="new">Nova vježba</button><button class="secondary" data-action="home">Odaberi težinu</button></div>`;
+  }
+  function render() {
+    main.classList.remove('entering');
+    if (screen === 'home') home();
+    if (screen === 'topics') topics();
+    if (screen === 'quiz') quiz();
+    if (screen === 'summary') summary();
+    main.classList.add('entering');
+    main.focus({ preventScroll: true });
+    try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch (_) {}
+  }
+  function updateChoices() {
+    if (screen !== 'quiz') return;
+    const q = session.questions[session.index];
+    main.querySelectorAll('[data-option]').forEach(button => {
+      const value = q.options[Number(button.dataset.option)], picked = selected.includes(value);
+      button.classList.toggle('selected', picked && q.type !== 'order');
+      button.classList.toggle('used', picked && q.type === 'order');
+      button.setAttribute('aria-pressed', String(picked));
+      button.disabled = session.solved[session.index] || (picked && q.type === 'order');
+    });
+    const slots = document.getElementById('order-slots');
+    if (slots) slots.innerHTML = q.options.map((_, i) => `<span class="order-slot${selected[i] !== undefined ? ' filled' : ''}" aria-label="${i + 1}. mjesto: ${selected[i] !== undefined ? esc(selected[i]) : 'prazno'}">${selected[i] !== undefined ? esc(selected[i]) : ''}</span>`).join('');
+    const sign = document.getElementById('sign-slot');
+    if (sign) sign.textContent = selected[0] || '';
+  }
+  function clearFeedback() {
+    if (session.solved[session.index]) return;
+    feedback = '';
+    const box = document.getElementById('feedback');
+    box.className = 'feedback'; box.textContent = '';
+    main.querySelectorAll('.answer-input').forEach(i => { i.classList.remove('incorrect'); i.removeAttribute('aria-invalid'); });
+    document.getElementById('check-button').textContent = 'Provjeri odgovor';
+  }
+  function celebrate() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const target = main.querySelector('.celebration');
+    if (!target) return;
+    const colors = ['#7150bb', '#f4b323', '#59a86b', '#e58073'];
+    target.innerHTML = Array.from({ length: 22 }, (_, i) => `<span class="confetto" style="--x:${Math.round(Math.sin(i * 2.4) * 260)}px;--y:${-80 - (i % 6) * 32}px;--r:${i * 41}deg;background:${colors[i % 4]};animation-delay:${i % 4 * 30}ms"></span>`).join('');
+    window.setTimeout(() => { if (target.isConnected) target.innerHTML = ''; }, 1400);
+    main.querySelector('.exercise-mascot')?.classList.add('success-mascot');
+  }
+  function showFeedback(result, animate = true) {
+    feedback = result;
+    const q = session.questions[session.index], box = document.getElementById('feedback');
+    const emptyText = q.type === 'order' ? 'Odaberi sve brojeve pravilnim redom.' : q.type === 'input' ? 'Najprije upiši odgovor u svako polje.' : 'Najprije odaberi odgovor.';
+    const message = result === 'correct' ? 'Točno! Bravo!' : result === 'incorrect' ? 'Nije točno. Pokušaj ponovno.' : emptyText;
+    box.className = `feedback show ${result}`;
+    box.innerHTML = `${result !== 'empty' ? `<span class="feedback-symbol" aria-hidden="true">${result === 'correct' ? '✓' : '×'}</span>` : ''}${message}`;
+    main.querySelectorAll('.answer-input').forEach(i => {
+      i.classList.toggle('correct', result === 'correct'); i.classList.toggle('incorrect', result === 'incorrect');
+      if (result === 'incorrect') i.setAttribute('aria-invalid', 'true'); else i.removeAttribute('aria-invalid');
+      i.disabled = result === 'correct';
+    });
+    const checkButton = document.getElementById('check-button'), nextButton = document.getElementById('next-button');
+    checkButton.hidden = result === 'correct'; nextButton.hidden = result !== 'correct';
+    checkButton.textContent = result === 'incorrect' ? 'Provjeri ponovno' : 'Provjeri odgovor';
+    if (result === 'correct') {
+      main.querySelectorAll('[data-option], [data-action="reset-order"]').forEach(b => b.disabled = true);
+      const solved = session.solved.filter(Boolean).length;
+      main.querySelector('.progress').setAttribute('aria-valuenow', solved);
+      main.querySelector('.progress-fill').style.width = `${solved / 12 * 100}%`;
+      if (animate) { celebrate(); nextButton.focus({ preventScroll: true }); }
+    }
+  }
+  function start(topic) {
+    let seed;
+    if (window.crypto && typeof window.crypto.getRandomValues === 'function') seed = window.crypto.getRandomValues(new Uint32Array(1))[0];
+    else seed = (Date.now() + ++seedCounter) % 4294967296;
+    if (session && session.seed === seed) seed = (seed + 1) % 4294967296;
+    session = E.createSession(level, topic, seed); screen = 'quiz'; save(); render();
+  }
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-action]');
+    if (!button || button.disabled) return;
+    event.preventDefault();
+    const action = button.dataset.action;
+    if (action === 'home') { screen = 'home'; render(); }
+    if (action === 'level') { level = button.dataset.level; screen = 'topics'; render(); }
+    if (action === 'topics') { screen = 'topics'; render(); }
+    if (action === 'topic') start(Number(button.dataset.topic));
+    if (action === 'new') start(session.topic);
+    if (action === 'resume') { level = session.level; screen = session.solved.every(Boolean) ? 'summary' : 'quiz'; render(); }
+    if (action === 'next' && session.solved[session.index]) {
+      if (session.index === session.questions.length - 1) screen = 'summary';
+      else session.index++;
+      save(); render();
+    }
+    if (action === 'choose' && screen === 'quiz' && !session.solved[session.index]) {
+      const q = session.questions[session.index], value = q.options[Number(button.dataset.option)];
+      if (q.type === 'order') { if (!selected.includes(value)) selected.push(value); }
+      else if (q.type === 'multi') selected = selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value];
+      else selected = [value];
+      clearFeedback(); updateChoices();
+    }
+    if (action === 'reset-order' && !session.solved[session.index]) { selected = []; clearFeedback(); updateChoices(); }
+  });
+  document.addEventListener('input', event => { if (screen === 'quiz' && event.target.matches('[data-answer]')) clearFeedback(); });
+  document.addEventListener('submit', event => {
+    if (event.target.id !== 'answer-form') return;
+    event.preventDefault();
+    const q = session.questions[session.index];
+    const values = q.type === 'input' ? [...main.querySelectorAll('[data-answer]')].map(i => i.value) : selected.slice();
+    const result = E.submit(session, values);
+    if (result === 'locked') return;
+    save(); showFeedback(result);
+  });
+  load(); render();
+})();
+</script>
+</body>
+</html>
