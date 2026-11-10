@@ -1,0 +1,7 @@
+services:
+  - type: web
+    runtime: static
+    name: aplikacije-za-ucenje
+    buildCommand: echo "Static files ready"
+    staticPublishPath: ./javne-aplikacije
+    autoDeployTrigger: commit
