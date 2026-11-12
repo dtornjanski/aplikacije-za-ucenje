@@ -52,7 +52,7 @@
       S('Tko je rodbina?','Tko može pripadati široj obitelji?','baka',['susjedov pas','prometni policajac','prodavaonica']),
       M('Član i odnos','Spoji osobu i rodbinski odnos.',[['majčina majka','baka'],['očev brat','stric'],['sestrin sin','nećak'],['roditelji moje majke','djed i baka']]),
       Z('Dom ili škola','Razvrstaj što najčešće pripada kojem prostoru.',{dom:['kuhinja','spavaća soba','dnevni boravak'],škola:['učionica','zbornica','školska knjižnica']}),
-      O('Brinem o svojoj sobi','Složi cjelovit postupak.',['odredi što treba pospremiti','vrati igračke na mjesto','složi knjige','odvoji otpad','provjeri je li prolaz slobodan']),
+      O('Brinem o svojoj sobi','Predmeti su ostali na podu i najprije treba osloboditi prolaz. Složi postupak.',['makni stvari s prolaza','razvrstaj ih na igračke, knjige i otpad','vrati igračke i knjige na njihova mjesta','odvoji otpad u odgovarajuće spremnike','provjeri je li prolaz siguran']),
       C('Zajedničke dužnosti','Zašto svi članovi doma trebaju pomagati?','poslovi se pravednije dijele',['kuća dobiva više katova','vrijeme prestaje prolaziti','nitko ne treba odmarati']),
       V('Kuća ili zgrada','Što najjasnije pokazuje stambenu zgradu?','više stanova i zajednički ulaz',['jedna obitelj i vrt','šator u kampu','učionica s pločom']),
       T('Od jutra do škole','Poredaj događaje.',['probudim se','obavim higijenu','doručkujem','pripremim torbu','krenem u školu']),
@@ -66,7 +66,7 @@
       S('Jesenji znak','Koja je promjena česta ujesen?','lišće mijenja boju',['dan postaje najdulji','sve biljke cvatu','sunce nikada ne zalazi']),
       M('Plod i biljka','Spoji plod s biljkom.',[['žir','hrast'],['kesten','kesten'],['orah','orah'],['jabuka','jabuka']]),
       Z('Jesen ili nije jesen','Razvrstaj pojave.',{jesen:['opadanje lišća','berba grožđa','češća magla'],nije_jesen:['cvjetanje visibaba','najveće ljetne vrućine','dugotrajan snijeg']}),
-      O('Pratim stablo ujesen','Složi opažanje.',['odaberi stablo','pogledaj boju lišća','prebroji nekoliko otpalih listova','zapiši vremensku priliku','usporedi zapis sljedeći tjedan']),
+      O('Pratim stablo ujesen','Želiš usporediti istu granu u razmaku od tjedan dana. Složi istraživanje.',['označi jednu granu stabla','fotografiraj označenu granu','pričekaj jedan tjedan','ponovno fotografiraj istu granu','usporedi dvije fotografije']),
       C('Kraći dani','Zašto ujesen ranije palimo svjetlo?','dan postaje kraći',['lišće postaje teže','vjetar zaustavlja sat','oblaci gase žarulje']),
       V('Jesenje vrijeme','Koji zapis najbolje opisuje tipičan jesenski dan?','svježije je i može biti maglovito',['vrlo je vruće cijelu noć','stalno pada snijeg','svaki dan je bez oblaka']),
       T('Od zelena lista do tla','Poredaj promjene lista.',['list je zelen','vrijeme postaje hladnije','list mijenja boju','list se odvaja od grane','list pada na tlo']),
@@ -80,7 +80,7 @@
       S('Zimska prilika','Koja je oborina moguća zimi?','snijeg',['pelud','lišće','pijesak']),
       M('Životinja i prilagodba','Spoji životinju s ponašanjem.',[['medvjed','miruje u brlogu'],['vjeverica','koristi spremljenu hranu'],['ptica stanarica','traži hranu u okolini'],['zec','ima gušće krzno']]),
       Z('Sigurno ili nesigurno zimi','Razvrstaj ponašanja.',{sigurno:['nosim slojevitu odjeću','hodam oprezno po ledu','sušim mokre rukavice'],nesigurno:['trčim po zaleđenim stubama','izlazim mokre kose na hladnoću','diram ledenicu iznad prolaza']}),
-      O('Priprema za zimski izlazak','Složi korake.',['pogledaj vremensku prognozu','odaberi toplu odjeću','obuj obuću koja ne kliže','stavi kapu i rukavice','kreći se oprezno']),
+      O('Siguran zimski put','Nakon snijega izlaziš s odraslom osobom. Složi događaje.',['odrasla osoba provjeri je li put siguran','odjeni toplu odjeću','obuj obuću koja ne kliže','izađi s odraslom osobom','hodaj očišćenim dijelom puta']),
       C('Gola stabla','Zašto mnoga listopadna stabla zimi nemaju lišće?','prilagodila su se hladnoći i manjku svjetla',['lišće se skriva u deblu','snijeg ga pretvara u kamen','grane ga pojedu']),
       V('Duljina dana','Koje opažanje odgovara zimi?','dan je kraći od noći',['dan je uvijek jednak noći','sunce ne izlazi cijelu zimu','dan je najdulji u godini']),
       T('Snježni dan','Poredaj događaje.',['temperatura se spusti','oblaci donesu oborinu','pada snijeg','snijeg prekrije tlo','zatopljenje ga počne topiti']),
@@ -108,7 +108,7 @@
       S('Ljetna prilika','Što je često ljeti?','visoke temperature',['najkraći dani','dugotrajan snijeg','zamrznuto tlo']),
       M('Zaštita i svrha','Spoji predmet sa svrhom.',[['šešir','štiti glavu od sunca'],['voda','nadoknađuje tekućinu'],['krema za sunce','štiti kožu'],['hlad','pomaže izbjeći jako sunce']]),
       Z('Odgovorno ili neodgovorno ljeti','Razvrstaj ponašanja.',{odgovorno:['pijem vodu','izbjegavam podnevno sunce','nosim laganu zaštitnu odjeću'],neodgovorno:['dugo sam na suncu bez zaštite','ostavljam otpad u prirodi','ulazim u vodu bez nadzora']}),
-      O('Siguran odlazak na izlet','Složi pripremu.',['provjeri prognozu','napuni bocu vodom','pripremi zaštitu od sunca','obuj primjerenu obuću','drži se dogovora s odraslima']),
+      O('Sigurno kupanje','Na kupalište dolaziš s odraslom osobom. Složi događaje.',['dođi do kupališta s odraslom osobom','pročitajte oznake i upozorenja','odrasla osoba provjeri mjesto za kupanje','pričekaj dopuštenje odrasle osobe','uđi u vodu uz nadzor']),
       C('Biljke venu','Zašto biljka može venuti tijekom vrućine?','gubi vodu brže nego što je prima',['sunce joj promijeni ime','korijen postaje zrak','lišće zaboravi rasti']),
       V('Najdulji dani','Koje opažanje odgovara početku ljeta?','dan je vrlo dug',['noć traje cijeli dan','dan je najkraći u godini','sunce izlazi samo jednom tjedno']),
       T('Od cvijeta do ljetnog ploda','Poredaj promjene.',['biljka cvjeta','cvijet se opraši','nastane mali plod','plod raste','zreo plod se bere']),
@@ -125,12 +125,12 @@
       O('Sigurno prelazim cestu','Složi postupak.',['stani uz rub kolnika','pogledaj lijevo','pogledaj desno pa opet lijevo','provjeri da su vozila stala','prijeđi mirno najkraćim putem']),
       C('Pješački prijelaz','Zašto prelazimo na označenom prijelazu?','vozači ondje očekuju pješake',['cesta je ondje mekša','semafor ubrzava hodanje','automobili ondje nestaju']),
       V('Čitam skicu','Na skici je park desno od škole. Kamo ideš od škole do parka?','udesno',['ulijevo','ravno unatrag bez skretanja','gore u zrak']),
-      T('Dijelovi dana','Poredaj od ranijega prema kasnijemu.',['jutro','prijepodne','podne','poslijepodne','večer']),
-      S('Mjerimo vrijeme','Čime mjerimo sate i minute?','urom',['ravnalom','vagom','termometrom']),
+      T('Dani školskog tjedna','Poredaj dane od početka školskog tjedna.',['ponedjeljak','utorak','srijeda','četvrtak','petak']),
+      S('Čitam puni sat','Velika kazaljka je na 12, a mala na 8. Koliko je sati?','8 sati',['12 sati','6 sati','4 sata']),
       M('Prometni znak i poruka','Spoji znak i značenje.',[['STOP','obvezno zaustavljanje'],['pješački prijelaz','mjesto prelaska pješaka'],['biciklistička staza','prostor za bicikle'],['semafor crveno','čekaj']]),
       Z('Prošlost, sadašnjost ili budućnost','Razvrstaj događaje.',{prošlost:['jučer sam čitao','prošli mjesec bio je izlet','jutros sam doručkovao'],sadašnjost:['sada rješavam zadatak','trenutačno sjedim','upravo slušam'],budućnost:['sutra ću vježbati','sljedeći tjedan je priredba','kasnije ću ručati']}),
       C('Skica kretanja','Zašto na skici označavamo važne objekte?','pomažu nam provjeriti put',['čine papir težim','zaustavljaju promet','mijenjaju strane svijeta']),
-      V('Dani u tjednu','Ako je danas srijeda, koji je dan sutra?','četvrtak',['utorak','subota','ponedjeljak'])
+      V('Mjeseci i godina','Koji je zapis o kalendaru točan?','godina ima 12 mjeseci',['godina ima 7 mjeseci','svaki mjesec ima jednako dana','siječanj uvijek dolazi nakon prosinca iste godine'])
     ],
     energy:[
       S('Izvor energije','Što je prirodni izvor svjetlosti i topline?','Sunce',['hladnjak','olovka','stolac']),
@@ -153,7 +153,7 @@
       O('Pravilno perem ruke','Složi postupak.',['smoči ruke','nanesi sapun','istrljaj dlanove i među prstima','isperi vodom','obriši čistim ručnikom']),
       C('Doručak prije škole','Zašto je koristan uravnotežen doručak?','daje tijelu energiju za početak dana',['zamjenjuje sav san','uklanja potrebu za vodom','čini torbu lakšom']),
       V('Tanjur raznolike hrane','Koji obrok je najraznolikiji?','povrće, žitarice i izvor bjelančevina',['samo bomboni','samo gazirani napitak','samo jedna slana grickalica']),
-      T('Nakon tjelesne aktivnosti','Poredaj brigu o sebi.',['smiri disanje','popij vodu','presvuci mokru odjeću','operi se','odmori se']),
+      T('Nakon tjelesne aktivnosti','Vježbanje je završilo. Poredaj brigu o sebi.',['zaustavi vježbanje','smiri disanje','popij vodu','presvuci mokru odjeću','odmori se']),
       S('Otpad ili smeće','Što je otpad koji se može pravilno odvojiti?','čista papirnata kutija',['mješavina svega bačena na tlo','razbijeno nepoznato sredstvo','prljava tekućina u parku']),
       M('Otpad i spremnik','Spoji otpad s uobičajenom skupinom.',[['novine','papir'],['staklenka','staklo'],['kora banane','biootpad'],['plastična boca','plastika']]),
       Z('Čuvamo ili onečišćujemo','Razvrstaj postupke.',{čuvamo:['gasimo nepotrebno svjetlo','odvajamo otpad','hodamo ili vozimo bicikl kada možemo'],onečišćujemo:['bacamo otpad u prirodu','stvaramo nepotrebnu buku','ostavljamo jaka svjetla bez potrebe']}),
@@ -181,12 +181,12 @@
       O('Istražujem svoje mjesto','Složi postupak.',['odaberi što želiš saznati','pronađi siguran izvor','promatraj uz odraslu osobu','zapiši važne podatke','predstavi što si otkrio']),
       C('Zanimanja u mjestu','Zašto su različita zanimanja važna?','zadovoljavaju različite potrebe zajednice',['sva rade isti posao','uklanjaju sva pravila','čine da nitko ne surađuje']),
       V('Krajolik mjesta','Koji opis sadrži i prirodno i izgrađeno obilježje?','rijeka prolazi pokraj mosta',['samo tri kuće','samo šumsko drveće','samo parkirani automobili']),
-      T('Od rada do štednje','Poredaj smisleni slijed.',['osoba obavi posao','za rad primi zaradu','dio novca koristi za potrebe','dio odvoji','uštedu čuva za budući cilj']),
+      T('Od cilja do ušteđevine','Želiš uštedjeti za odabrani cilj. Poredaj korake.',['odaberi cilj štednje','saznaj koliko cilj košta','odvoji dio dobivenog novca','bilježi koliko si uštedio','kupi cilj tek kada imaš dovoljno']),
       S('Baština','Što znači čuvati baštinu?','brinuti o vrijednim prirodnim i kulturnim obilježjima',['uništiti stare predmete','sakriti sve od zajednice','mijenjati bez istraživanja']),
       M('Zanimanje i posao','Spoji zanimanje s poslom.',[['liječnik','pomaže bolesnima'],['učitelj','poučava'],['poljoprivrednik','uzgaja biljke ili životinje'],['graditelj','gradi i popravlja građevine']]),
       Z('Kulturno ili prirodno','Razvrstaj baštinu.',{kulturno:['stara gradska jezgra','narodna nošnja','tradicijska pjesma'],prirodno:['zaštićena šuma','rijetka biljka','poseban slap']}),
       C('Čuvamo vodu','Zašto ne bacamo otpad u potok ili rijeku?','štetimo vodi i živim bićima',['voda postane viša samo taj dan','most promijeni boju','ribe nauče letjeti']),
-      V('Blagdan i običaj','Koji je primjer blagdanskog ili tradicijskog običaja zajednice?','zajedničko obilježavanje uz poštovanje drugih',['bacanje otpada nakon slavlja','vrijeđanje tuđih običaja','uništavanje ukrasa u mjestu'])
+      M('Blagdani kroz godinu','Spoji blagdan ili svečanost s opisom.',[['Dani kruha','zahvaljujemo za kruh i plodove zemlje'],['Božić','kršćanski blagdan koji se slavi u prosincu'],['Nova godina','počinje nova kalendarska godina'],['Uskrs','kršćanski blagdan koji se slavi u proljeće']])
     ]
   };
 
@@ -201,10 +201,12 @@
   }
 
   function hardDecision(base,def,wrong,rng){
-    const label=def.type==='observe'?'Opažam':def.type==='cause'?'Zaključak':'Odabir';
-    const answer=`${label}: ${def.correct} · Odbacujem: ${wrong[0]}`;
-    const options=[answer,`${label}: ${wrong[0]} · Odbacujem: ${def.correct}`,`${label}: ${wrong[1]} · Odbacujem: ${wrong[2]}`,`${label}: ${wrong[2]} · Odbacujem: ${wrong[1]}`];
-    return {...base,prompt:`Usporedi dvije odluke ili posljedice. ${def.prompt} Odaberi par koji najbolje odgovara svim tragovima.`,options:E.shuffle(options,rng),answer};
+    const names=['Lara','Bitko'],correctFirst=rng()<.5;
+    const claims=correctFirst?[[names[0],def.correct],[names[1],wrong[0]]]:[[names[0],wrong[0]],[names[1],def.correct]];
+    const correctName=correctFirst?names[0]:names[1],wrongName=correctFirst?names[1]:names[0];
+    const answer=`${correctName} je u pravu, a ${wrongName} nije.`;
+    const options=[answer,`${wrongName} je u pravu, a ${correctName} nije.`,'Oba su zapisa točna.','Nijedan zapis nije točan.'];
+    return {...base,reasoning:'evidence',clues:claims.map(([name,claim])=>`${name} je zapisao/la: „${claim}”.`),prompt:`Procijeni dva zapisa kao dokaz. ${def.prompt} Tko je zaključio u skladu s činjenicama?`,options:E.shuffle(options,rng),answer};
   }
 
   function makeQuestion(world,level,def,index,rng){
@@ -239,9 +241,10 @@
   function buildRound(level,world,seed){
     if(!levels.some(item=>item.id===level)) throw new Error('Nepoznata razina.');
     const rng=E.makeRng(seed);
-    if(world==='mix') return E.shuffle(worlds.map(item=>{const list=templates[item.id][level];return list[Math.floor(rng()*list.length)](rng);}),rng);
+    const half=Number(seed)&1;
+    if(world==='mix') return E.shuffle(worlds.map(item=>{const list=templates[item.id][level].slice(half*6,half*6+6);return list[Math.floor(rng()*list.length)](rng);}),rng);
     if(!templates[world]) throw new Error('Nepoznati svijet.');
-    return E.shuffle(templates[world][level],rng).slice(0,5).map(factory=>factory(rng));
+    return E.shuffle(templates[world][level].slice(half*6,half*6+6),rng).slice(0,5).map(factory=>factory(rng));
   }
 
   return {levels,worlds,templates,templateCount,buildRound};

@@ -37,7 +37,7 @@
   }
 
   function optionButton(value,selected){return `<button type="button" class="choice ${selected?'selected':''}" data-choice data-value="${esc(value)}" aria-pressed="${selected?'true':'false'}"><span class="radio" aria-hidden="true"></span>${esc(value)}</button>`;}
-  function choices(question){return `<div class="choices">${question.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div>`;}
+  function choices(question){const clues=question.clues?`<div class="evidence-grid" aria-label="Zapisi za procjenu">${question.clues.map(clue=>`<p class="evidence-clue">${esc(clue)}</p>`).join('')}</div>`:'';return `${clues}<div class="choices">${question.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div>`;}
   function observation(question){const scene=question.scene||['🔎','Opažanje'];return `<div class="observation"><div class="observation-scene"><span aria-hidden="true">${esc(scene[0])}</span><strong>${esc(scene[1])}</strong><small>Promotri tragove u opisu i odaberi zaključak.</small></div><div class="observation-options">${question.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div></div>`;}
   function match(question){
     const usedLeft=new Set(draft.pairs.map(pair=>pair[0])),usedRight=new Set(draft.pairs.map(pair=>pair[1]));

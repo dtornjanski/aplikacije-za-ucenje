@@ -121,3 +121,21 @@ test('starting the same world again avoids the immediately previous question ids
   const f=fixture(undefined,false,1);f.click('[data-level="easy"]');f.click('[data-world="school"]');const first=new Set(f.snapshot().questions.map(question=>question.id));
   f.click('[data-action="worlds"]');f.click('[data-world="school"]');assert.equal(f.snapshot().questions.some(question=>first.has(question.id)),false);f.dom.window.close();
 });
+
+test('freshness regression excludes a seed-12 round when the next random seed is 13', () => {
+  const previous=E.createSession('easy','school',12,C.buildRound('easy','school',12));
+  const f=fixture(E.serialize(previous),false,13);
+  const first=new Set(previous.questions.map(question=>question.id));
+  f.click('[data-level="easy"]');f.click('[data-world="school"]');
+  assert.equal(f.snapshot().questions.some(question=>first.has(question.id)),false);
+  f.dom.window.close();
+});
+
+test('hard evidence questions render both claims before the learner decides', () => {
+  let seed=1,round;
+  while(seed<500){round=C.buildRound('hard','school',seed);if(round[0].reasoning==='evidence')break;seed++;}
+  const f=fixture(E.serialize(E.createSession('hard','school',seed,round)));f.click('[data-action="resume"]');
+  assert.equal(f.d.querySelectorAll('.evidence-clue').length,2);
+  assert.match(f.d.body.textContent,/Lara|Bitko/);
+  f.dom.window.close();
+});

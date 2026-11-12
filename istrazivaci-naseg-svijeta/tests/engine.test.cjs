@@ -115,9 +115,48 @@ test('difficulty variants preserve complete sequences and make hard decisions di
     assert.equal(growth.answer.length,level.id==='easy'?3:level.id==='medium'?4:5);
   }
   const medium=C.templates.school.medium[0](E.makeRng(5)),hard=C.templates.school.hard[0](E.makeRng(5));
-  assert.notEqual(medium.answer,hard.answer);
-  assert.notDeepEqual(medium.options,hard.options);
-  assert.match(hard.prompt,/usporedi|posljedicu|odluke/i);
+  assert.equal(hard.reasoning,'evidence');
+  assert.equal(hard.clues.length,2);
+  assert.equal(hard.options.some(option=>option===medium.answer),false);
+  assert.equal(hard.answer.includes(medium.answer),false);
+  assert.match(hard.prompt,/procijeni|zapisa|dokaz/i);
+});
+
+test('consecutive deterministic round families never repeat the previous questions', () => {
+  const C=require('../src/content.js');
+  for(const level of C.levels) for(const world of [...C.worlds.map(item=>item.id),'mix']) for(let seed=1;seed<=100;seed++){
+    const first=new Set(C.buildRound(level.id,world,seed).map(question=>question.id));
+    const next=C.buildRound(level.id,world,seed+1);
+    assert.equal(next.some(question=>first.has(question.id)),false,`${level.id}/${world}/${seed}`);
+  }
+});
+
+test('sequence exercises use dependent chronology instead of arbitrary household choices', () => {
+  const C=require('../src/content.js');
+  const expected={
+    home:['makni stvari s prolaza','razvrstaj ih na igračke, knjige i otpad','vrati igračke i knjige na njihova mjesta','odvoji otpad u odgovarajuće spremnike','provjeri je li prolaz siguran'],
+    autumn:['označi jednu granu stabla','fotografiraj označenu granu','pričekaj jedan tjedan','ponovno fotografiraj istu granu','usporedi dvije fotografije'],
+    winter:['odrasla osoba provjeri je li put siguran','odjeni toplu odjeću','obuj obuću koja ne kliže','izađi s odraslom osobom','hodaj očišćenim dijelom puta'],
+    summer:['dođi do kupališta s odraslom osobom','pročitajte oznake i upozorenja','odrasla osoba provjeri mjesto za kupanje','pričekaj dopuštenje odrasle osobe','uđi u vodu uz nadzor'],
+    health:['zaustavi vježbanje','smiri disanje','popij vodu','presvuci mokru odjeću','odmori se'],
+    place:['odaberi cilj štednje','saznaj koliko cilj košta','odvoji dio dobivenog novca','bilježi koliko si uštedio','kupi cilj tek kada imaš dovoljno']
+  };
+  for(const [world,steps] of Object.entries(expected)){
+    const question=C.templates[world].hard[world==='health'?6:world==='place'?6:3](E.makeRng(4));
+    assert.deepEqual(question.answer,steps,world);
+  }
+});
+
+test('time and holiday templates explicitly cover the full-year topics', () => {
+  const C=require('../src/content.js');
+  const clock=C.templates.spacetime.hard[7](E.makeRng(3));
+  const months=C.templates.spacetime.hard[11](E.makeRng(3));
+  const weekdays=C.templates.spacetime.hard[6](E.makeRng(3));
+  const holidays=C.templates.place.hard[11](E.makeRng(3));
+  assert.match(`${clock.title} ${clock.prompt} ${clock.clues.join(' ')}`,/kazaljka|puni sat/i);
+  assert.match(`${months.title} ${months.prompt} ${months.clues.join(' ')}`,/12 mjeseci|godin/i);
+  assert.match(weekdays.answer.join(' '),/ponedjeljak.*petak/i);
+  assert.deepEqual(new Set(holidays.left),new Set(['Dani kruha','Božić','Nova godina','Uskrs']));
 });
 
 test('serialization reconstructs identical seeded questions and progress', () => {
