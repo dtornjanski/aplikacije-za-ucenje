@@ -119,3 +119,41 @@ test('difficulty variants preserve complete sequences and make hard decisions di
   assert.notDeepEqual(medium.options,hard.options);
   assert.match(hard.prompt,/usporedi|posljedicu|odluke/i);
 });
+
+test('serialization reconstructs identical seeded questions and progress', () => {
+  const C=require('../src/content.js'),round=C.buildRound('hard','mix',2027);
+  const session=E.createSession('hard','mix',2027,round);
+  assert.equal(E.submit(session,generatedResponse(round[0],true)),'correct');E.advance(session);
+  assert.equal(E.submit(session,generatedResponse(round[1],false)),'incorrect');
+  const raw=E.serialize(session),restored=E.restore(raw,C.buildRound);
+  assert.doesNotMatch(raw,/"questions"/);
+  assert.deepEqual(restored.questions,round);
+  assert.equal(restored.index,1);assert.equal(restored.phase,'incorrect');
+  assert.deepEqual(restored.attempts,[1,1,0,0,0,0,0,0,0,0,0]);
+});
+
+test('restore rejects corrupt impossible injected and incomplete-shaped states', () => {
+  const C=require('../src/content.js'),round=C.buildRound('easy','school',41);
+  const session=E.createSession('easy','school',41,round);
+  assert.equal(E.submit(session,generatedResponse(round[0],true)),'correct');E.advance(session);
+  const valid=JSON.parse(E.serialize(session));
+  const corrupt=[
+    'not json',{...valid,version:88},{...valid,level:'expert'},{...valid,world:'moon'},
+    {...valid,index:99},{...valid,attempts:[]},{...valid,solved:[false,...valid.solved.slice(1)]},
+    {...valid,responses:valid.responses.map((response,index)=>index===1?{selected:'ubrizgano'}:response)},
+    {...valid,phase:'complete'}
+  ];
+  for(const raw of corrupt) assert.equal(E.restore(typeof raw==='string'?raw:JSON.stringify(raw),C.buildRound),null,JSON.stringify(raw));
+
+  let seed=1,sortRound;
+  while(seed<500){sortRound=C.buildRound('easy','health',seed);if(sortRound[0].type==='sort')break;seed++;}
+  const missing=JSON.parse(E.serialize(E.createSession('easy','health',seed,sortRound)));
+  missing.phase='incorrect';missing.attempts[0]=1;missing.responses[0]={zones:{}};
+  assert.equal(E.restore(JSON.stringify(missing),C.buildRound),null);
+
+  let orderSeed=1,orderRound;
+  while(orderSeed<500){orderRound=C.buildRound('easy','nature',orderSeed);if(orderRound[0].type==='order')break;orderSeed++;}
+  const repeated=JSON.parse(E.serialize(E.createSession('easy','nature',orderSeed,orderRound)));
+  repeated.phase='incorrect';repeated.attempts[0]=1;repeated.responses[0]={items:Array(orderRound[0].answer.length).fill(orderRound[0].items[0])};
+  assert.equal(E.restore(JSON.stringify(repeated),C.buildRound),null);
+});
