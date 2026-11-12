@@ -55,3 +55,67 @@ test('seeded random and shuffle are deterministic without mutating input', () =>
   assert.notDeepEqual(E.shuffle(input,E.makeRng(17)),E.shuffle(input,E.makeRng(18)));
   assert.deepEqual(input,['a','b','c','d']);
 });
+
+test('content bank covers eleven worlds three levels and 396 templates', () => {
+  const C=require('../src/content.js');
+  assert.deepEqual(C.worlds.map(world=>world.id),['school','home','autumn','winter','spring','summer','spacetime','energy','health','nature','place']);
+  assert.deepEqual(C.levels.map(level=>level.id),['easy','medium','hard']);
+  assert.equal(C.templateCount(),396);
+  for(const world of C.worlds) for(const level of C.levels) assert.equal(C.templates[world.id][level.id].length,12,`${world.id}/${level.id}`);
+});
+
+function generatedResponse(question,correctAnswer=true){
+  if(['single','cause','observe'].includes(question.type)) return {selected:correctAnswer?question.answer:question.options.find(value=>value!==question.answer)};
+  if(question.type==='match'){
+    const pairs=question.answer.map(pair=>pair.slice());
+    if(!correctAnswer) [pairs[0][1],pairs[1][1]]=[pairs[1][1],pairs[0][1]];
+    return {pairs};
+  }
+  if(question.type==='sort'){
+    const zones=Object.fromEntries(Object.entries(question.answer).map(([name,items])=>[name,items.slice()]));
+    if(!correctAnswer){const names=Object.keys(zones),item=zones[names[0]].shift();zones[names[1]].push(item);}
+    return {zones};
+  }
+  const items=question.answer.slice();
+  if(!correctAnswer){const at=items.findIndex((value,index)=>index<items.length-1&&value!==items[index+1]);assert.notEqual(at,-1);[items[at],items[at+1]]=[items[at+1],items[at]];}
+  return {items};
+}
+
+test('generated rounds are deterministic unique complete and solvable across 100 seeds', () => {
+  const C=require('../src/content.js'),types=new Set(['single','match','sort','order','cause','observe','timeline']);
+  let checked=0;
+  for(const level of C.levels){
+    for(const world of C.worlds){
+      for(let seed=1;seed<=100;seed++){
+        const round=C.buildRound(level.id,world.id,seed);
+        assert.equal(round.length,5);
+        assert.deepEqual(round,C.buildRound(level.id,world.id,seed));
+        assert.equal(new Set(round.map(question=>question.id)).size,5);
+        for(const question of round){
+          assert.equal(question.world,world.id);assert.equal(question.level,level.id);assert.ok(types.has(question.type));
+          assert.ok(question.title&&question.prompt);assert.equal(E.check(question,generatedResponse(question,true)),true,JSON.stringify(question));
+          assert.equal(E.check(question,generatedResponse(question,false)),false,JSON.stringify(question));checked++;
+        }
+      }
+    }
+    for(let seed=1;seed<=100;seed++){
+      const mixed=C.buildRound(level.id,'mix',seed);
+      assert.equal(mixed.length,11);
+      assert.deepEqual(new Set(mixed.map(question=>question.world)),new Set(C.worlds.map(world=>world.id)));
+    }
+  }
+  assert.equal(checked,16500);
+});
+
+test('difficulty variants preserve complete sequences and make hard decisions distinct', () => {
+  const C=require('../src/content.js');
+  for(const level of C.levels){
+    const growth=C.templates.nature[level.id][3](E.makeRng(9));
+    assert.match(growth.answer.join(' '),/nastaje nova biljka/,level.id);
+    assert.equal(growth.answer.length,level.id==='easy'?3:level.id==='medium'?4:5);
+  }
+  const medium=C.templates.school.medium[0](E.makeRng(5)),hard=C.templates.school.hard[0](E.makeRng(5));
+  assert.notEqual(medium.answer,hard.answer);
+  assert.notDeepEqual(medium.options,hard.options);
+  assert.match(hard.prompt,/usporedi|posljedicu|odluke/i);
+});
