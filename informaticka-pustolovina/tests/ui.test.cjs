@@ -127,3 +127,43 @@ test('all 24 world-level selections and three mixed selections start a usable ro
   }
   assert.equal(count,27);
 });
+
+test('sorting assignments can be removed accessibly and malformed drafts never expose resume', () => {
+  const f=fixture(savedAtType('sort')); f.click('[data-action="resume"]');
+  const item=f.d.querySelector('[data-sort-item]'),value=item.dataset.value;
+  f.click(item); f.click('[data-sort-zone]');
+  const remove=f.d.querySelector('[data-remove-sort]');
+  assert.ok(remove); assert.match(remove.getAttribute('aria-label'),/Ukloni/);
+  f.click(remove);
+  assert.ok(f.byValue('[data-sort-item]',value));
+  assert.deepEqual(f.errors,[]); f.dom.window.close();
+
+  const raw=JSON.parse(savedAtType('sort')); raw.responses[0]={zones:{}};
+  const corrupt=fixture(raw);
+  assert.equal(corrupt.d.querySelector('[data-action="resume"]'),null);
+  assert.deepEqual(corrupt.errors,[]); corrupt.dom.window.close();
+});
+
+test('simulations have a distinct visual workspace and answer interactions preserve keyboard focus', () => {
+  const sim=fixture(savedAtType('sim')); sim.click('[data-action="resume"]');
+  assert.ok(sim.d.querySelector('.simulator'));
+  assert.ok(sim.d.querySelector('.sim-screen'));
+  assert.equal(sim.d.querySelector('.choices'),null);
+  sim.dom.window.close();
+
+  const f=fixture(savedAtType('single')); f.click('[data-action="resume"]');
+  const choice=f.d.querySelector('[data-choice]'); f.click(choice);
+  assert.equal(f.d.activeElement.dataset.value,choice.dataset.value);
+  assert.equal(f.d.activeElement.getAttribute('aria-pressed'),'true');
+  f.dom.window.close();
+});
+
+test('starting the same world again avoids every question from the previous round', () => {
+  const f=fixture(undefined,false,1);
+  f.click('[data-level="easy"]'); f.click('[data-world="computer"]');
+  const first=new Set(f.snapshot().questions.map(q=>q.id));
+  f.click('[data-action="worlds"]'); f.click('[data-world="computer"]');
+  const second=f.snapshot().questions.map(q=>q.id);
+  assert.equal(second.some(id=>first.has(id)),false);
+  f.dom.window.close();
+});

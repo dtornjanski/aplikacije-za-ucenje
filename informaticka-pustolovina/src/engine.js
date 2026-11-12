@@ -123,6 +123,7 @@
     if(question.type==='match') return Array.isArray(response.pairs)&&response.pairs.every(pair=>Array.isArray(pair)&&pair.length===2&&question.left.some(v=>text(v)===text(pair[0]))&&question.right.some(v=>text(v)===text(pair[1])));
     if(question.type==='sort'){
       if(!response.zones||typeof response.zones!=='object'||Object.keys(response.zones).some(name=>!question.zones.includes(name))) return false;
+      if(Object.keys(response.zones).length!==question.zones.length||question.zones.some(name=>!Object.prototype.hasOwnProperty.call(response.zones,name))) return false;
       const values=Object.values(response.zones);
       return values.every(Array.isArray)&&sameMembers(values.flat(),question.items);
     }

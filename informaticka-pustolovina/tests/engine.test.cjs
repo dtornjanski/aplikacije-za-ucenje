@@ -157,3 +157,27 @@ test('restore rejects corrupt, impossible and injected saved states', () => {
   ];
   for(const raw of corrupt) assert.equal(E.restore(typeof raw==='string'?raw:JSON.stringify(raw),C.buildRound),null,JSON.stringify(raw));
 });
+
+test('restore rejects sort drafts without every required zone', () => {
+  const C=require('../src/content.js');
+  let seed=1,round;
+  while(seed<500){round=C.buildRound('easy','computer',seed);if(round[0].type==='sort')break;seed++;}
+  assert.equal(round[0].type,'sort');
+  const saved=JSON.parse(E.serialize(E.createSession('easy','computer',seed,round)));
+  saved.responses[0]={zones:{}};
+  assert.equal(E.restore(JSON.stringify(saved),C.buildRound),null);
+});
+
+test('difficulty variants keep complete ordered activities and make hard choices genuinely distinct', () => {
+  const C=require('../src/content.js');
+  for(const level of C.levels){
+    const square=C.templates.algorithm[level.id][9](E.makeRng(1));
+    assert.match(square.answer.join(' '),/nastavi isti uzorak još dva puta/,level.id);
+    assert.equal(square.answer.length,level.id==='easy'?3:level.id==='medium'?4:5);
+  }
+  const medium=C.templates.computer.medium[0](E.makeRng(1));
+  const hard=C.templates.computer.hard[0](E.makeRng(1));
+  assert.notDeepEqual(hard.options,medium.options);
+  assert.notEqual(hard.answer,medium.answer);
+  assert.match(hard.prompt,/usporedi|odluke/i);
+});

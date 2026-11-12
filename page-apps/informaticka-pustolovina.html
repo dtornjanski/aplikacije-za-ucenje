@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#0c6e78">
+  <title>Informatička pustolovina</title>
+  <style>:root{--ink:#12364a;--muted:#4a6270;--teal:#0c6e78;--teal-dark:#07545c;--aqua:#dff7f2;--blue:#e7f3ff;--yellow:#fff1bd;--green:#dff5e6;--orange:#fff0dd;--line:#c9dce1;--shadow:0 12px 34px #12364a14;--radius:24px}*{box-sizing:border-box}html{background:#f7fbfc}body{margin:0;color:var(--ink);background:linear-gradient(180deg,#f9fdfe 0,#f7fbfc 70%,#f1f8fa 100%);font-family:ui-rounded,"Trebuchet MS",Arial,sans-serif;font-size:18px;line-height:1.5;min-height:100vh}button{font:inherit;color:inherit;cursor:pointer}button:disabled{cursor:default}h1,h2,h3,p{margin:0}h1,h2,h3{line-height:1.12;letter-spacing:-.035em}h1{font-size:clamp(34px,5vw,54px)}h2{font-size:30px}h3{font-size:24px}.skip-link{position:fixed;top:-80px;left:12px;background:white;padding:12px 18px;border-radius:10px;z-index:20}.skip-link:focus{top:12px}button:focus-visible,a:focus-visible{outline:4px solid #8a4300;outline-offset:4px}.site-header,footer{width:min(1120px,calc(100% - 48px));margin:auto}.site-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:11px;background:none;border:0;padding:4px;font-size:23px}.brand>span{font-size:37px}.grade,.pill{display:inline-flex;align-items:center;border-radius:40px;background:var(--aqua);color:#064c53;padding:7px 15px;font-size:14px;font-weight:900;white-space:nowrap}main{width:min(1056px,calc(100% - 48px));min-height:calc(100vh - 200px);margin:35px auto 0}main:focus{outline:none}footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text-align:center;color:var(--muted);font-size:14px}.hero{display:grid;grid-template-columns:1.4fr 1fr;align-items:center;gap:35px;min-height:300px}.eyebrow{text-transform:uppercase;letter-spacing:.1em;color:var(--teal-dark);font-weight:900;font-size:13px;margin-bottom:12px}.hero h1 span{color:var(--teal)}.hero p:not(.eyebrow){font-size:21px;color:var(--muted);margin-top:24px;max-width:640px}.hero-art{height:290px;display:grid;place-items:center;position:relative}.hero-art:before{content:"";position:absolute;width:270px;height:235px;border-radius:48% 52% 44% 56%;background:var(--blue);transform:rotate(-8deg)}.bitko{width:180px;height:180px;position:relative;z-index:1;filter:drop-shadow(0 10px 18px #12364a22)}.hero-bitko{width:245px;height:245px;animation:float 5s ease-in-out infinite}.spark{position:absolute;font-size:34px;color:#f2b544}.spark.one{right:28px;top:25px}.spark.two{left:20px;bottom:35px;color:var(--teal)}.section-title{text-align:center;margin:20px 0 18px}.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.level-card{position:relative;overflow:hidden;border:1px solid transparent;border-radius:var(--radius);padding:25px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:flex-start}.level-card.l1{background:var(--green)}.level-card.l2{background:var(--yellow)}.level-card.l3{background:#e8e6ff}.level-index{position:absolute;right:20px;top:20px;font-size:13px;font-weight:900;color:#52636c}.level-icon{font-size:50px;line-height:1;margin-bottom:12px}.level-card p{color:#385361;margin:10px 0 22px;min-height:52px;font-size:16px}.level-card .button{width:100%;margin-top:auto}.button{min-height:52px;border:0;border-radius:14px;padding:12px 22px;background:var(--teal);color:white;font-weight:900;display:inline-flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}.button:hover:not(:disabled){background:var(--teal-dark);transform:translateY(-2px)}.button:disabled{background:#d7e2e4;color:#687d86}.button.secondary{background:white;color:var(--teal-dark);border:2px solid #8fc4c9}.text-button{border:0;background:transparent;min-height:44px;padding:7px 0;color:var(--teal-dark);font-weight:900}.text-button:hover{text-decoration:underline;text-underline-offset:4px}.resume{margin-top:24px;border:2px solid #b9dce0;background:white;border-radius:18px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}.resume p{color:var(--muted);font-size:15px;margin-top:4px}.topline{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:25px}.section-heading{text-align:center;margin-bottom:28px}.section-heading p:not(.eyebrow){color:var(--muted);margin-top:11px}.world-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.world-card{min-height:112px;border:2px solid #d6e5e8;background:white;border-radius:20px;padding:19px;text-align:left;display:grid;grid-template-columns:54px 1fr 24px;align-items:center;gap:16px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}.world-card:hover{transform:translateY(-2px);border-color:var(--teal)}.world-card.mixed{grid-column:1/-1;background:var(--yellow)}.world-icon{width:54px;height:54px;border-radius:16px;background:var(--blue);display:grid;place-items:center;font-size:30px}.world-card strong{display:block;font-size:20px;line-height:1.2}.world-card small{display:block;color:var(--muted);font-size:14px;margin-top:5px;line-height:1.35}.world-card b{font-size:24px;color:var(--teal)}.exercise{max-width:900px;margin:auto}.progress-row{display:flex;align-items:center;gap:18px;margin-bottom:22px}.progress{display:flex;gap:5px;flex:1;height:8px}.progress span{flex:1;background:#dce8ea;border-radius:20px}.progress span.done{background:var(--teal)}.progress span.current{background:#f2b544}.progress-text{font-size:13px;color:var(--muted);font-weight:900;white-space:nowrap}.question-card{background:white;border:1px solid var(--line);border-radius:28px;padding:34px;box-shadow:var(--shadow)}.question-head{display:flex;align-items:center;gap:15px;margin-bottom:22px}.question-icon{width:56px;height:56px;border-radius:17px;background:var(--blue);display:grid;place-items:center;font-size:31px;flex-shrink:0}.question-head h1{font-size:32px;overflow-wrap:anywhere}.question-head .eyebrow{margin-bottom:5px}.prompt{font-size:21px;font-weight:900;margin-bottom:22px;overflow-wrap:anywhere}.instruction{font-size:15px;color:var(--muted);margin-bottom:13px}.choices{display:grid;gap:11px}.choice,.tile{min-height:58px;border:2px solid #d9e5e8;background:white;border-radius:14px;padding:13px 17px;text-align:left;font-weight:800;overflow-wrap:anywhere}.choice{display:flex;align-items:center;gap:12px;width:100%}.radio{width:22px;height:22px;border:2px solid #7c929a;border-radius:50%;flex:0 0 auto}.choice.selected,.tile.selected{border-color:var(--teal);background:var(--aqua)}.choice.selected .radio{border-color:var(--teal);background:var(--teal);box-shadow:inset 0 0 0 4px white}.actions{display:flex;justify-content:flex-end;gap:13px;margin-top:26px}.actions.centered{justify-content:center}.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.match-grid>div{display:grid;gap:10px;align-content:start}.pair-list{display:grid;gap:8px;margin-top:17px}.pair-list button{min-height:44px;border:0;background:var(--aqua);border-radius:12px;padding:9px 12px;display:grid;grid-template-columns:1fr 26px 1fr 20px;align-items:center;text-align:left}.pair-list i,.order-answer i{font-style:normal;font-size:20px}.item-tray{display:flex;flex-wrap:wrap;gap:9px;padding:15px;border:2px dashed #b9d4d8;border-radius:16px;background:#f9fcfd;min-height:82px}.item-tray .tile{flex:1 1 160px}.empty-note{color:var(--muted);font-size:15px;align-self:center}.zone-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-top:14px}.zone{min-height:135px;border:2px solid #bcd9dd;background:#f7fcfc;border-radius:16px;padding:10px}.zone-target{width:100%;min-height:56px;border:0;background:transparent;text-align:left;padding:4px}.zone-target strong{display:block;text-transform:capitalize;color:var(--teal-dark)}.zone-target small{display:block;color:var(--muted);margin-top:2px}.zone-items{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.zone-items button{min-height:44px;border:1px solid #c9dde0;background:white;border-radius:22px;padding:7px 10px;display:flex;align-items:center;gap:7px;text-align:left}.zone-items i{font-style:normal;font-size:18px;color:var(--teal-dark)}.simulator{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:stretch}.sim-screen{min-height:190px;border:3px solid #12364a;border-radius:20px;background:linear-gradient(160deg,var(--blue),var(--aqua));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px}.sim-screen>span{font-size:58px;line-height:1}.sim-screen>strong{font-size:19px;margin-top:10px}.sim-screen>small{color:var(--muted);margin-top:4px}.sim-controls{display:grid;gap:9px}.order-answer{display:grid;gap:8px;border:2px dashed #b9d4d8;border-radius:16px;padding:14px;margin-bottom:13px;min-height:80px}.order-answer>p{color:var(--muted);font-size:15px}.order-answer button{min-height:48px;border:0;background:var(--blue);border-radius:12px;padding:8px 12px;display:grid;grid-template-columns:28px 1fr 20px;align-items:center;text-align:left;gap:9px}.order-answer b{width:26px;height:26px;border-radius:50%;background:var(--teal);color:white;display:grid;place-items:center}.feedback{min-height:210px;border-radius:22px;padding:28px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}.feedback.correct{background:var(--green)}.feedback.incorrect{background:var(--orange)}.feedback>span{font-size:42px;font-weight:900}.feedback h1{font-size:36px}.feedback p:not(.eyebrow){margin-top:9px;color:#385361}.feedback-bitko{width:125px;height:125px;margin-left:auto;flex:0 0 auto}.results{max-width:780px;margin:auto;text-align:center}.results-hero{display:flex;align-items:center;justify-content:center;gap:24px;margin:10px 0 24px}.results-bitko{width:170px;height:170px}.results-hero>div{text-align:left}.results-hero p:not(.eyebrow){color:var(--muted);margin-top:10px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:18px}.stat{background:var(--green);border-radius:21px;padding:24px}.stat.warm{background:var(--yellow)}.stat strong{display:block;font-size:48px;line-height:1}.stat span{display:block;margin-top:8px;font-weight:800}.encouragement{background:var(--blue);border-radius:15px;padding:17px;margin:20px 0;font-weight:800}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@keyframes float{50%{transform:translateY(-8px) rotate(1deg)}}@media(max-width:800px){.hero{grid-template-columns:1.45fr .8fr}.hero-bitko{width:190px;height:190px}.level-card{padding:20px}.world-grid{grid-template-columns:1fr}.world-card.mixed{grid-column:auto}}@media(max-width:600px){body{font-size:17px}.site-header,footer{width:calc(100% - 32px)}main{width:calc(100% - 32px);margin-top:23px}.brand{font-size:18px}.brand>span{font-size:29px}.grade{font-size:11px;padding:5px 9px}.hero{grid-template-columns:1fr;min-height:0;gap:10px}.hero h1{font-size:38px}.hero p:not(.eyebrow){font-size:18px}.hero-art{height:145px;justify-self:end}.hero-art:before{width:145px;height:130px}.hero-bitko{width:145px;height:145px}.spark{font-size:19px}.level-grid{grid-template-columns:1fr;gap:12px}.level-card{display:grid;grid-template-columns:54px 1fr;column-gap:14px}.level-icon{grid-row:1/3;font-size:41px}.level-card p{min-height:0;margin:5px 0}.level-card .button{grid-column:1/-1;margin-top:14px}.section-title{font-size:25px}.resume{flex-direction:column;align-items:stretch}.world-card{grid-template-columns:46px 1fr 18px;min-height:98px;padding:15px}.world-icon{width:46px;height:46px;font-size:25px}.question-card{padding:21px 16px;border-radius:22px}.question-head{align-items:flex-start}.question-icon{width:43px;height:43px;font-size:24px}.question-head h1{font-size:27px}.prompt{font-size:19px}.match-grid,.zone-grid,.simulator{grid-template-columns:1fr}.sim-screen{min-height:130px}.sim-screen>span{font-size:44px}.actions .button{width:100%}.feedback{padding:22px 18px;min-height:190px}.feedback h1{font-size:30px}.feedback-bitko{position:absolute;right:10px;bottom:5px;opacity:.18}.results-hero{flex-direction:column}.results-hero>div{text-align:center}.results-bitko{width:135px;height:135px}.stat strong{font-size:40px}.topline{margin-bottom:18px}.progress-row{gap:10px}.progress-text{font-size:11px}}
+@media(max-width:420px){.site-header{gap:8px}.brand strong{max-width:170px;line-height:1.1}.hero h1{font-size:34px}.world-card strong{font-size:18px}.question-card{padding:18px 13px}.choice,.tile{padding:12px}.pair-list button{grid-template-columns:1fr 20px 1fr 18px;font-size:14px}.stats{gap:10px}.stat{padding:18px 8px}.stat span{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#app">Preskoči na sadržaj</a>
+  <header class="site-header">
+    <button class="brand" type="button" data-action="home" aria-label="Informatička pustolovina – početna"><span aria-hidden="true">🤖</span><strong>Informatička pustolovina</strong></button>
+    <span class="grade">2. razred</span>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <div id="announcer" class="sr-only" aria-live="polite"></div>
+  <footer>Uči, isprobaj i pokušaj ponovno svojim tempom.</footer>
+  <script>(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports) module.exports=api;
+  else root.InfoEngine=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+
+  const VERSION=1;
+  const text=value=>String(value??'').trim().replace(/\s+/g,' ').toLocaleLowerCase('hr');
+  const clone=value=>JSON.parse(JSON.stringify(value));
+
+  function makeRng(seed){
+    let state=(Number(seed)>>>0)||0x6d2b79f5;
+    return function(){
+      state+=0x6d2b79f5;
+      let t=state;
+      t=Math.imul(t^(t>>>15),t|1);
+      t^=t+Math.imul(t^(t>>>7),t|61);
+      return ((t^(t>>>14))>>>0)/4294967296;
+    };
+  }
+
+  function shuffle(values,rng=Math.random){
+    const copy=values.slice();
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(rng()*(i+1));
+      [copy[i],copy[j]]=[copy[j],copy[i]];
+    }
+    return copy;
+  }
+
+  function pairKey(pair){return `${text(pair?.[0])}\u0000${text(pair?.[1])}`;}
+  function normalizedZones(zones,names){
+    if(!zones||typeof zones!=='object') return null;
+    const out={};
+    for(const name of names){
+      if(!Array.isArray(zones[name])) return null;
+      out[text(name)]=zones[name].map(text).sort();
+    }
+    return out;
+  }
+
+  function complete(question,response){
+    if(!question||!response||typeof response!=='object') return false;
+    if(['single','debug','sim'].includes(question.type)) return Boolean(text(response.selected));
+    if(question.type==='match') return Array.isArray(response.pairs)&&response.pairs.length===question.answer.length&&response.pairs.every(p=>Array.isArray(p)&&p.length===2&&text(p[0])&&text(p[1]));
+    if(question.type==='sort'){
+      if(!response.zones||typeof response.zones!=='object') return false;
+      return Object.keys(question.answer).every(name=>Array.isArray(response.zones[name]))&&Object.values(response.zones).flat().length===Object.values(question.answer).flat().length;
+    }
+    if(question.type==='order') return Array.isArray(response.items)&&response.items.length===question.answer.length&&response.items.every(v=>text(v));
+    return false;
+  }
+
+  function check(question,response){
+    if(!complete(question,response)) return false;
+    if(['single','debug','sim'].includes(question.type)) return text(response.selected)===text(question.answer);
+    if(question.type==='match'){
+      const expected=question.answer.map(pairKey).sort();
+      const actual=response.pairs.map(pairKey).sort();
+      return new Set(actual).size===actual.length&&JSON.stringify(actual)===JSON.stringify(expected);
+    }
+    if(question.type==='sort'){
+      const names=Object.keys(question.answer);
+      const expected=normalizedZones(question.answer,names);
+      const actual=normalizedZones(response.zones,names);
+      if(!actual) return false;
+      const values=Object.values(actual).flat();
+      return new Set(values).size===values.length&&JSON.stringify(actual)===JSON.stringify(expected);
+    }
+    if(question.type==='order') return question.answer.every((value,index)=>text(value)===text(response.items[index]));
+    return false;
+  }
+
+  function createSession(level,world,seed,questions){
+    if(!Array.isArray(questions)||questions.length===0) throw new Error('Runda mora sadržavati zadatke.');
+    return {version:VERSION,level,world,seed:Number(seed)>>>0,questions:clone(questions),index:0,phase:'answer',attempts:questions.map(()=>0),solved:questions.map(()=>false),responses:questions.map(()=>null)};
+  }
+
+  function submit(session,response){
+    const index=session.index;
+    if(session.solved[index]) return 'locked';
+    const question=session.questions[index];
+    if(!complete(question,response)) return 'empty';
+    session.attempts[index]+=1;
+    session.responses[index]=clone(response);
+    if(!check(question,response)){session.phase='incorrect';return 'incorrect';}
+    session.solved[index]=true;
+    session.phase='correct';
+    return 'correct';
+  }
+
+  function advance(session){
+    if(!session.solved[session.index]) return false;
+    if(session.index>=session.questions.length-1){session.phase='complete';return true;}
+    session.index+=1;
+    session.phase='answer';
+    return true;
+  }
+
+  function summarize(session){
+    const solved=session.solved.filter(Boolean).length;
+    let firstTry=0,retried=0;
+    session.solved.forEach((done,index)=>{if(done){if(session.attempts[index]===1) firstTry+=1;else retried+=1;}});
+    return {solved,total:session.questions.length,firstTry,retried};
+  }
+
+  function serialize(session){
+    return JSON.stringify({version:VERSION,level:session.level,world:session.world,seed:session.seed,index:session.index,phase:session.phase,attempts:session.attempts,solved:session.solved,responses:session.responses});
+  }
+
+  function sameMembers(values,allowed){
+    const counts=list=>list.reduce((map,value)=>map.set(text(value),(map.get(text(value))||0)+1),new Map());
+    const actual=counts(values),expected=counts(allowed);
+    for(const [value,count] of actual) if(!expected.has(value)||count>expected.get(value)) return false;
+    return true;
+  }
+
+  function responseAllowed(question,response){
+    if(response===null) return true;
+    if(!response||typeof response!=='object') return false;
+    if(['single','debug','sim'].includes(question.type)) return question.options.some(option=>text(option)===text(response.selected));
+    if(question.type==='match') return Array.isArray(response.pairs)&&response.pairs.every(pair=>Array.isArray(pair)&&pair.length===2&&question.left.some(v=>text(v)===text(pair[0]))&&question.right.some(v=>text(v)===text(pair[1])));
+    if(question.type==='sort'){
+      if(!response.zones||typeof response.zones!=='object'||Object.keys(response.zones).some(name=>!question.zones.includes(name))) return false;
+      if(Object.keys(response.zones).length!==question.zones.length||question.zones.some(name=>!Object.prototype.hasOwnProperty.call(response.zones,name))) return false;
+      const values=Object.values(response.zones);
+      return values.every(Array.isArray)&&sameMembers(values.flat(),question.items);
+    }
+    if(question.type==='order') return Array.isArray(response.items)&&sameMembers(response.items,question.items);
+    return false;
+  }
+
+  function restore(raw,buildRound){
+    try{
+      const saved=typeof raw==='string'?JSON.parse(raw):raw;
+      if(!saved||saved.version!==VERSION||typeof buildRound!=='function') return null;
+      if(!Number.isInteger(saved.seed)||saved.seed<0||!Number.isInteger(saved.index)) return null;
+      const questions=buildRound(saved.level,saved.world,saved.seed);
+      const total=questions.length;
+      if(saved.index<0||saved.index>=total||!['answer','incorrect','correct','complete'].includes(saved.phase)) return null;
+      if(!Array.isArray(saved.attempts)||!Array.isArray(saved.solved)||!Array.isArray(saved.responses)||saved.attempts.length!==total||saved.solved.length!==total||saved.responses.length!==total) return null;
+      if(saved.attempts.some(v=>!Number.isInteger(v)||v<0)||saved.solved.some(v=>typeof v!=='boolean')) return null;
+      for(let i=0;i<total;i++){
+        if(!responseAllowed(questions[i],saved.responses[i])) return null;
+        if(i<saved.index){if(!saved.solved[i]||saved.attempts[i]<1||!check(questions[i],saved.responses[i])) return null;}
+        if(i>saved.index){if(saved.solved[i]||saved.attempts[i]!==0||saved.responses[i]!==null) return null;}
+      }
+      const current=saved.index;
+      if(saved.phase==='incorrect'&&(saved.solved[current]||saved.attempts[current]<1||!complete(questions[current],saved.responses[current])||check(questions[current],saved.responses[current]))) return null;
+      if(saved.phase==='correct'&&(!saved.solved[current]||saved.attempts[current]<1||!check(questions[current],saved.responses[current]))) return null;
+      if(saved.phase==='answer'&&saved.solved[current]) return null;
+      if(saved.phase==='complete'&&(current!==total-1||saved.solved.some(v=>!v)||!check(questions[current],saved.responses[current]))) return null;
+      const session=createSession(saved.level,saved.world,saved.seed,questions);
+      session.index=current; session.phase=saved.phase; session.attempts=saved.attempts.slice(); session.solved=saved.solved.slice(); session.responses=clone(saved.responses);
+      return session;
+    }catch(error){return null;}
+  }
+
+  return {VERSION,makeRng,shuffle,complete,check,createSession,submit,advance,summarize,serialize,restore};
+});
+</script>
+  <script>(function(root,factory){
+  const engine=typeof module==='object'&&module.exports?require('./engine.js'):root.InfoEngine;
+  const api=factory(engine);
+  if(typeof module==='object'&&module.exports) module.exports=api;
+  else root.InfoContent=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(E){
+  'use strict';
+
+  const levels=[
+    {id:'easy',name:'Lagani zadaci',desc:'Prepoznaj jednu važnu stvar.',icon:'🌱'},
+    {id:'medium',name:'Teži zadaci',desc:'Poveži nekoliko informacija.',icon:'🧩'},
+    {id:'hard',name:'Teški zadaci',desc:'Pronađi najbolji postupak.',icon:'🚀'}
+  ];
+  const worlds=[
+    {id:'computer',name:'Moje računalo',desc:'Dijelovi, uređaji i zdrave navike',icon:'🖥️'},
+    {id:'programs',name:'Programi i dokumenti',desc:'Programi, mape, datoteke i spremanje',icon:'📁'},
+    {id:'internet',name:'Internet i pretraživanje',desc:'Preglednik, tražilica i obrazovni sadržaji',icon:'🌐'},
+    {id:'safety',name:'Sigurna mreža',desc:'Osobni podatci i traženje pomoći',icon:'🛡️'},
+    {id:'traces',name:'Digitalni tragovi',desc:'Objave, dopuštenje i digitalni ugled',icon:'👣'},
+    {id:'algorithm',name:'Mislim kao programer',desc:'Koraci, pogreške i ponavljanje',icon:'🧠'},
+    {id:'scratch',name:'Scratch radionica',desc:'Lik, pozornica i blokovi naredbi',icon:'🐱'},
+    {id:'create',name:'Stvaram i surađujem',desc:'Digitalni radovi, e-usluge i zanimanja',icon:'🎨'}
+  ];
+
+  const S=(title,prompt,correct,wrong)=>({type:'single',title,prompt,correct,wrong});
+  const M=(title,prompt,pairs)=>({type:'match',title,prompt,pairs});
+  const Z=(title,prompt,zones)=>({type:'sort',title,prompt,zones});
+  const O=(title,prompt,steps)=>({type:'order',title,prompt,steps});
+  const D=(title,prompt,correct,wrong)=>({type:'debug',title,prompt,correct,wrong});
+  const X=(title,prompt,correct,wrong)=>({type:'sim',title,prompt,correct,wrong});
+
+  const banks={
+    computer:[
+      S('Pišem na računalu','Koji uređaj najčešće koristimo za unos slova?','tipkovnica',['zaslon','zvučnici','pisač']),
+      M('Uređaj i njegova zadaća','Spoji svaki uređaj s onime što radi.',[['miš','odabire'],['zaslon','prikazuje'],['mikrofon','snima zvuk'],['pisač','ispisuje'],['zvučnici','reproduciraju zvuk']]),
+      Z('Ulaz ili izlaz','Razvrstaj uređaje prema smjeru podataka.',{ulaz:['tipkovnica','miš','mikrofon','kamera'],izlaz:['zaslon','pisač','zvučnici','projektor']}),
+      O('Priprema za rad','Složi zdrave korake prije rada na računalu.',['namjesti stolicu','sjedni uspravno','odmakni se od zaslona','pripremi kratku pauzu','započni rad']),
+      D('Pazi na opremu','Koji je korak pogrešan?','prskam sredstvo izravno po tipkovnici',['ugasim uređaj prije čišćenja','zamolim odraslu osobu za pomoć','koristim mekanu suhu krpu']),
+      X('Želim čuti priču','Koji uređaj treba odabrati?','zvučnici',['mikrofon','tipkovnica','kamera']),
+      S('Snimamo glas','Koji uređaj prima naš glas?','mikrofon',['pisač','zaslon','zvučnici']),
+      M('Pronađi par','Poveži dio računala i radnju.',[['kamera','snima sliku'],['tipkovnica','unosi tekst'],['projektor','prikazuje velikoj skupini'],['miš','pomiče pokazivač'],['pisač','stvara ispis na papiru']]),
+      Z('Primamo ili šaljemo','Razvrstaj prema tome prima li računalo podatke ili ih prikazuje.',{prima:['miš','kamera','tipkovnica','mikrofon'],prikazuje:['zaslon','projektor','zvučnici','pisač']}),
+      O('Završavam rad','Složi siguran završetak rada.',['spremi dokument','zatvori program','odaberi isključivanje','pričekaj da se računalo ugasi','pospremi radno mjesto']),
+      D('Vrijeme je za pauzu','Koja navika nije dobra?','ostajem za zaslonom bez prekida',['trepćem i odmaram oči','protegnem ruke i leđa','nakon rada se krećem']),
+      X('Želim ispis','Koji uređaj šalje rad na papir?','pisač',['zaslon','mikrofon','miš'])
+    ],
+    programs:[
+      S('Što radi program?','Zašto na računalu koristimo programe?','pomažu nam obaviti različite zadatke',['služe samo za ukras','zamjenjuju sve uređaje','rade bez naših naredbi']),
+      M('Program za zadatak','Spoji zadatak s prikladnom vrstom programa.',[['pisanje priče','program za tekst'],['crtanje slike','program za crtanje'],['računanje','kalkulator'],['gledanje mrežnih stranica','preglednik'],['slušanje snimke','program za zvuk']]),
+      Z('Mapa ili datoteka','Razvrstaj primjere.',{mapa:['Moji radovi','Fotografije','Škola','Glazba'],datoteka:['priča.txt','crtež.png','zadatak.pdf','pjesma.mp3']}),
+      O('Spremam priču','Složi korake spremanja dokumenta.',['odaberi Spremi','odaberi mapu','upiši naziv datoteke','potvrdi spremanje','provjeri nalazi li se datoteka u mapi']),
+      D('Naziv datoteke','Koji je korak loš?','ostavim naziv Nova datoteka za sve radove',['upišem kratak jasan naziv','odaberem odgovarajuću mapu','provjerim naziv prije spremanja']),
+      X('Spremam crtež','U koju ga mapu ima najviše smisla spremiti?','Moji crteži',['Glazba','Videozapisi','Preuzimanja bez reda']),
+      S('Uređujem rečenice','Koju vrstu programa biram?','program za tekst',['kalkulator','program za zvuk','mrežna kamera']),
+      M('Dokument i sadržaj','Spoji datoteku s onime što najvjerojatnije sadrži.',[['priča','tekst'],['portret','sliku'],['pjesma','zvuk'],['pokus','video'],['tablica bodova','brojeve']]),
+      Z('Program ili dokument','Razvrstaj pojmove.',{program:['preglednik','kalkulator','program za crtanje','program za tekst'],dokument:['priča','fotografija','tablica','snimka']}),
+      O('Otvaram spremljeni rad','Složi korake.',['otvori mapu','pronađi naziv datoteke','odaberi datoteku','otvori datoteku','provjeri je li to pravi rad']),
+      D('Tražim svoj rad','Što otežava pronalazak?','sve datoteke spremam bez naziva u istu mapu',['koristim jasne nazive','odvajam radove u mape','povremeno pospremim datoteke']),
+      X('Crtam plakat','Koju vrstu programa biram?','program za crtanje',['kalkulator','program za zvuk','upravitelj datoteka'])
+    ],
+    internet:[
+      S('Prozor prema mreži','Čime otvaramo mrežne stranice?','mrežnim preglednikom',['kalkulatorom','pisačem','mapom']),
+      M('Naredbe preglednika','Spoji naredbu i učinak.',[['Natrag','prethodna stranica'],['Naprijed','sljedeća već posjećena stranica'],['Osvježi','ponovno učita stranicu'],['Početna','otvara početnu stranicu'],['Nova kartica','otvara dodatnu stranicu']]),
+      Z('Preglednik ili tražilica','Razvrstaj pojmove prema njihovoj ulozi.',{preglednik:['otvara mrežne stranice','prikazuje kartice','ima gumb Natrag','pamti posjećene stranice'],tražilica:['pronalazi sadržaje po riječima','prikazuje rezultate pretraživanja','koristi ključne riječi','pomaže pronaći mrežnu stranicu']}),
+      O('Tražim podatak','Složi korake odgovornog pretraživanja.',['otvori preglednik','otvori tražilicu','upiši jasne ključne riječi','odaberi primjeren rezultat','provjeri podatak s odraslom osobom ili drugim izvorom']),
+      D('Ključne riječi','Koji je način pretraživanja najslabiji?','upišem samo riječ stvar',['upišem što točno tražim','koristim dvije ili tri važne riječi','pregledam više primjerenih rezultata']),
+      X('Vraćam se','Koju naredbu preglednika odabirem za prethodnu stranicu?','Natrag',['Osvježi','Nova kartica','Ispis']),
+      S('Što je poveznica?','Što se dogodi kada odaberemo poveznicu?','otvara drugi sadržaj ili mjesto',['gasi računalo','briše tipkovnicu','sprema sve datoteke']),
+      M('Mrežna usluga i namjena','Spoji primjer i namjenu.',[['mrežna učionica','učenje'],['videopoziv','razgovor na daljinu'],['mrežna karta','pronalaženje puta'],['prognoza vremena','provjera vremena'],['digitalna knjižnica','čitanje sadržaja']]),
+      Z('Može ili ne može internet','Razvrstaj radnje.',{može:['pronaći obrazovni video','otvoriti mrežnu kartu','razgovarati na daljinu','čitati digitalnu knjigu'],ne_može:['sam provjeriti je li sve istina','zamijeniti odmor','popraviti pokvaren zaslon','čuvati tajnu lozinku umjesto nas']}),
+      O('Otvaram obrazovni portal','Složi korake.',['otvori preglednik','upiši poznatu adresu ili naziv portala','provjeri naziv stranice','odaberi školski sadržaj','zatvori stranicu nakon rada']),
+      D('Provjeravam izvor','Koja je pogreška?','vjerujem prvom rezultatu bez čitanja',['provjerim tko je objavio sadržaj','usporedim dva izvora','pitam učitelja ili odraslu osobu']),
+      X('Stranica se nije obnovila','Koju naredbu pokušavam?','Osvježi',['Natrag','Ispis','Povećaj glasnoću'])
+    ],
+    safety:[
+      S('Neobična poruka','Što učiniti kada nepoznata osoba traži tvoju fotografiju?','ne odgovoriti i pokazati odrasloj osobi',['poslati fotografiju','nastaviti razgovor u tajnosti','dati adresu škole']),
+      M('Situacija i reakcija','Spoji situaciju s najboljom reakcijom.',[['nepoznata poveznica','ne otvaram i pitam odraslu osobu'],['ružna poruka','spremim dokaz i tražim pomoć'],['traži se lozinka','ne dijelim je'],['čudan sadržaj','zatvorim i kažem odrasloj osobi'],['poznata učiteljica šalje zadatak','provjerim u sigurnoj učionici']]),
+      Z('Sigurno ili nesigurno','Razvrstaj ponašanja.',{sigurno:['pitam odraslu osobu','koristim nadimak po dogovoru','zaključam uređaj','odjavim se nakon rada'],nesigurno:['dijelim lozinku','otvaram nepoznat privitak','objavim kućnu adresu','tajim ružnu poruku']}),
+      O('Sumnjiva poruka','Složi korake.',['ne odgovaraj','ne otvaraj poveznicu','pokaži poruku odrasloj osobi','blokiraj po dogovoru','sačuvaj dokaz ako odrasla osoba kaže']),
+      D('Čuvam lozinku','Koji je postupak pogrešan?','pošaljem lozinku prijatelju',['koristim lozinku koju nije lako pogoditi','odjavim se na tuđem uređaju','zamolim odraslu osobu za pomoć']),
+      X('Iskočio je čudan prozor','Što odabrati?','zatvori i reci odrasloj osobi',['upiši svoje ime','pritisni svaku tipku','pošalji prijatelju']),
+      S('Dobra lozinka','Koja je lozinka sigurnija?','riječi i znakovi koje drugi ne mogu lako pogoditi',['moje ime','1234','datum rođenja']),
+      M('Podatak i zaštita','Spoji podatak s pravilnim postupkom.',[['lozinka','čuvam za sebe'],['fotografija prijatelja','tražim dopuštenje'],['adresa doma','ne objavljujem'],['školski rad','dijelim samo na dogovorenome mjestu'],['nadimak','dogovorim s odraslom osobom']]),
+      Z('Osobno ili javno','Razvrstaj podatke.',{osobno:['puno ime','kućna adresa','lozinka','broj telefona'],javno:['omiljena boja','najdraže godišnje doba','omiljena životinja','hobi bez mjesta i rasporeda']}),
+      O('Netko je ružan na mreži','Složi korake.',['ne uzvraćaj ružno','sačuvaj poruku','reci odrasloj osobi','blokiraj po dogovoru','nastavi koristiti samo sigurno mjesto']),
+      D('Novi mrežni prijatelj','Koji je korak pogrešan?','dogovorim susret bez znanja odraslih',['ne otkrivam osobne podatke','razgovor pokažem odrasloj osobi','ne vjerujem svemu što osoba kaže']),
+      X('Aplikacija traži kameru','Što učiniti prije dopuštenja?','pitati odraslu osobu',['odmah dopustiti','upisati adresu','ugasiti zaštitu uređaja'])
+    ],
+    traces:[
+      S('Trag nakon objave','Što je digitalni trag?','podatak koji ostaje nakon aktivnosti na mreži',['otisak cipele na podu','tipka na tipkovnici','boja zaslona']),
+      M('Radnja i trag','Spoji aktivnost s tragom koji može ostati.',[['objavim komentar','tekst uz moje ime ili nadimak'],['pošaljem fotografiju','kopija fotografije'],['označim sviđa mi se','zapis odabira'],['pretražujem','povijest pretraživanja'],['otvorim račun','podatci računa']]),
+      Z('Dobar ili loš trag','Razvrstaj primjere.',{dobar:['ljubazan komentar','pohvala tuđem radu','vlastiti kreativni rad','zahvala za pomoć'],loš:['vrijeđanje','objava tuđe slike bez pitanja','širenje glasine','otkrivanje tuđe tajne']}),
+      O('Prije objave fotografije','Složi korake.',['zaustavi se i pogledaj fotografiju','provjeri ima li osobnih podataka','pitaj osobe na fotografiji','pitaj odraslu osobu','objavi samo na dogovorenom sigurnom mjestu']),
+      D('Objava prijateljeve slike','Koja je pogreška?','objavim bez pitanja jer mi je slika smiješna',['pitam prijatelja','pitam odraslu osobu','provjerim vidi li se osobni podatak']),
+      X('Komentar ostaje zapisan','Koji komentar je najbolji izbor?','Sviđa mi se kako si nacrtala pozadinu.',['Ovo je glupo.','Reći ću svima tvoju tajnu.','Pošalji mi svoju lozinku.']),
+      S('Digitalni ugled','Od čega nastaje digitalni ugled?','od tragova našeg ponašanja na mreži',['od veličine zaslona','od brzine tipkanja','od boje uređaja']),
+      M('Promisli prije objave','Spoji pitanje s razlogom.',[['Je li istinito?','ne širimo netočne podatke'],['Je li ljubazno?','poštujemo druge'],['Je li osobno?','štitimo privatnost'],['Imam li dopuštenje?','poštujemo tuđi izbor'],['Treba li ostati tajno?','čuvamo povjerenje']]),
+      Z('Ostavlja trag ili ne','Razvrstaj aktivnosti.',{ostavlja:['objava fotografije','komentar','otvaranje računa','slanje poruke'],ne_ostavlja_na_mreži:['crtanje na papiru bez fotografiranja','razgovor licem u lice','slaganje kockica','čitanje tiskane knjige']}),
+      O('Ispravljam loš trag','Složi korake.',['zaustavi daljnje dijeljenje','reci odrasloj osobi','ukloni objavu ako možeš','ispričaj se osobi','ubuduće provjeri prije objave']),
+      D('Brisanje nije čarolija','Koja tvrdnja je pogrešna?','kad izbrišem objavu, sigurno više nigdje ne postoji',['netko je mogao spremiti kopiju','objava je mogla biti proslijeđena','treba promisliti prije objave']),
+      X('Želim podijeliti školski rad','Gdje je najprimjerenije?','u dogovorenoj mrežnoj učionici',['na nepoznatoj javnoj stranici','u poruci nepoznatoj osobi','na računu bez zaštite'])
+    ],
+    algorithm:[
+      S('Korak po korak','Što je niz uputa?','uređen redoslijed koraka za zadatak',['popis bez reda','slučajan crtež','samo posljednji korak']),
+      M('Zadatak i prvi korak','Spoji zadatak s dobrim početkom.',[['operi ruke','otvori vodu'],['nacrtaj kuću','pripremi papir i olovku'],['spremi knjige','otvori torbu'],['napravi sendvič','pripremi sastojke'],['pokreni program','uključi uređaj i prijavi se po dogovoru']]),
+      Z('Uputa ili cilj','Razvrstaj rečenice.',{uputa:['otvori mapu','odaberi datoteku','upiši riječ','ponovi tri puta'],cilj:['napisana priča','spremljen crtež','složena torba','gotov uzorak']}),
+      O('Perem ruke','Složi korake.',['otvori vodu','smoči ruke','uzmi sapun','isperi ruke','obriši ruke']),
+      D('Sendvič nije gotov','Koji je korak na pogrešnome mjestu?','pojedem sendvič prije nego dodam nadjev',['pripremim kruh','dodam nadjev','zatvorim sendvič']),
+      X('Lik ide do zvijezde','Koju naredbu odabrati ako je zvijezda desno?','pomakni se desno',['pomakni se lijevo','čekaj','vrati se na početak']),
+      S('Ponavljanje','Zašto koristimo ponavljanje u uputama?','da kraće zapišemo radnju koja se ponavlja',['da izbrišemo cilj','da preskočimo sve korake','da promijenimo uređaj']),
+      M('Uputa i broj ponavljanja','Spoji cilj s ponavljanjem.',[['tri pljeska','pljesni 3 puta'],['četiri koraka','idi naprijed 4 puta'],['dva kvadrata','nacrtaj kvadrat 2 puta'],['pet slova A','upiši A 5 puta'],['tri skoka','skoči 3 puta']]),
+      Z('Jednom ili ponovi','Razvrstaj upute.',{jednom:['otvori vrata','spremi dokument','uključi svjetlo','zatvori program'],ponovi:['nacrtaj 4 zvijezde','napravi 3 koraka','pljesni 5 puta','upiši riječ 2 puta']}),
+      O('Crtam kvadrat','Složi jedan puni krug uputa.',['idi ravno','okreni se desno','idi ravno','okreni se desno','nastavi isti uzorak još dva puta']),
+      D('Robot je zalutao','Koja uputa kvari put ravno naprijed?','okreni se lijevo',['idi naprijed','idi naprijed još jednom','stani na cilju']),
+      X('Tri jednaka koraka','Koja je najkraća uputa?','ponovi 3 puta: idi naprijed',['idi naprijed jednom','okreni se 3 puta','čekaj 3 puta'])
+    ],
+    scratch:[
+      S('Lik na pozornici','Kako zovemo objekt koji izvodi naredbe?','lik',['mapa','pisač','lozinka']),
+      M('Dio projekta i uloga','Spoji pojam s ulogom.',[['lik','izvodi naredbe'],['pozornica','mjesto radnje'],['blok','predstavlja naredbu'],['zastavica','pokreće projekt'],['pozadina','izgled pozornice']]),
+      Z('Kretanje ili izgled','Razvrstaj blokove prema namjeni.',{kretanje:['idi naprijed','okreni se desno','klizi do mjesta','promijeni položaj'],izgled:['reci Pozdrav','promijeni kostim','povećaj lik','sakrij lik']}),
+      O('Lik pozdravlja','Složi blokove.',['kada se projekt pokrene','idi naprijed','reci Pozdrav','čekaj jednu sekundu','okreni se']),
+      D('Mačka ne govori','Koji blok ne pripada programu za pozdrav?','sakrij lik prije poruke',['pokreni program','reci Bok','čekaj kratko']),
+      X('Lik gleda na krivu stranu','Koji blok pomaže?','okreni se desno',['promijeni pozadinu','pusti zvuk','sakrij se']),
+      S('Pokretanje projekta','Što najčešće pokreće niz blokova?','odabrani događaj pokretanja',['naziv datoteke','mapa Slike','boja zaslona']),
+      M('Blok i rezultat','Spoji blok s rezultatom.',[['idi 10 koraka','lik se pomakne'],['reci Bok','pojavi se poruka'],['čekaj','napravi stanku'],['ponovi','ponavlja blokove'],['promijeni pozadinu','mijenja izgled pozornice']]),
+      Z('Događaj ili radnja','Razvrstaj blokove.',{događaj:['kada se pokrene','kada se pritisne tipka','kada lik primi poruku','kada se lik odabere'],radnja:['idi naprijed','reci Bok','pusti zvuk','promijeni kostim']}),
+      O('Mali ples','Složi program.',['kada se projekt pokrene','okreni se desno','čekaj kratko','okreni se lijevo','ponovi ples 3 puta']),
+      D('Redoslijed blokova','Koji blok je na lošem mjestu ako lik prvo treba doći pa pozdraviti?','reci Stigao sam prije kretanja',['pokreni program','idi do cilja','reci Stigao sam nakon kretanja']),
+      X('Lik radi isto četiri puta','Koji blok skraćuje program?','ponovi 4 puta',['čekaj 4 sekunde','sakrij lik','promijeni pozadinu'])
+    ],
+    create:[
+      S('Digitalni rad','Što možemo kombinirati u digitalnom radu?','tekst i slike',['samo jednu tipku','samo naziv mape','samo lozinku']),
+      M('Uređaj ili program za zadatak','Spoji zadatak s prikladnim izborom.',[['upiši rečenicu','tipkovnica i program za tekst'],['snimi glas','mikrofon i program za zvuk'],['prikaži razredu','projektor i prezentacija'],['nacrtaj znak','program za crtanje'],['razgovaraj na daljinu','kamera i program za videosastanak']]),
+      Z('Digitalni rad ili komunikacija','Razvrstaj aktivnosti.',{stvaranje:['pišem priču','crtam plakat','slažem prezentaciju','uređujem fotografiju'],komunikacija:['videosastanak','poruka učitelju u učionici','razgovor s razredom na mreži','dijeljenje rada u dogovorenoj grupi']}),
+      O('Izrađujem plakat','Složi korake.',['odredi temu','napiši kratak naslov','dodaj vlastitu ili dopuštenu sliku','provjeri čitljivost','spremi u odgovarajuću mapu']),
+      D('Prezentacija za razred','Koji je postupak loš?','stavim vrlo sitan tekst preko cijelog slajda',['koristim kratak naslov','odaberem čitljive boje','provjerim rad prije prikazivanja']),
+      X('Videosastanak počinje','Što prvo provjeriti?','jesu li kamera i mikrofon uključeni samo kada trebaju',['je li lozinka javno objavljena','mogu li govoriti svi odjednom','mogu li poslati adresu doma']),
+      S('Mrežna učionica','Čemu služi sigurna mrežna učionica?','učenju i razmjeni školskih radova',['razgovoru s nepoznatima','objavi osobnih podataka','isključivanju računala']),
+      M('Zanimanje i tehnologija','Spoji zanimanje s primjerom uporabe tehnologije.',[['liječnik','pregledava zdravstvene podatke u sigurnom sustavu'],['arhitekt','izrađuje nacrt'],['učitelj','priprema digitalni zadatak'],['vozač','koristi kartu za put'],['dizajner','stvara vizualni rad']]),
+      Z('Prije ili tijekom videosastanka','Razvrstaj ponašanja.',{primjereno:['čekam svoj red','utišam mikrofon kada ne govorim','koristim dogovoreno ime','pratim upute učitelja'],neprimjereno:['prekidam druge','dijelim poveznicu nepoznatima','snimam bez dopuštenja','pokazujem osobne podatke']}),
+      O('Predajem školski rad','Složi korake.',['dovrši rad','spremi jasnim nazivom','otvori sigurnu mrežnu učionicu','odaberi dogovoreno mjesto za predaju','provjeri je li datoteka poslana']),
+      D('Zajednički rad','Koja radnja ometa suradnju?','izbrišem tuđi dio bez pitanja',['dogovorim zadatke','slušam prijedlog druge osobe','pitam prije promjene tuđeg dijela']),
+      X('Priča treba sliku','Koji je najbolji izbor?','dodati vlastiti crtež ili dopuštenu sliku',['uzeti bilo koju tuđu sliku bez pitanja','objaviti osobnu fotografiju prijatelja','upisati lozinku u dokument'])
+    ]
+  };
+
+  const takeCount={easy:2,medium:3,hard:4};
+  const orderCount={easy:3,medium:4,hard:5};
+  const prefix={easy:'',medium:'Poveži više informacija. ',hard:'Promisli o cijeloj situaciji. '};
+  const scenes={computer:['🔊','Upravljanje uređajem'],programs:['📁','Rad s datotekom'],internet:['🌐','Mrežni preglednik'],safety:['🛡️','Sigurnosna odluka'],traces:['💬','Objava na mreži'],algorithm:['🤖','Robot slijedi upute'],scratch:['🐱','Scratch pozornica'],create:['🎨','Digitalna radionica']};
+
+  function orderedActivity(steps,level){
+    if(level==='hard') return steps.slice();
+    if(level==='medium') return [steps[0],steps[1],`${steps[2]}, zatim ${steps[3]}`,steps[4]];
+    return [`${steps[0]}, zatim ${steps[1]}`,`${steps[2]}, zatim ${steps[3]}`,steps[4]];
+  }
+
+  function hardDecision(base,def,wrong,rng){
+    if(def.type==='debug'){
+      const answer=`Problem: ${def.correct} · Bolji izbor: ${wrong[0]}`;
+      const options=[answer,`Problem: ${wrong[0]} · Bolji izbor: ${def.correct}`,`Problem: ${wrong[1]} · Bolji izbor: ${wrong[2]}`,`Problem: ${wrong[2]} · Bolji izbor: ${wrong[1]}`];
+      return {...base,prompt:`Usporedi problem i bolji postupak. ${def.prompt} Odaberi par koji prepoznaje pogrešku i ispravlja je.`,options:E.shuffle(options,rng),answer};
+    }
+    const answer=`Učini: ${def.correct} · Izbjegni: ${wrong[0]}`;
+    const options=[answer,`Učini: ${wrong[0]} · Izbjegni: ${def.correct}`,`Učini: ${wrong[1]} · Izbjegni: ${wrong[2]}`,`Učini: ${wrong[2]} · Izbjegni: ${wrong[1]}`];
+    return {...base,prompt:`Usporedi dvije odluke. ${def.prompt} Odaberi par koji pokazuje što treba učiniti i što treba izbjegavati.`,options:E.shuffle(options,rng),answer};
+  }
+
+  function makeQuestion(world,level,def,index,rng){
+    const base={id:`${world}-${level}-${index}`,world,level,type:def.type,title:def.title,prompt:prefix[level]+def.prompt};
+    if(['single','debug','sim'].includes(def.type)){
+      const wrong=E.shuffle(def.wrong,rng);
+      const question=level==='hard'?hardDecision(base,def,wrong,rng):{...base,options:E.shuffle([def.correct,...wrong.slice(0,level==='easy'?2:3)],rng),answer:def.correct};
+      return def.type==='sim'?{...question,scene:scenes[world]}:question;
+    }
+    if(def.type==='match'){
+      const pairs=E.shuffle(def.pairs,rng).slice(0,takeCount[level]);
+      return {...base,left:E.shuffle(pairs.map(p=>p[0]),rng),right:E.shuffle(pairs.map(p=>p[1]),rng),answer:pairs.map(p=>p.slice())};
+    }
+    if(def.type==='sort'){
+      const answer={};
+      for(const [name,items] of Object.entries(def.zones)) answer[name]=E.shuffle(items,rng).slice(0,takeCount[level]);
+      return {...base,zones:Object.keys(answer),items:E.shuffle(Object.values(answer).flat(),rng),answer};
+    }
+    const answer=orderedActivity(def.steps,level);
+    return {...base,prompt:`${prefix[level]}Složi Bitkov predloženi redoslijed. ${def.prompt}`,items:E.shuffle(answer,rng),answer};
+  }
+
+  const templates={};
+  for(const world of worlds){
+    templates[world.id]={};
+    for(const level of levels){
+      templates[world.id][level.id]=banks[world.id].map((def,index)=>(rng)=>makeQuestion(world.id,level.id,def,index,rng));
+    }
+  }
+
+  function templateCount(){
+    return worlds.reduce((sum,world)=>sum+levels.reduce((n,level)=>n+templates[world.id][level.id].length,0),0);
+  }
+
+  function buildRound(level,world,seed){
+    if(!levels.some(item=>item.id===level)) throw new Error('Nepoznata razina.');
+    const rng=E.makeRng(seed);
+    if(world==='mix'){
+      return E.shuffle(worlds.map(item=>{
+        const list=templates[item.id][level];
+        return list[Math.floor(rng()*list.length)](rng);
+      }),rng);
+    }
+    if(!templates[world]) throw new Error('Nepoznati svijet.');
+    return E.shuffle(templates[world][level],rng).slice(0,5).map(factory=>factory(rng));
+  }
+
+  return {levels,worlds,templates,templateCount,buildRound};
+});
+</script>
+  <script>(function(){
+  'use strict';
+  const E=window.InfoEngine,C=window.InfoContent;
+  const app=document.getElementById('app'),announcer=document.getElementById('announcer');
+  const storageKey='info-adventure-session-v1';
+  let view='home',level='easy',session=load(),draft=null,pending=null,lastSeed=0;
+
+  const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const button=(label,action,className='button',extra='')=>`<button type="button" class="${className}" data-action="${action}" ${extra}>${label}</button>`;
+  const bitko=(className='')=>`<svg class="bitko ${className}" viewBox="0 0 180 180" role="img" aria-label="Bitko, mali robot vodič"><path d="M42 65c0-24 19-43 43-43h10c24 0 43 19 43 43v19H42V65Z" fill="#dff7f2" stroke="#12364a" stroke-width="6"/><rect x="27" y="74" width="126" height="82" rx="30" fill="#fff" stroke="#12364a" stroke-width="6"/><circle cx="67" cy="106" r="11" fill="#0c6e78"/><circle cx="113" cy="106" r="11" fill="#0c6e78"/><path d="M66 133c14 11 34 11 48 0" fill="none" stroke="#12364a" stroke-width="6" stroke-linecap="round"/><path d="M90 22V9" stroke="#12364a" stroke-width="6" stroke-linecap="round"/><circle cx="90" cy="7" r="6" fill="#f2b544"/><path d="M27 100H12m141 0h15" stroke="#12364a" stroke-width="7" stroke-linecap="round"/></svg>`;
+
+  function load(){try{return E.restore(localStorage.getItem(storageKey),C.buildRound);}catch(error){return null;}}
+  function save(){if(!session)return;try{localStorage.setItem(storageKey,E.serialize(session));}catch(error){}}
+  function seed(){const values=new Uint32Array(1);crypto.getRandomValues(values);let next=values[0]||Date.now();if(next===lastSeed)next=(next+1)>>>0;lastSeed=next;return next;}
+  function emptyDraft(q){if(['single','debug','sim'].includes(q.type))return{selected:''};if(q.type==='match')return{pairs:[]};if(q.type==='sort')return{zones:Object.fromEntries(q.zones.map(zone=>[zone,[]]))};return{items:[]};}
+  function current(){return session?.questions?.[session.index]||null;}
+  function announce(text){announcer.textContent='';setTimeout(()=>{announcer.textContent=text;},0);}
+  function focusMain(){try{app.focus({preventScroll:true});}catch(error){app.focus();}}
+
+  function home(){
+    const resume=session&&session.phase!=='complete'?`<aside class="resume"><div><strong>Bitko čuva tvoju vježbu.</strong><p>${C.levels.find(l=>l.id===session.level).name} · ${E.summarize(session).solved} od ${session.questions.length} riješeno</p></div>${button('Nastavi vježbu →','resume','button secondary')}</aside>`:'';
+    return `<section class="home-view"><div class="hero"><div><p class="eyebrow">Digitalni svijet · Velike ideje</p><h1>Upoznaj računalo<br>uz prijatelja <span>Bitka.</span></h1><p>Bitko te vodi kroz osam svjetova znanja. Odaberi razinu i uči kroz igru.</p></div><div class="hero-art">${bitko('hero-bitko')}<span class="spark one">✦</span><span class="spark two">✧</span></div></div><h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${C.levels.map((item,index)=>`<article class="level-card l${index+1}"><span class="level-index">0${index+1}</span><span class="level-icon" aria-hidden="true">${item.icon}</span><h3>${item.name}</h3><p>${item.desc}</p>${button('Odaberi →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${resume}</section>`;
+  }
+
+  function worlds(){
+    const selected=C.levels.find(item=>item.id===level);
+    return `<section><div class="topline">${button('← Početna','home','text-button')}<span class="pill">${selected.name}</span></div><div class="section-heading"><p class="eyebrow">Osam svjetova znanja</p><h1>Što želiš vježbati?</h1><p>Svaki svijet ima pet novih zadataka.</p></div><div class="world-grid">${C.worlds.map(world=>`<button type="button" class="world-card" data-world="${world.id}"><span class="world-icon" aria-hidden="true">${world.icon}</span><span><strong>${world.name}</strong><small>${world.desc}</small></span><b aria-hidden="true">→</b></button>`).join('')}<button type="button" class="world-card mixed" data-world="mix"><span class="world-icon" aria-hidden="true">🎲</span><span><strong>Miješana vježba</strong><small>Po jedan zadatak iz svakog svijeta</small></span><b aria-hidden="true">→</b></button></div></section>`;
+  }
+
+  function progress(){
+    const total=session.questions.length,done=E.summarize(session).solved;
+    return `<div class="topline">${button('← Svjetovi','worlds','text-button')}<span class="pill">${C.levels.find(item=>item.id===session.level).name}</span></div><div class="progress-row"><div class="progress" role="progressbar" aria-label="Napredak" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}">${session.questions.map((q,index)=>`<span class="${session.solved[index]?'done':index===session.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${session.index+1} od ${total}</span></div>`;
+  }
+
+  function optionButton(value,selected){return `<button type="button" class="choice ${selected?'selected':''}" data-choice data-value="${esc(value)}" aria-pressed="${selected?'true':'false'}"><span class="radio" aria-hidden="true"></span>${esc(value)}</button>`;}
+  function single(q){return `<div class="choices">${q.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div>`;}
+  function match(q){
+    const usedLeft=new Set(draft.pairs.map(pair=>pair[0])),usedRight=new Set(draft.pairs.map(pair=>pair[1]));
+    return `<p class="instruction">Odaberi pojam iz prve skupine, zatim njegov par iz druge.</p><div class="match-grid"><div>${q.left.filter(value=>!usedLeft.has(value)).map(value=>`<button type="button" class="tile ${pending===value?'selected':''}" data-match-left data-value="${esc(value)}" aria-pressed="${pending===value?'true':'false'}">${esc(value)}</button>`).join('')||'<p class="empty-note">Svi pojmovi su spojeni.</p>'}</div><div>${q.right.filter(value=>!usedRight.has(value)).map(value=>`<button type="button" class="tile" data-match-right data-value="${esc(value)}">${esc(value)}</button>`).join('')}</div></div><div class="pair-list">${draft.pairs.map((pair,index)=>`<button type="button" data-remove-pair="${index}" aria-label="Ukloni par ${esc(pair.join(' i '))}"><span>${esc(pair[0])}</span><b>↔</b><span>${esc(pair[1])}</span><i aria-hidden="true">×</i></button>`).join('')}</div>`;
+  }
+  function sort(q){
+    const assigned=new Set(Object.values(draft.zones).flat());
+    return `<p class="instruction">Odaberi karticu, zatim polje u koje pripada.</p><div class="item-tray">${q.items.filter(item=>!assigned.has(item)).map(item=>`<button type="button" class="tile ${pending===item?'selected':''}" data-sort-item data-value="${esc(item)}" aria-pressed="${pending===item?'true':'false'}">${esc(item)}</button>`).join('')||'<p class="empty-note">Sve kartice su razvrstane.</p>'}</div><div class="zone-grid">${q.zones.map(zone=>`<div class="zone"><button type="button" class="zone-target" data-sort-zone data-value="${esc(zone)}"><strong>${esc(zone.replaceAll('_',' '))}</strong><small>Dodaj odabranu karticu</small></button><div class="zone-items">${draft.zones[zone].map((item,index)=>`<button type="button" data-remove-sort="${esc(zone)}:${index}" aria-label="Ukloni ${esc(item)} iz polja ${esc(zone.replaceAll('_',' '))}"><span>${esc(item)}</span><i aria-hidden="true">×</i></button>`).join('')}</div></div>`).join('')}</div>`;
+  }
+  function remainingItems(q){const used=new Map();draft.items.forEach(item=>used.set(item,(used.get(item)||0)+1));return q.items.filter(item=>{const count=used.get(item)||0;if(count){used.set(item,count-1);return false;}return true;});}
+  function order(q){return `<p class="instruction">Odabiri kartice redom kojim se radnje trebaju dogoditi.</p><div class="order-answer">${draft.items.map((item,index)=>`<button type="button" data-remove-order="${index}" aria-label="Ukloni korak ${index+1}"><b>${index+1}</b>${esc(item)}<i aria-hidden="true">×</i></button>`).join('')||'<p>Ovdje će se pojaviti tvoj redoslijed.</p>'}</div><div class="item-tray">${remainingItems(q).map(item=>`<button type="button" class="tile" data-order-item data-value="${esc(item)}">${esc(item)}</button>`).join('')}</div>`;}
+  function simulation(q){const scene=q.scene||['🖥️','Digitalni zadatak'];return `<div class="simulator" role="group" aria-label="Interaktivna simulacija: ${esc(scene[1])}"><div class="sim-screen"><span aria-hidden="true">${esc(scene[0])}</span><strong>${esc(scene[1])}</strong><small>Odaberi naredbu ili postupak.</small></div><div class="sim-controls">${q.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div></div>`;}
+  function answerArea(q){if(q.type==='sim')return simulation(q);if(['single','debug'].includes(q.type))return single(q);if(q.type==='match')return match(q);if(q.type==='sort')return sort(q);return order(q);}
+
+  function play(){
+    const q=current(),world=C.worlds.find(item=>item.id===q.world);
+    if(session.phase==='complete')return results();
+    if(session.phase==='incorrect')return `<section class="exercise">${progress()}<div class="question-card"><div class="feedback incorrect"><span aria-hidden="true">↻</span><div><p class="eyebrow">Pokušaj ponovno</p><h1>Pogledaj još jednom.</h1><p>Odgovor još nije točan. Mirno provjeri svoj izbor.</p></div>${bitko('feedback-bitko')}</div><div class="actions">${button('Pokušaj ponovno','retry')}</div></div></section>`;
+    if(session.phase==='correct')return `<section class="exercise">${progress()}<div class="question-card"><div class="feedback correct"><span aria-hidden="true">✓</span><div><p class="eyebrow">Zadatak riješen</p><h1>Točno!</h1><p>Dobro si povezala informacije.</p></div>${bitko('feedback-bitko')}</div><div class="actions">${button(session.index===session.questions.length-1?'Pogledaj rezultat →':'Sljedeći zadatak →','next')}</div></div></section>`;
+    if(!draft)draft=emptyDraft(q);
+    return `<section class="exercise">${progress()}<div class="question-card"><div class="question-head"><span class="question-icon" aria-hidden="true">${world.icon}</span><div><p class="eyebrow">${world.name}</p><h1>${esc(q.title)}</h1></div></div><p class="prompt">${esc(q.prompt)}</p>${answerArea(q)}<div class="actions"><button id="check-button" class="button" type="button" data-action="check" ${E.complete(q,draft)?'':'disabled'}>Provjeri</button></div></div></section>`;
+  }
+
+  function results(){
+    const stats=E.summarize(session);
+    return `<section class="results"><div class="results-hero">${bitko('results-bitko')}<div><p class="eyebrow">Vježba je dovršena</p><h1>Bravo, digitalna istraživačice!</h1><p>Riješila si svih ${stats.total} zadataka.</p></div></div><div class="stats"><article class="stat"><strong>${stats.firstTry}</strong><span>Iz prvog pokušaja</span></article><article class="stat warm"><strong>${stats.retried}</strong><span>Uz ponovni pokušaj</span></article></div><p class="encouragement">Bitko kaže: pogreška je samo novi trag do rješenja.</p><div class="actions centered">${button('Nova vježba →','new-round')}${button('Promijeni svijet','worlds','button secondary')}</div></section>`;
+  }
+
+  function render(focusPicker){app.innerHTML=view==='home'?home():view==='worlds'?worlds():play();const node=typeof focusPicker==='function'?focusPicker():null;if(node)node.focus();else focusMain();}
+  const focusValue=(selector,value)=>()=>[...app.querySelectorAll(selector)].find(node=>node.dataset.value===value)||null;
+  const focusFirst=selector=>()=>app.querySelector(selector);
+  function start(world){
+    const previous=session&&session.level===level&&session.world===world?new Set(session.questions.map(q=>q.id)):new Set();
+    const baseSeed=seed();let chosen=null,best=null,bestOverlap=Infinity;
+    for(let attempt=0;attempt<64;attempt++){
+      const trialSeed=(baseSeed+Math.imul(attempt,0x9e3779b1))>>>0,questions=C.buildRound(level,world,trialSeed);
+      const overlap=questions.reduce((sum,q)=>sum+(previous.has(q.id)?1:0),0);
+      if(overlap<bestOverlap){best={seed:trialSeed,questions};bestOverlap=overlap;}
+      if(overlap===0){chosen=best;break;}
+    }
+    chosen=chosen||best;session=E.createSession(level,world,chosen.seed,chosen.questions);draft=null;pending=null;save();view='play';render();
+  }
+  function choose(value){draft.selected=value;render(focusValue('[data-choice]',value));}
+  function matchLeft(value){pending=value;render(focusValue('[data-match-left]',value));}
+  function matchRight(value){if(!pending)return;draft.pairs.push([pending,value]);pending=null;render(focusFirst('[data-match-left], [data-remove-pair]'));}
+  function sortItem(value){pending=value;render(focusValue('[data-sort-item]',value));}
+  function sortZone(zone){if(!pending)return;draft.zones[zone].push(pending);pending=null;render(focusFirst('[data-sort-item], [data-remove-sort]'));}
+
+  document.addEventListener('click',event=>{
+    const target=event.target.closest('button');if(!target)return;
+    if(target.dataset.level){level=target.dataset.level;view='worlds';render();return;}
+    if(target.dataset.world){start(target.dataset.world);return;}
+    if(target.hasAttribute('data-choice')){choose(target.dataset.value);return;}
+    if(target.hasAttribute('data-match-left')){matchLeft(target.dataset.value);return;}
+    if(target.hasAttribute('data-match-right')){matchRight(target.dataset.value);return;}
+    if(target.hasAttribute('data-sort-item')){sortItem(target.dataset.value);return;}
+    if(target.hasAttribute('data-sort-zone')){sortZone(target.dataset.value);return;}
+    if(target.hasAttribute('data-order-item')){draft.items.push(target.dataset.value);render(focusFirst('[data-order-item], [data-remove-order]'));return;}
+    if(target.dataset.removePair!==undefined){draft.pairs.splice(Number(target.dataset.removePair),1);render(focusFirst('[data-match-left]'));return;}
+    if(target.dataset.removeSort!==undefined){const [zone,index]=target.dataset.removeSort.split(':'),item=draft.zones[zone][Number(index)];draft.zones[zone].splice(Number(index),1);render(focusValue('[data-sort-item]',item));return;}
+    if(target.dataset.removeOrder!==undefined){const [item]=draft.items.splice(Number(target.dataset.removeOrder),1);render(focusValue('[data-order-item]',item));return;}
+    const action=target.dataset.action;
+    if(action==='home'){view='home';render();}
+    if(action==='worlds'){level=session?.level||level;view='worlds';render();}
+    if(action==='resume'){level=session.level;draft=session.responses[session.index]||null;view='play';render();}
+    if(action==='check'){const result=E.submit(session,draft);save();if(result==='incorrect')announce('Pogledaj još jednom.');if(result==='correct')announce('Točno!');render();}
+    if(action==='retry'){session.phase='answer';session.responses[session.index]=null;draft=null;pending=null;save();render();}
+    if(action==='next'){E.advance(session);draft=null;pending=null;save();render();}
+    if(action==='new-round')start(session.world);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -147,12 +147,31 @@
   const takeCount={easy:2,medium:3,hard:4};
   const orderCount={easy:3,medium:4,hard:5};
   const prefix={easy:'',medium:'Poveži više informacija. ',hard:'Promisli o cijeloj situaciji. '};
+  const scenes={computer:['🔊','Upravljanje uređajem'],programs:['📁','Rad s datotekom'],internet:['🌐','Mrežni preglednik'],safety:['🛡️','Sigurnosna odluka'],traces:['💬','Objava na mreži'],algorithm:['🤖','Robot slijedi upute'],scratch:['🐱','Scratch pozornica'],create:['🎨','Digitalna radionica']};
+
+  function orderedActivity(steps,level){
+    if(level==='hard') return steps.slice();
+    if(level==='medium') return [steps[0],steps[1],`${steps[2]}, zatim ${steps[3]}`,steps[4]];
+    return [`${steps[0]}, zatim ${steps[1]}`,`${steps[2]}, zatim ${steps[3]}`,steps[4]];
+  }
+
+  function hardDecision(base,def,wrong,rng){
+    if(def.type==='debug'){
+      const answer=`Problem: ${def.correct} · Bolji izbor: ${wrong[0]}`;
+      const options=[answer,`Problem: ${wrong[0]} · Bolji izbor: ${def.correct}`,`Problem: ${wrong[1]} · Bolji izbor: ${wrong[2]}`,`Problem: ${wrong[2]} · Bolji izbor: ${wrong[1]}`];
+      return {...base,prompt:`Usporedi problem i bolji postupak. ${def.prompt} Odaberi par koji prepoznaje pogrešku i ispravlja je.`,options:E.shuffle(options,rng),answer};
+    }
+    const answer=`Učini: ${def.correct} · Izbjegni: ${wrong[0]}`;
+    const options=[answer,`Učini: ${wrong[0]} · Izbjegni: ${def.correct}`,`Učini: ${wrong[1]} · Izbjegni: ${wrong[2]}`,`Učini: ${wrong[2]} · Izbjegni: ${wrong[1]}`];
+    return {...base,prompt:`Usporedi dvije odluke. ${def.prompt} Odaberi par koji pokazuje što treba učiniti i što treba izbjegavati.`,options:E.shuffle(options,rng),answer};
+  }
 
   function makeQuestion(world,level,def,index,rng){
     const base={id:`${world}-${level}-${index}`,world,level,type:def.type,title:def.title,prompt:prefix[level]+def.prompt};
     if(['single','debug','sim'].includes(def.type)){
-      const wrong=E.shuffle(def.wrong,rng).slice(0,level==='easy'?2:3);
-      return {...base,options:E.shuffle([def.correct,...wrong],rng),answer:def.correct};
+      const wrong=E.shuffle(def.wrong,rng);
+      const question=level==='hard'?hardDecision(base,def,wrong,rng):{...base,options:E.shuffle([def.correct,...wrong.slice(0,level==='easy'?2:3)],rng),answer:def.correct};
+      return def.type==='sim'?{...question,scene:scenes[world]}:question;
     }
     if(def.type==='match'){
       const pairs=E.shuffle(def.pairs,rng).slice(0,takeCount[level]);
@@ -163,8 +182,8 @@
       for(const [name,items] of Object.entries(def.zones)) answer[name]=E.shuffle(items,rng).slice(0,takeCount[level]);
       return {...base,zones:Object.keys(answer),items:E.shuffle(Object.values(answer).flat(),rng),answer};
     }
-    const answer=def.steps.slice(0,orderCount[level]);
-    return {...base,items:E.shuffle(answer,rng),answer};
+    const answer=orderedActivity(def.steps,level);
+    return {...base,prompt:`${prefix[level]}Složi Bitkov predloženi redoslijed. ${def.prompt}`,items:E.shuffle(answer,rng),answer};
   }
 
   const templates={};

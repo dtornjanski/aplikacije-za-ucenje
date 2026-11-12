@@ -36,15 +36,16 @@
   function single(q){return `<div class="choices">${q.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div>`;}
   function match(q){
     const usedLeft=new Set(draft.pairs.map(pair=>pair[0])),usedRight=new Set(draft.pairs.map(pair=>pair[1]));
-    return `<p class="instruction">Prvo odaberi pojam lijevo, zatim njegov par desno.</p><div class="match-grid"><div>${q.left.filter(value=>!usedLeft.has(value)).map(value=>`<button type="button" class="tile ${pending===value?'selected':''}" data-match-left data-value="${esc(value)}">${esc(value)}</button>`).join('')||'<p class="empty-note">Svi pojmovi su spojeni.</p>'}</div><div>${q.right.filter(value=>!usedRight.has(value)).map(value=>`<button type="button" class="tile" data-match-right data-value="${esc(value)}">${esc(value)}</button>`).join('')}</div></div><div class="pair-list">${draft.pairs.map((pair,index)=>`<button type="button" data-remove-pair="${index}" aria-label="Ukloni par ${esc(pair.join(' i '))}"><span>${esc(pair[0])}</span><b>↔</b><span>${esc(pair[1])}</span><i aria-hidden="true">×</i></button>`).join('')}</div>`;
+    return `<p class="instruction">Odaberi pojam iz prve skupine, zatim njegov par iz druge.</p><div class="match-grid"><div>${q.left.filter(value=>!usedLeft.has(value)).map(value=>`<button type="button" class="tile ${pending===value?'selected':''}" data-match-left data-value="${esc(value)}" aria-pressed="${pending===value?'true':'false'}">${esc(value)}</button>`).join('')||'<p class="empty-note">Svi pojmovi su spojeni.</p>'}</div><div>${q.right.filter(value=>!usedRight.has(value)).map(value=>`<button type="button" class="tile" data-match-right data-value="${esc(value)}">${esc(value)}</button>`).join('')}</div></div><div class="pair-list">${draft.pairs.map((pair,index)=>`<button type="button" data-remove-pair="${index}" aria-label="Ukloni par ${esc(pair.join(' i '))}"><span>${esc(pair[0])}</span><b>↔</b><span>${esc(pair[1])}</span><i aria-hidden="true">×</i></button>`).join('')}</div>`;
   }
   function sort(q){
     const assigned=new Set(Object.values(draft.zones).flat());
-    return `<p class="instruction">Odaberi karticu, zatim polje u koje pripada.</p><div class="item-tray">${q.items.filter(item=>!assigned.has(item)).map(item=>`<button type="button" class="tile ${pending===item?'selected':''}" data-sort-item data-value="${esc(item)}">${esc(item)}</button>`).join('')||'<p class="empty-note">Sve kartice su razvrstane.</p>'}</div><div class="zone-grid">${q.zones.map(zone=>`<button type="button" class="zone" data-sort-zone data-value="${esc(zone)}"><strong>${esc(zone.replaceAll('_',' '))}</strong><span>${draft.zones[zone].map((item,index)=>`<i data-remove-sort="${esc(zone)}:${index}">${esc(item)}</i>`).join('')}</span></button>`).join('')}</div>`;
+    return `<p class="instruction">Odaberi karticu, zatim polje u koje pripada.</p><div class="item-tray">${q.items.filter(item=>!assigned.has(item)).map(item=>`<button type="button" class="tile ${pending===item?'selected':''}" data-sort-item data-value="${esc(item)}" aria-pressed="${pending===item?'true':'false'}">${esc(item)}</button>`).join('')||'<p class="empty-note">Sve kartice su razvrstane.</p>'}</div><div class="zone-grid">${q.zones.map(zone=>`<div class="zone"><button type="button" class="zone-target" data-sort-zone data-value="${esc(zone)}"><strong>${esc(zone.replaceAll('_',' '))}</strong><small>Dodaj odabranu karticu</small></button><div class="zone-items">${draft.zones[zone].map((item,index)=>`<button type="button" data-remove-sort="${esc(zone)}:${index}" aria-label="Ukloni ${esc(item)} iz polja ${esc(zone.replaceAll('_',' '))}"><span>${esc(item)}</span><i aria-hidden="true">×</i></button>`).join('')}</div></div>`).join('')}</div>`;
   }
   function remainingItems(q){const used=new Map();draft.items.forEach(item=>used.set(item,(used.get(item)||0)+1));return q.items.filter(item=>{const count=used.get(item)||0;if(count){used.set(item,count-1);return false;}return true;});}
   function order(q){return `<p class="instruction">Odabiri kartice redom kojim se radnje trebaju dogoditi.</p><div class="order-answer">${draft.items.map((item,index)=>`<button type="button" data-remove-order="${index}" aria-label="Ukloni korak ${index+1}"><b>${index+1}</b>${esc(item)}<i aria-hidden="true">×</i></button>`).join('')||'<p>Ovdje će se pojaviti tvoj redoslijed.</p>'}</div><div class="item-tray">${remainingItems(q).map(item=>`<button type="button" class="tile" data-order-item data-value="${esc(item)}">${esc(item)}</button>`).join('')}</div>`;}
-  function answerArea(q){if(['single','debug','sim'].includes(q.type))return single(q);if(q.type==='match')return match(q);if(q.type==='sort')return sort(q);return order(q);}
+  function simulation(q){const scene=q.scene||['🖥️','Digitalni zadatak'];return `<div class="simulator" role="group" aria-label="Interaktivna simulacija: ${esc(scene[1])}"><div class="sim-screen"><span aria-hidden="true">${esc(scene[0])}</span><strong>${esc(scene[1])}</strong><small>Odaberi naredbu ili postupak.</small></div><div class="sim-controls">${q.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div></div>`;}
+  function answerArea(q){if(q.type==='sim')return simulation(q);if(['single','debug'].includes(q.type))return single(q);if(q.type==='match')return match(q);if(q.type==='sort')return sort(q);return order(q);}
 
   function play(){
     const q=current(),world=C.worlds.find(item=>item.id===q.world);
@@ -60,13 +61,25 @@
     return `<section class="results"><div class="results-hero">${bitko('results-bitko')}<div><p class="eyebrow">Vježba je dovršena</p><h1>Bravo, digitalna istraživačice!</h1><p>Riješila si svih ${stats.total} zadataka.</p></div></div><div class="stats"><article class="stat"><strong>${stats.firstTry}</strong><span>Iz prvog pokušaja</span></article><article class="stat warm"><strong>${stats.retried}</strong><span>Uz ponovni pokušaj</span></article></div><p class="encouragement">Bitko kaže: pogreška je samo novi trag do rješenja.</p><div class="actions centered">${button('Nova vježba →','new-round')}${button('Promijeni svijet','worlds','button secondary')}</div></section>`;
   }
 
-  function render(){app.innerHTML=view==='home'?home():view==='worlds'?worlds():play();focusMain();}
-  function start(world){const newSeed=seed();session=E.createSession(level,world,newSeed,C.buildRound(level,world,newSeed));draft=null;pending=null;save();view='play';render();}
-  function choose(value){draft.selected=value;render();}
-  function matchLeft(value){pending=value;render();}
-  function matchRight(value){if(!pending)return;draft.pairs.push([pending,value]);pending=null;render();}
-  function sortItem(value){pending=value;render();}
-  function sortZone(zone){if(!pending)return;draft.zones[zone].push(pending);pending=null;render();}
+  function render(focusPicker){app.innerHTML=view==='home'?home():view==='worlds'?worlds():play();const node=typeof focusPicker==='function'?focusPicker():null;if(node)node.focus();else focusMain();}
+  const focusValue=(selector,value)=>()=>[...app.querySelectorAll(selector)].find(node=>node.dataset.value===value)||null;
+  const focusFirst=selector=>()=>app.querySelector(selector);
+  function start(world){
+    const previous=session&&session.level===level&&session.world===world?new Set(session.questions.map(q=>q.id)):new Set();
+    const baseSeed=seed();let chosen=null,best=null,bestOverlap=Infinity;
+    for(let attempt=0;attempt<64;attempt++){
+      const trialSeed=(baseSeed+Math.imul(attempt,0x9e3779b1))>>>0,questions=C.buildRound(level,world,trialSeed);
+      const overlap=questions.reduce((sum,q)=>sum+(previous.has(q.id)?1:0),0);
+      if(overlap<bestOverlap){best={seed:trialSeed,questions};bestOverlap=overlap;}
+      if(overlap===0){chosen=best;break;}
+    }
+    chosen=chosen||best;session=E.createSession(level,world,chosen.seed,chosen.questions);draft=null;pending=null;save();view='play';render();
+  }
+  function choose(value){draft.selected=value;render(focusValue('[data-choice]',value));}
+  function matchLeft(value){pending=value;render(focusValue('[data-match-left]',value));}
+  function matchRight(value){if(!pending)return;draft.pairs.push([pending,value]);pending=null;render(focusFirst('[data-match-left], [data-remove-pair]'));}
+  function sortItem(value){pending=value;render(focusValue('[data-sort-item]',value));}
+  function sortZone(zone){if(!pending)return;draft.zones[zone].push(pending);pending=null;render(focusFirst('[data-sort-item], [data-remove-sort]'));}
 
   document.addEventListener('click',event=>{
     const target=event.target.closest('button');if(!target)return;
@@ -77,10 +90,10 @@
     if(target.hasAttribute('data-match-right')){matchRight(target.dataset.value);return;}
     if(target.hasAttribute('data-sort-item')){sortItem(target.dataset.value);return;}
     if(target.hasAttribute('data-sort-zone')){sortZone(target.dataset.value);return;}
-    if(target.hasAttribute('data-order-item')){draft.items.push(target.dataset.value);render();return;}
-    if(target.dataset.removePair!==undefined){draft.pairs.splice(Number(target.dataset.removePair),1);render();return;}
-    if(target.dataset.removeSort!==undefined){const [zone,index]=target.dataset.removeSort.split(':');draft.zones[zone].splice(Number(index),1);render();return;}
-    if(target.dataset.removeOrder!==undefined){draft.items.splice(Number(target.dataset.removeOrder),1);render();return;}
+    if(target.hasAttribute('data-order-item')){draft.items.push(target.dataset.value);render(focusFirst('[data-order-item], [data-remove-order]'));return;}
+    if(target.dataset.removePair!==undefined){draft.pairs.splice(Number(target.dataset.removePair),1);render(focusFirst('[data-match-left]'));return;}
+    if(target.dataset.removeSort!==undefined){const [zone,index]=target.dataset.removeSort.split(':'),item=draft.zones[zone][Number(index)];draft.zones[zone].splice(Number(index),1);render(focusValue('[data-sort-item]',item));return;}
+    if(target.dataset.removeOrder!==undefined){const [item]=draft.items.splice(Number(target.dataset.removeOrder),1);render(focusValue('[data-order-item]',item));return;}
     const action=target.dataset.action;
     if(action==='home'){view='home';render();}
     if(action==='worlds'){level=session?.level||level;view='worlds';render();}
