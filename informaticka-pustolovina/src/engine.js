@@ -105,5 +105,56 @@
     return {solved,total:session.questions.length,firstTry,retried};
   }
 
-  return {VERSION,makeRng,shuffle,complete,check,createSession,submit,advance,summarize};
+  function serialize(session){
+    return JSON.stringify({version:VERSION,level:session.level,world:session.world,seed:session.seed,index:session.index,phase:session.phase,attempts:session.attempts,solved:session.solved,responses:session.responses});
+  }
+
+  function sameMembers(values,allowed){
+    const counts=list=>list.reduce((map,value)=>map.set(text(value),(map.get(text(value))||0)+1),new Map());
+    const actual=counts(values),expected=counts(allowed);
+    for(const [value,count] of actual) if(!expected.has(value)||count>expected.get(value)) return false;
+    return true;
+  }
+
+  function responseAllowed(question,response){
+    if(response===null) return true;
+    if(!response||typeof response!=='object') return false;
+    if(['single','debug','sim'].includes(question.type)) return question.options.some(option=>text(option)===text(response.selected));
+    if(question.type==='match') return Array.isArray(response.pairs)&&response.pairs.every(pair=>Array.isArray(pair)&&pair.length===2&&question.left.some(v=>text(v)===text(pair[0]))&&question.right.some(v=>text(v)===text(pair[1])));
+    if(question.type==='sort'){
+      if(!response.zones||typeof response.zones!=='object'||Object.keys(response.zones).some(name=>!question.zones.includes(name))) return false;
+      const values=Object.values(response.zones);
+      return values.every(Array.isArray)&&sameMembers(values.flat(),question.items);
+    }
+    if(question.type==='order') return Array.isArray(response.items)&&sameMembers(response.items,question.items);
+    return false;
+  }
+
+  function restore(raw,buildRound){
+    try{
+      const saved=typeof raw==='string'?JSON.parse(raw):raw;
+      if(!saved||saved.version!==VERSION||typeof buildRound!=='function') return null;
+      if(!Number.isInteger(saved.seed)||saved.seed<0||!Number.isInteger(saved.index)) return null;
+      const questions=buildRound(saved.level,saved.world,saved.seed);
+      const total=questions.length;
+      if(saved.index<0||saved.index>=total||!['answer','incorrect','correct','complete'].includes(saved.phase)) return null;
+      if(!Array.isArray(saved.attempts)||!Array.isArray(saved.solved)||!Array.isArray(saved.responses)||saved.attempts.length!==total||saved.solved.length!==total||saved.responses.length!==total) return null;
+      if(saved.attempts.some(v=>!Number.isInteger(v)||v<0)||saved.solved.some(v=>typeof v!=='boolean')) return null;
+      for(let i=0;i<total;i++){
+        if(!responseAllowed(questions[i],saved.responses[i])) return null;
+        if(i<saved.index){if(!saved.solved[i]||saved.attempts[i]<1||!check(questions[i],saved.responses[i])) return null;}
+        if(i>saved.index){if(saved.solved[i]||saved.attempts[i]!==0||saved.responses[i]!==null) return null;}
+      }
+      const current=saved.index;
+      if(saved.phase==='incorrect'&&(saved.solved[current]||saved.attempts[current]<1||!complete(questions[current],saved.responses[current])||check(questions[current],saved.responses[current]))) return null;
+      if(saved.phase==='correct'&&(!saved.solved[current]||saved.attempts[current]<1||!check(questions[current],saved.responses[current]))) return null;
+      if(saved.phase==='answer'&&saved.solved[current]) return null;
+      if(saved.phase==='complete'&&(current!==total-1||saved.solved.some(v=>!v)||!check(questions[current],saved.responses[current]))) return null;
+      const session=createSession(saved.level,saved.world,saved.seed,questions);
+      session.index=current; session.phase=saved.phase; session.attempts=saved.attempts.slice(); session.solved=saved.solved.slice(); session.responses=clone(saved.responses);
+      return session;
+    }catch(error){return null;}
+  }
+
+  return {VERSION,makeRng,shuffle,complete,check,createSession,submit,advance,summarize,serialize,restore};
 });
