@@ -120,3 +120,40 @@ test('generated rounds are deterministic, unique, complete and solvable across 1
   }
   assert.equal(checked,12000);
 });
+
+test('session serialization rebuilds the same deterministic questions and progress', () => {
+  const C=require('../src/content.js');
+  const round=C.buildRound('hard','mix',2026);
+  const s=E.createSession('hard','mix',2026,round);
+  assert.equal(E.submit(s,correctResponse(round[0])),'correct');
+  E.advance(s);
+  assert.equal(E.submit(s,wrongResponse(round[1])),'incorrect');
+  const raw=E.serialize(s);
+  assert.doesNotMatch(raw,/"questions"/);
+  const restored=E.restore(raw,C.buildRound);
+  assert.deepEqual(restored.questions,round);
+  assert.equal(restored.index,1);
+  assert.equal(restored.phase,'incorrect');
+  assert.deepEqual(restored.attempts,[1,1,0,0,0,0,0,0]);
+  assert.deepEqual(restored.solved,[true,false,false,false,false,false,false,false]);
+});
+
+test('restore rejects corrupt, impossible and injected saved states', () => {
+  const C=require('../src/content.js');
+  const round=C.buildRound('easy','computer',77);
+  const s=E.createSession('easy','computer',77,round);
+  assert.equal(E.submit(s,correctResponse(round[0])),'correct'); E.advance(s);
+  const valid=JSON.parse(E.serialize(s));
+  const corrupt=[
+    'not json',
+    {...valid,version:99},
+    {...valid,level:'expert'},
+    {...valid,world:'unknown'},
+    {...valid,index:99},
+    {...valid,attempts:[]},
+    {...valid,solved:[false,...valid.solved.slice(1)]},
+    {...valid,responses:valid.responses.map((r,i)=>i===1?{selected:'ubrizgano'}:r)},
+    {...valid,phase:'complete'}
+  ];
+  for(const raw of corrupt) assert.equal(E.restore(typeof raw==='string'?raw:JSON.stringify(raw),C.buildRound),null,JSON.stringify(raw));
+});
