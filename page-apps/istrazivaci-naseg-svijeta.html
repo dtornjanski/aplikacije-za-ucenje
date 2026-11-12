@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#245c45">
+  <title>Istraživači našeg svijeta</title>
+  <style>:root{--ink:#163d31;--muted:#48665c;--forest:#245c45;--forest-dark:#174735;--leaf:#dff2d5;--sky:#dff3ff;--cream:#fffaf0;--sun:#f6c84b;--berry:#a93644;--good:#dff4df;--retry:#fff0d8;--line:#c9ded3;--shadow:0 12px 34px #173c3014;--radius:24px}
+*{box-sizing:border-box}
+html{background:#f7fbf8}
+body{margin:0;min-height:100vh;color:var(--ink);background:linear-gradient(180deg,#fbfdf9 0,#f5faf7 70%,#eef7f2 100%);font-family:ui-rounded,"Trebuchet MS",Arial,sans-serif;font-size:18px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{line-height:1.12;letter-spacing:-.035em}
+h1{font-size:clamp(34px,5vw,54px)}
+h2{font-size:30px}
+h3{font-size:24px}
+.skip-link{position:fixed;top:-80px;left:12px;background:white;padding:12px 18px;border-radius:10px;z-index:20}
+.skip-link:focus{top:12px}
+button:focus-visible,a:focus-visible{outline:4px solid #823540;outline-offset:4px}
+.site-header,footer{width:min(1180px,calc(100% - 48px));margin:auto}
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 0;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:11px;background:none;border:0;padding:4px;font-size:23px}
+.brand>span{font-size:35px}
+.grade,.pill{display:inline-flex;align-items:center;border-radius:40px;background:var(--leaf);color:var(--forest-dark);padding:7px 15px;font-size:14px;font-weight:900;white-space:nowrap}
+main{width:min(1110px,calc(100% - 48px));min-height:calc(100vh - 200px);margin:35px auto 0}
+main:focus{outline:none}
+footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text-align:center;color:var(--muted);font-size:14px}
+.hero{display:grid;grid-template-columns:1.4fr 1fr;align-items:center;gap:35px;min-height:310px}
+.eyebrow{text-transform:uppercase;letter-spacing:.1em;color:var(--forest-dark);font-weight:900;font-size:13px;margin-bottom:12px}
+.hero h1 span{color:var(--berry)}
+.hero p:not(.eyebrow){font-size:21px;color:var(--muted);margin-top:24px;max-width:660px}
+.hero-art{height:300px;display:grid;place-items:center;position:relative}
+.hero-art:before{content:"";position:absolute;width:280px;height:240px;border-radius:52% 48% 58% 42%;background:var(--sky);transform:rotate(7deg)}
+.lumi{width:180px;height:180px;position:relative;z-index:1;filter:drop-shadow(0 10px 18px #163d3124)}
+.hero-lumi{width:255px;height:255px;animation:float 5s ease-in-out infinite}
+.spark{position:absolute;font-size:34px;color:var(--sun)}
+.spark.one{right:28px;top:25px}.spark.two{left:20px;bottom:35px;color:var(--berry)}
+.section-title{text-align:center;margin:20px 0 18px}
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.level-card{position:relative;overflow:hidden;border:1px solid transparent;border-radius:var(--radius);padding:25px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:flex-start}
+.level-card.l1{background:var(--leaf)}.level-card.l2{background:#fff2bd}.level-card.l3{background:#f3e5e7}
+.level-index{position:absolute;right:20px;top:20px;font-size:13px;font-weight:900;color:#52675e}
+.level-icon{font-size:50px;line-height:1;margin-bottom:12px}
+.level-card p{color:#36584b;margin:10px 0 22px;min-height:52px;font-size:16px}
+.level-card .button{width:100%;margin-top:auto}
+.button{min-height:52px;border:0;border-radius:14px;padding:12px 22px;background:var(--forest);color:white;font-weight:900;display:inline-flex;align-items:center;justify-content:center;transition:transform .15s,background .15s}
+.button:hover:not(:disabled){background:var(--forest-dark);transform:translateY(-2px)}
+.button:disabled{background:#d6e2db;color:#63776f}
+.button.secondary{background:white;color:var(--forest-dark);border:2px solid #8abda3}
+.text-button{border:0;background:transparent;min-height:44px;padding:7px 0;color:var(--forest-dark);font-weight:900}
+.text-button:hover{text-decoration:underline;text-underline-offset:4px}
+.resume{margin-top:24px;border:2px solid #b8d9c7;background:white;border-radius:18px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.resume p{color:var(--muted);font-size:15px;margin-top:4px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:25px}
+.section-heading{text-align:center;margin-bottom:28px}.section-heading p:not(.eyebrow){color:var(--muted);margin-top:11px}
+.world-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.world-card{min-height:128px;border:2px solid #d5e5dc;background:white;border-radius:20px;padding:18px;text-align:left;display:grid;grid-template-columns:52px 1fr 20px;align-items:center;gap:14px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.world-card:hover{transform:translateY(-2px);border-color:var(--forest)}
+.world-card.mixed{grid-column:1/-1;background:#fff3c8}
+.world-icon{width:52px;height:52px;border-radius:16px;background:var(--sky);display:grid;place-items:center;font-size:29px}
+.world-card strong{display:block;font-size:18px;line-height:1.2;overflow-wrap:anywhere}
+.world-card small{display:block;color:var(--muted);font-size:13px;margin-top:5px;line-height:1.35;overflow-wrap:anywhere}
+.world-card b{font-size:22px;color:var(--forest)}
+.exercise{max-width:920px;margin:auto}
+.progress-row{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.progress{display:flex;gap:5px;flex:1;height:8px}.progress span{flex:1;background:#dce8e1;border-radius:20px}.progress span.done{background:var(--forest)}.progress span.current{background:var(--sun)}
+.progress-text{font-size:13px;color:var(--muted);font-weight:900;white-space:nowrap}
+.question-card{background:white;border:1px solid var(--line);border-radius:28px;padding:34px;box-shadow:var(--shadow)}
+.question-head{display:flex;align-items:center;gap:15px;margin-bottom:22px}.question-icon{width:56px;height:56px;border-radius:17px;background:var(--sky);display:grid;place-items:center;font-size:31px;flex-shrink:0}
+.question-head h1{font-size:32px;overflow-wrap:anywhere}.question-head .eyebrow{margin-bottom:5px}.prompt{font-size:21px;font-weight:900;margin-bottom:22px;overflow-wrap:anywhere}.instruction{font-size:15px;color:var(--muted);margin-bottom:13px}
+.choices{display:grid;gap:11px}.choice,.tile{min-height:58px;border:2px solid #d7e5dd;background:white;border-radius:14px;padding:13px 17px;text-align:left;font-weight:800;overflow-wrap:anywhere}.choice{display:flex;align-items:center;gap:12px;width:100%}.radio{width:22px;height:22px;border:2px solid #769187;border-radius:50%;flex:0 0 auto}.choice.selected,.tile.selected{border-color:var(--forest);background:var(--leaf)}.choice.selected .radio{border-color:var(--forest);background:var(--forest);box-shadow:inset 0 0 0 4px white}
+.actions{display:flex;justify-content:flex-end;gap:13px;margin-top:26px}.actions.centered{justify-content:center}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.match-grid>div{display:grid;gap:10px;align-content:start}.pair-list{display:grid;gap:8px;margin-top:17px}.pair-list button{min-height:44px;border:0;background:var(--leaf);border-radius:12px;padding:9px 12px;display:grid;grid-template-columns:1fr 26px 1fr 20px;align-items:center;text-align:left}.pair-list i,.sequence-answer i{font-style:normal;font-size:20px}
+.item-tray{display:flex;flex-wrap:wrap;gap:9px;padding:15px;border:2px dashed #b8d5c5;border-radius:16px;background:#f9fcfa;min-height:82px}.item-tray .tile{flex:1 1 170px}.empty-note{color:var(--muted);font-size:15px;align-self:center}
+.zone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:14px}.zone{min-height:135px;border:2px solid #bcd9ca;background:#f7fcf9;border-radius:16px;padding:10px}.zone-target{width:100%;min-height:56px;border:0;background:transparent;text-align:left;padding:4px}.zone-target strong{display:block;text-transform:capitalize;color:var(--forest-dark)}.zone-target small{display:block;color:var(--muted);margin-top:2px}.zone-items{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.zone-items button{min-height:44px;border:1px solid #c8ded2;background:white;border-radius:22px;padding:7px 10px;display:flex;align-items:center;gap:7px;text-align:left}.zone-items i{font-style:normal;font-size:18px;color:var(--forest-dark)}
+.sequence-answer{display:grid;gap:8px;border:2px dashed #b8d5c5;border-radius:16px;padding:14px;margin-bottom:13px;min-height:80px}.sequence-answer.time-line{border-color:#d3b64b;background:#fffdf3}.sequence-answer>p{color:var(--muted);font-size:15px}.sequence-answer button{min-height:48px;border:0;background:var(--sky);border-radius:12px;padding:8px 12px;display:grid;grid-template-columns:28px 1fr 20px;align-items:center;text-align:left;gap:9px}.sequence-answer b{width:26px;height:26px;border-radius:50%;background:var(--forest);color:white;display:grid;place-items:center}
+.observation{display:grid;grid-template-columns:230px 1fr;gap:16px}.observation-scene{min-height:200px;border:3px solid var(--forest-dark);border-radius:20px;background:linear-gradient(160deg,var(--sky),var(--leaf));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px}.observation-scene>span{font-size:62px;line-height:1}.observation-scene>strong{font-size:19px;margin-top:10px}.observation-scene>small{color:var(--muted);margin-top:4px}.observation-options{display:grid;gap:9px}
+.feedback{min-height:210px;border-radius:22px;padding:28px;display:flex;align-items:center;gap:18px;position:relative;overflow:hidden}.feedback.correct{background:var(--good)}.feedback.incorrect{background:var(--retry)}.feedback>span{font-size:42px;font-weight:900}.feedback h1{font-size:36px}.feedback p:not(.eyebrow){margin-top:9px;color:#36584b}.feedback-lumi{width:125px;height:125px;margin-left:auto;flex:0 0 auto}
+.results{max-width:790px;margin:auto;text-align:center}.results-hero{display:flex;align-items:center;justify-content:center;gap:24px;margin:10px 0 24px}.results-lumi{width:180px;height:180px}.results-hero>div{text-align:left}.results-hero p:not(.eyebrow){color:var(--muted);margin-top:10px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:18px}.stat{background:var(--good);border-radius:21px;padding:24px}.stat.warm{background:#fff1bd}.stat strong{display:block;font-size:48px;line-height:1}.stat span{display:block;margin-top:8px;font-weight:800}.encouragement{background:var(--sky);border-radius:15px;padding:17px;margin:20px 0;font-weight:800}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@keyframes float{50%{transform:translateY(-8px) rotate(1deg)}}
+@media(max-width:900px){.world-grid{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1.45fr .8fr}.hero-lumi{width:195px;height:195px}}
+@media(max-width:650px){body{font-size:17px}.site-header,footer{width:calc(100% - 32px)}main{width:calc(100% - 32px);margin-top:23px}.brand{font-size:18px}.brand>span{font-size:28px}.grade{font-size:11px;padding:5px 9px}.hero{grid-template-columns:1fr;min-height:0;gap:10px}.hero h1{font-size:38px}.hero p:not(.eyebrow){font-size:18px}.hero-art{height:150px;justify-self:end}.hero-art:before{width:150px;height:135px}.hero-lumi{width:150px;height:150px}.spark{font-size:19px}.level-grid{grid-template-columns:1fr;gap:12px}.level-card{display:grid;grid-template-columns:54px 1fr;column-gap:14px}.level-icon{grid-row:1/3;font-size:41px}.level-card p{min-height:0;margin:5px 0}.level-card .button{grid-column:1/-1;margin-top:14px}.world-grid{grid-template-columns:1fr}.world-card.mixed{grid-column:auto}.question-card{padding:21px 16px;border-radius:22px}.question-head{align-items:flex-start}.question-icon{width:43px;height:43px;font-size:24px}.question-head h1{font-size:27px}.prompt{font-size:19px}.match-grid,.zone-grid,.observation{grid-template-columns:1fr}.observation-scene{min-height:135px}.observation-scene>span{font-size:46px}.actions .button{width:100%}.feedback{padding:22px 18px;min-height:190px}.feedback h1{font-size:30px}.feedback-lumi{position:absolute;right:10px;bottom:5px;opacity:.17}.results-hero{flex-direction:column}.results-hero>div{text-align:center}.results-lumi{width:140px;height:140px}.stat strong{font-size:40px}.topline{margin-bottom:18px}.progress-row{gap:10px}.progress-text{font-size:11px}}
+@media(max-width:360px){.site-header{gap:8px}.brand strong{max-width:170px;line-height:1.1}.grade{display:none}.hero h1{font-size:34px}.world-card strong{font-size:17px}.question-card{padding:18px 12px}.choice,.tile{padding:12px}.pair-list button{grid-template-columns:1fr 20px 1fr 18px;font-size:14px}.stats{gap:9px}.stat{padding:18px 7px}.stat span{font-size:13px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <a class="skip-link" href="#app">Preskoči na sadržaj</a>
+  <header class="site-header">
+    <button class="brand" type="button" data-action="home" aria-label="Istraživači našeg svijeta – početna"><span aria-hidden="true">✨</span><strong>Istraživači našeg svijeta</strong></button>
+    <span class="grade">Priroda i društvo · 2. razred</span>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <p id="announcer" class="sr-only" aria-live="polite"></p>
+  <footer>Promatraj, poveži i otkrivaj svojim tempom.</footer>
+  <script>(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports) module.exports=api;
+  else root.WorldEngine=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+
+  const VERSION=1;
+  const text=value=>String(value??'').trim().replace(/\s+/g,' ').toLocaleLowerCase('hr');
+  const clone=value=>JSON.parse(JSON.stringify(value));
+  const choiceTypes=new Set(['single','cause','observe']);
+  const sequenceTypes=new Set(['order','timeline']);
+
+  function makeRng(seed){
+    let state=(Number(seed)>>>0)||0x6d2b79f5;
+    return function(){
+      state+=0x6d2b79f5;
+      let value=state;
+      value=Math.imul(value^(value>>>15),value|1);
+      value^=value+Math.imul(value^(value>>>7),value|61);
+      return ((value^(value>>>14))>>>0)/4294967296;
+    };
+  }
+
+  function shuffle(values,rng=Math.random){
+    const copy=values.slice();
+    for(let index=copy.length-1;index>0;index--){
+      const swap=Math.floor(rng()*(index+1));
+      [copy[index],copy[swap]]=[copy[swap],copy[index]];
+    }
+    return copy;
+  }
+
+  function pairKey(pair){return `${text(pair?.[0])}\u0000${text(pair?.[1])}`;}
+  function normalizedZones(zones,names){
+    if(!zones||typeof zones!=='object') return null;
+    const normalized={};
+    for(const name of names){
+      if(!Array.isArray(zones[name])) return null;
+      normalized[text(name)]=zones[name].map(text).sort();
+    }
+    return normalized;
+  }
+
+  function complete(question,response){
+    if(!question||!response||typeof response!=='object') return false;
+    if(choiceTypes.has(question.type)) return Boolean(text(response.selected));
+    if(question.type==='match') return Array.isArray(response.pairs)&&response.pairs.length===question.answer.length&&response.pairs.every(pair=>Array.isArray(pair)&&pair.length===2&&text(pair[0])&&text(pair[1]));
+    if(question.type==='sort'){
+      const names=Object.keys(question.answer);
+      return names.every(name=>Array.isArray(response.zones?.[name]))&&Object.values(response.zones||{}).flat().length===Object.values(question.answer).flat().length;
+    }
+    if(sequenceTypes.has(question.type)) return Array.isArray(response.items)&&response.items.length===question.answer.length&&response.items.every(value=>text(value));
+    return false;
+  }
+
+  function check(question,response){
+    if(!complete(question,response)) return false;
+    if(choiceTypes.has(question.type)) return text(response.selected)===text(question.answer);
+    if(question.type==='match'){
+      const expected=question.answer.map(pairKey).sort(),actual=response.pairs.map(pairKey).sort();
+      return new Set(actual).size===actual.length&&JSON.stringify(actual)===JSON.stringify(expected);
+    }
+    if(question.type==='sort'){
+      const names=Object.keys(question.answer),expected=normalizedZones(question.answer,names),actual=normalizedZones(response.zones,names);
+      if(!actual) return false;
+      return JSON.stringify(actual)===JSON.stringify(expected);
+    }
+    if(sequenceTypes.has(question.type)) return question.answer.every((value,index)=>text(value)===text(response.items[index]));
+    return false;
+  }
+
+  function createSession(level,world,seed,questions){
+    if(!Array.isArray(questions)||questions.length===0) throw new Error('Runda mora sadržavati zadatke.');
+    return {version:VERSION,level,world,seed:Number(seed)>>>0,questions:clone(questions),index:0,phase:'answer',attempts:questions.map(()=>0),solved:questions.map(()=>false),responses:questions.map(()=>null)};
+  }
+
+  function submit(session,response){
+    const index=session.index,question=session.questions[index];
+    if(session.solved[index]) return 'locked';
+    if(!complete(question,response)) return 'empty';
+    session.attempts[index]+=1;
+    session.responses[index]=clone(response);
+    if(!check(question,response)){session.phase='incorrect';return 'incorrect';}
+    session.solved[index]=true;session.phase='correct';return 'correct';
+  }
+
+  function advance(session){
+    if(!session.solved[session.index]) return false;
+    if(session.index>=session.questions.length-1){session.phase='complete';return true;}
+    session.index+=1;session.phase='answer';return true;
+  }
+
+  function summarize(session){
+    const solved=session.solved.filter(Boolean).length;
+    let firstTry=0,retried=0;
+    session.solved.forEach((done,index)=>{if(done){if(session.attempts[index]===1)firstTry+=1;else retried+=1;}});
+    return {solved,total:session.questions.length,firstTry,retried};
+  }
+
+  function serialize(session){
+    return JSON.stringify({version:VERSION,level:session.level,world:session.world,seed:session.seed,index:session.index,phase:session.phase,attempts:session.attempts,solved:session.solved,responses:session.responses});
+  }
+
+  function sameMembers(values,allowed){
+    const counts=list=>list.reduce((map,value)=>map.set(text(value),(map.get(text(value))||0)+1),new Map());
+    const actual=counts(values),expected=counts(allowed);
+    if(actual.size!==expected.size) return false;
+    for(const [value,count] of actual) if(count!==expected.get(value)) return false;
+    return true;
+  }
+
+  function responseAllowed(question,response){
+    if(response===null) return true;
+    if(!complete(question,response)) return false;
+    if(choiceTypes.has(question.type)) return question.options.some(option=>text(option)===text(response.selected));
+    if(question.type==='match'){
+      const left=response.pairs.map(pair=>pair[0]),right=response.pairs.map(pair=>pair[1]);
+      return sameMembers(left,question.left)&&sameMembers(right,question.right);
+    }
+    if(question.type==='sort'){
+      const keys=Object.keys(response.zones||{});
+      if(keys.length!==question.zones.length||keys.some(name=>!question.zones.includes(name))) return false;
+      return sameMembers(Object.values(response.zones).flat(),question.items);
+    }
+    if(sequenceTypes.has(question.type)) return sameMembers(response.items,question.items);
+    return false;
+  }
+
+  function restore(raw,buildRound){
+    try{
+      const saved=typeof raw==='string'?JSON.parse(raw):raw;
+      if(!saved||saved.version!==VERSION||typeof buildRound!=='function') return null;
+      if(!Number.isInteger(saved.seed)||saved.seed<0||!Number.isInteger(saved.index)) return null;
+      const questions=buildRound(saved.level,saved.world,saved.seed),total=questions.length;
+      if(saved.index<0||saved.index>=total||!['answer','incorrect','correct','complete'].includes(saved.phase)) return null;
+      if(!Array.isArray(saved.attempts)||!Array.isArray(saved.solved)||!Array.isArray(saved.responses)) return null;
+      if(saved.attempts.length!==total||saved.solved.length!==total||saved.responses.length!==total) return null;
+      if(saved.attempts.some(value=>!Number.isInteger(value)||value<0)||saved.solved.some(value=>typeof value!=='boolean')) return null;
+      for(let index=0;index<total;index++){
+        if(!responseAllowed(questions[index],saved.responses[index])) return null;
+        if(index<saved.index&&(!saved.solved[index]||saved.attempts[index]<1||!check(questions[index],saved.responses[index]))) return null;
+        if(index>saved.index&&(saved.solved[index]||saved.attempts[index]!==0||saved.responses[index]!==null)) return null;
+      }
+      const current=saved.index,response=saved.responses[current],question=questions[current];
+      if(saved.phase==='answer'&&(saved.solved[current]||response!==null)) return null;
+      if(saved.phase==='incorrect'&&(saved.solved[current]||saved.attempts[current]<1||!response||check(question,response))) return null;
+      if(saved.phase==='correct'&&(!saved.solved[current]||saved.attempts[current]<1||!check(question,response))) return null;
+      if(saved.phase==='complete'&&(current!==total-1||saved.solved.some(value=>!value)||!check(question,response))) return null;
+      const session=createSession(saved.level,saved.world,saved.seed,questions);
+      session.index=current;session.phase=saved.phase;session.attempts=saved.attempts.slice();session.solved=saved.solved.slice();session.responses=clone(saved.responses);
+      return session;
+    }catch(error){return null;}
+  }
+
+  return {VERSION,makeRng,shuffle,complete,check,createSession,submit,advance,summarize,serialize,restore};
+});
+</script>
+  <script>(function(root,factory){
+  const engine=typeof module==='object'&&module.exports?require('./engine.js'):root.WorldEngine;
+  const api=factory(engine);
+  if(typeof module==='object'&&module.exports) module.exports=api;
+  else root.WorldContent=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(E){
+  'use strict';
+
+  const levels=[
+    {id:'easy',name:'Lagani zadaci',desc:'Prepoznaj i odaberi jednu važnu stvar.',icon:'🌱'},
+    {id:'medium',name:'Teži zadaci',desc:'Poveži više tragova i odnosa.',icon:'🔎'},
+    {id:'hard',name:'Teški zadaci',desc:'Zaključi iz cijele situacije.',icon:'🧭'}
+  ];
+  const worlds=[
+    {id:'school',name:'Škola, prava i zajednica',desc:'Pravila, dužnosti, prava i suradnja',icon:'🏫'},
+    {id:'home',name:'Obitelj i dom',desc:'Obitelj, stanovanje i odgovornosti',icon:'🏠'},
+    {id:'autumn',name:'Jesen oko nas',desc:'Vrijeme, biljke, životinje i ljudi',icon:'🍂'},
+    {id:'winter',name:'Zima oko nas',desc:'Promjene, prilagodbe i sigurnost',icon:'❄️'},
+    {id:'spring',name:'Proljeće oko nas',desc:'Buđenje prirode i rast',icon:'🌷'},
+    {id:'summer',name:'Ljeto oko nas',desc:'Sunce, priroda i odgovorno ponašanje',icon:'☀️'},
+    {id:'spacetime',name:'Prostor, promet i vrijeme',desc:'Skice, promet, ura i vremenski odnosi',icon:'🗺️'},
+    {id:'energy',name:'Energija u životu',desc:'Izvori, uređaji, oprez i štednja',icon:'⚡'},
+    {id:'health',name:'Zdravlje i okoliš',desc:'Tijelo, prehrana, higijena i otpad',icon:'💚'},
+    {id:'nature',name:'Istražujem prirodu',desc:'Živo, neživo, tvari, biljke i životinje',icon:'🔬'},
+    {id:'place',name:'Mjesto, rad i baština',desc:'Krajolik, zanimanja, ustanove i blagdani',icon:'🏘️'}
+  ];
+
+  const S=(title,prompt,correct,wrong)=>({type:'single',title,prompt,correct,wrong});
+  const M=(title,prompt,pairs)=>({type:'match',title,prompt,pairs});
+  const Z=(title,prompt,zones)=>({type:'sort',title,prompt,zones});
+  const O=(title,prompt,steps)=>({type:'order',title,prompt,steps});
+  const C=(title,prompt,correct,wrong)=>({type:'cause',title,prompt,correct,wrong});
+  const V=(title,prompt,correct,wrong)=>({type:'observe',title,prompt,correct,wrong});
+  const T=(title,prompt,steps)=>({type:'timeline',title,prompt,steps});
+
+  const banks={
+    school:[
+      S('Dogovor razreda','Što pomaže da svi mogu učiti?','poštujemo dogovorena pravila',['govorimo svi odjednom','skrivamo pribor drugima','prekidamo rad bez razloga']),
+      M('Pravo i primjer','Spoji pravo s primjerom.',[['pravo na učenje','mogu postavljati pitanja'],['pravo na zaštitu','odrasli me štite od nasilja'],['pravo na igru','imam vrijeme za odmor'],['pravo na mišljenje','smijem pristojno reći što mislim']]),
+      Z('Pravo ili dužnost','Razvrstaj primjere.',{pravo:['učiti','biti siguran','izraziti mišljenje'],dužnost:['čuvati školske stvari','poštovati druge','izvršiti dogovoreni zadatak']}),
+      O('Mirno rješavamo problem','Složi Bitkov postupak.',['zaustavi se','saslušaj drugu osobu','mirno reci što te smeta','predložite pravedno rješenje','zatražite pomoć ako ne uspijete']),
+      C('Posljedica kašnjenja','Zašto je korisno doći na nastavu na vrijeme?','ne propuštamo početak rada',['brže potrošimo pribor','učionica postaje veća','dan postaje kraći']),
+      V('Suradnja u skupini','Koji prizor pokazuje dobru suradnju?','djeca dijele zadatke i slušaju se',['jedno dijete radi sve','svi se prepiru','nitko ne prati dogovor']),
+      T('Razredni zadatak','Poredaj događaje od početka do završetka.',['dogovorimo cilj','podijelimo zadatke','svatko obavi svoj dio','spojimo dijelove','zajedno provjerimo rad']),
+      S('Različiti i ravnopravni','Kako se odnosimo prema osobi koja nešto radi drukčije?','uvažavamo je i uključujemo',['ismijavamo je','ne dopuštamo joj sudjelovanje','odlučujemo bez nje']),
+      M('Dužnost i mjesto','Spoji dužnost s mjestom.',[['pospremiti pribor','učionica'],['vratiti knjigu','knjižnica'],['hodati mirno','hodnik'],['čuvati biljke','školski vrt']]),
+      Z('Odgovorno ili neodgovorno','Razvrstaj ponašanja.',{odgovorno:['priznam pogrešku','pomognem novom učeniku','slušam dogovor'],neodgovorno:['okrivim drugoga','vrijeđam','namjerno kršim pravilo']}),
+      C('Zašto imamo pravila','Koji je glavni razlog razrednih pravila?','da zajednica bude sigurna i pravedna',['da samo jedna osoba odlučuje','da nema igre ni razgovora','da su svi potpuno jednaki u svemu']),
+      V('Prepoznajem pravednost','Koja je odluka pravedna?','svatko dobije priliku govoriti',['govori samo najglasniji','uvijek bira ista osoba','ne slušamo tuđe ideje'])
+    ],
+    home:[
+      S('Tko je rodbina?','Tko može pripadati široj obitelji?','baka',['susjedov pas','prometni policajac','prodavaonica']),
+      M('Član i odnos','Spoji osobu i rodbinski odnos.',[['majčina majka','baka'],['očev brat','stric'],['sestrin sin','nećak'],['roditelji moje majke','djed i baka']]),
+      Z('Dom ili škola','Razvrstaj što najčešće pripada kojem prostoru.',{dom:['kuhinja','spavaća soba','dnevni boravak'],škola:['učionica','zbornica','školska knjižnica']}),
+      O('Brinem o svojoj sobi','Složi cjelovit postupak.',['odredi što treba pospremiti','vrati igračke na mjesto','složi knjige','odvoji otpad','provjeri je li prolaz slobodan']),
+      C('Zajedničke dužnosti','Zašto svi članovi doma trebaju pomagati?','poslovi se pravednije dijele',['kuća dobiva više katova','vrijeme prestaje prolaziti','nitko ne treba odmarati']),
+      V('Kuća ili zgrada','Što najjasnije pokazuje stambenu zgradu?','više stanova i zajednički ulaz',['jedna obitelj i vrt','šator u kampu','učionica s pločom']),
+      T('Od jutra do škole','Poredaj događaje.',['probudim se','obavim higijenu','doručkujem','pripremim torbu','krenem u školu']),
+      S('Odgovornost u domu','Što dijete može učiniti samostalno?','pospremiti svoj pribor',['popravljati električne vodove','paliti vatru bez odraslih','koristiti opasan alat']),
+      M('Prostorija i namjena','Spoji prostoriju s uobičajenom namjenom.',[['kuhinja','priprema hrane'],['kupaonica','osobna higijena'],['spavaća soba','odmor'],['dnevni boravak','zajedničko vrijeme']]),
+      Z('Moje ili zajedničko','Razvrstaj primjere.',{osobno:['moja četkica za zube','moja bilježnica','moja pidžama'],zajedničko:['stol za objedovanje','hodnik zgrade','obiteljski hladnjak']}),
+      C('Čuvamo zajednički prostor','Zašto hodnik zgrade treba ostati prohodan?','da se svi mogu sigurno kretati',['da bude tamniji','da se vrata ne vide','da nitko ne razgovara']),
+      V('Sličnost doma i škole','Što je zajedničko domu i školi?','u njima postoje pravila i dužnosti',['u oba prostora spavamo','u oba prostora kuhamo ručak','u oba prostora živi samo jedna obitelj'])
+    ],
+    autumn:[
+      S('Jesenji znak','Koja je promjena česta ujesen?','lišće mijenja boju',['dan postaje najdulji','sve biljke cvatu','sunce nikada ne zalazi']),
+      M('Plod i biljka','Spoji plod s biljkom.',[['žir','hrast'],['kesten','kesten'],['orah','orah'],['jabuka','jabuka']]),
+      Z('Jesen ili nije jesen','Razvrstaj pojave.',{jesen:['opadanje lišća','berba grožđa','češća magla'],nije_jesen:['cvjetanje visibaba','najveće ljetne vrućine','dugotrajan snijeg']}),
+      O('Pratim stablo ujesen','Složi opažanje.',['odaberi stablo','pogledaj boju lišća','prebroji nekoliko otpalih listova','zapiši vremensku priliku','usporedi zapis sljedeći tjedan']),
+      C('Kraći dani','Zašto ujesen ranije palimo svjetlo?','dan postaje kraći',['lišće postaje teže','vjetar zaustavlja sat','oblaci gase žarulje']),
+      V('Jesenje vrijeme','Koji zapis najbolje opisuje tipičan jesenski dan?','svježije je i može biti maglovito',['vrlo je vruće cijelu noć','stalno pada snijeg','svaki dan je bez oblaka']),
+      T('Od zelena lista do tla','Poredaj promjene lista.',['list je zelen','vrijeme postaje hladnije','list mijenja boju','list se odvaja od grane','list pada na tlo']),
+      S('Životinje ujesen','Što neke životinje rade prije zime?','skupljaju hranu',['grade prometnice','sade pšenicu strojevima','sele se u kuće ljudi']),
+      M('Rad ljudi i razlog','Spoji rad s razlogom.',[['berba voća','plodovi su zreli'],['spremanje drva','priprema za hladnoću'],['sjetva ozimih žitarica','rast počinje prije zime'],['čišćenje lišća','staze ostaju prohodne']]),
+      Z('Biljke ili ljudi','Razvrstaj jesenske aktivnosti.',{biljke:['mijenjaju boju lišća','rasipaju sjeme','usporavaju rast'],ljudi:['beru plodove','pripremaju topliju odjeću','spremaju zimnicu']}),
+      C('Ptice selice','Zašto neke ptice odlaze u toplije krajeve?','teže pronalaze hranu kada zahladi',['ne vole boju lišća','žele vidjeti više kuća','sunce ih poziva imenom']),
+      V('Kalendar prirode','Koji podatak pripada jesenskom opažanju?','datum, vrijeme i promjena na stablu',['samo ime promatrača','samo boja olovke','broj stranica u knjizi'])
+    ],
+    winter:[
+      S('Zimska prilika','Koja je oborina moguća zimi?','snijeg',['pelud','lišće','pijesak']),
+      M('Životinja i prilagodba','Spoji životinju s ponašanjem.',[['medvjed','miruje u brlogu'],['vjeverica','koristi spremljenu hranu'],['ptica stanarica','traži hranu u okolini'],['zec','ima gušće krzno']]),
+      Z('Sigurno ili nesigurno zimi','Razvrstaj ponašanja.',{sigurno:['nosim slojevitu odjeću','hodam oprezno po ledu','sušim mokre rukavice'],nesigurno:['trčim po zaleđenim stubama','izlazim mokre kose na hladnoću','diram ledenicu iznad prolaza']}),
+      O('Priprema za zimski izlazak','Složi korake.',['pogledaj vremensku prognozu','odaberi toplu odjeću','obuj obuću koja ne kliže','stavi kapu i rukavice','kreći se oprezno']),
+      C('Gola stabla','Zašto mnoga listopadna stabla zimi nemaju lišće?','prilagodila su se hladnoći i manjku svjetla',['lišće se skriva u deblu','snijeg ga pretvara u kamen','grane ga pojedu']),
+      V('Duljina dana','Koje opažanje odgovara zimi?','dan je kraći od noći',['dan je uvijek jednak noći','sunce ne izlazi cijelu zimu','dan je najdulji u godini']),
+      T('Snježni dan','Poredaj događaje.',['temperatura se spusti','oblaci donesu oborinu','pada snijeg','snijeg prekrije tlo','zatopljenje ga počne topiti']),
+      S('Biljke zimi','Što se događa s rastom mnogih biljaka?','rast se usporava',['rast se uvijek ubrzava','sve odmah cvjetaju','korijen nestaje']),
+      M('Zimski posao i svrha','Spoji radnju i svrhu.',[['čistiti snijeg','osloboditi prolaz'],['posipati led','smanjiti klizanje'],['hraniti ptice primjereno','pomoći kada je hrana oskudna'],['zatvoriti prozor','čuvati toplinu']]),
+      Z('Voda ili led','Razvrstaj svojstva.',{voda:['teče','poprima oblik posude','može se proliti'],led:['čvrst je','zadržava oblik','može se otopiti']}),
+      C('Topljenje snijega','Zašto se snijeg topi kada zatopli?','prima toplinu iz okoline',['postaje umoran','vjetar ga boji','tlo ga gura']),
+      V('Tragovi u snijegu','Što možemo zaključiti iz niza životinjskih tragova?','životinja se kretala tim putem',['koliko je stara svaka grana','koje je boje nebo sutra','koliko ima vode u moru'])
+    ],
+    spring:[
+      S('Proljetna promjena','Što se često događa u proljeće?','pojavljuju se novi listovi',['rijeke se uvijek zalede','dan postaje sve kraći','svi plodovi odmah dozriju']),
+      M('Biljka i proljetni znak','Spoji biljku i opažanje.',[['visibaba','rani cvijet'],['voćka','pupovi i cvjetovi'],['trava','novi zeleni izdanci'],['maslačak','žuti cvijet']]),
+      Z('Proljeće ili drugo doba','Razvrstaj pojave.',{proljeće:['povratak nekih ptica','češći rast biljaka','promjenjivo vrijeme'],drugo_doba:['berba grožđa','dugotrajan mraz i snijeg','najveće ljetne vrućine']}),
+      O('Sadim sjeme','Složi postupak.',['pripremi posudu i zemlju','stavi sjeme u zemlju','lagano prekrij sjeme','zalij umjereno','postavi na primjereno svijetlo mjesto']),
+      C('Biljke brže rastu','Zašto mnoge biljke u proljeće brže rastu?','ima više topline i svjetla',['mjeseci imaju više slova','vjetar ih vuče prema gore','ptice ih oboje']),
+      V('Pupoljak na grani','Što pupoljak može postati?','list ili cvijet',['kamen','prometni znak','kap kiše']),
+      T('Od pupoljka do ploda','Poredaj promjene.',['na grani je pupoljak','otvara se cvijet','cvijet se mijenja','nastaje mali plod','plod raste i dozrijeva']),
+      S('Životinje u proljeće','Koja je pojava česta?','mnoge životinje dobivaju mlade',['sve životinje spavaju','ptice prestaju graditi gnijezda','kukci potpuno nestaju']),
+      M('Proljetni rad i rezultat','Spoji rad s rezultatom.',[['sjetva','nove biljke'],['orezivanje','uredniji rast'],['zalijevanje','voda za biljku'],['promatranje gnijezda izdaleka','ne uznemiravamo ptice']]),
+      Z('Pomaže rastu ili ne','Razvrstaj uvjete.',{pomaže:['voda','svjetlost','primjerena toplina'],ne_pomaže:['gaženje mladice','potpuni nedostatak vode','čupanje korijena']}),
+      C('Povratak ptica','Zašto se neke ptice vraćaju u proljeće?','ponovno ima više hrane i topline',['žele vidjeti snjegovića','dan postaje kraći','sva stabla su bez lišća']),
+      V('Proljetna prognoza','Koja odjeća odgovara promjenjivom proljetnom danu?','slojevita odjeća i lagana kabanica',['samo kupaći kostim','teške skijaške čizme cijeli dan','bez ikakve zaštite od kiše'])
+    ],
+    summer:[
+      S('Ljetna prilika','Što je često ljeti?','visoke temperature',['najkraći dani','dugotrajan snijeg','zamrznuto tlo']),
+      M('Zaštita i svrha','Spoji predmet sa svrhom.',[['šešir','štiti glavu od sunca'],['voda','nadoknađuje tekućinu'],['krema za sunce','štiti kožu'],['hlad','pomaže izbjeći jako sunce']]),
+      Z('Odgovorno ili neodgovorno ljeti','Razvrstaj ponašanja.',{odgovorno:['pijem vodu','izbjegavam podnevno sunce','nosim laganu zaštitnu odjeću'],neodgovorno:['dugo sam na suncu bez zaštite','ostavljam otpad u prirodi','ulazim u vodu bez nadzora']}),
+      O('Siguran odlazak na izlet','Složi pripremu.',['provjeri prognozu','napuni bocu vodom','pripremi zaštitu od sunca','obuj primjerenu obuću','drži se dogovora s odraslima']),
+      C('Biljke venu','Zašto biljka može venuti tijekom vrućine?','gubi vodu brže nego što je prima',['sunce joj promijeni ime','korijen postaje zrak','lišće zaboravi rasti']),
+      V('Najdulji dani','Koje opažanje odgovara početku ljeta?','dan je vrlo dug',['noć traje cijeli dan','dan je najkraći u godini','sunce izlazi samo jednom tjedno']),
+      T('Od cvijeta do ljetnog ploda','Poredaj promjene.',['biljka cvjeta','cvijet se opraši','nastane mali plod','plod raste','zreo plod se bere']),
+      S('Životinje na vrućini','Što mnoge životinje traže za velikih vrućina?','vodu i hlad',['zaleđeno jezero','toplu peć','debelu zimsku odjeću']),
+      M('Ljetni rad i razlog','Spoji radnju i razlog.',[['zalijevanje rano ujutro','manje vode ispari'],['žetva','žitarice su zrele'],['skupljanje otpada','čuvamo okoliš'],['provjera vode za kupanje','brinemo o sigurnosti']]),
+      Z('Na kopnu ili u vodi','Razvrstaj životinje prema staništu.',{kopno:['gušter','mrav','jež'],voda:['riba','školjka','hobotnica']}),
+      C('Rano zalijevanje','Zašto biljke zalijevamo rano ujutro ili navečer?','tada manje vode brzo ispari',['tada korijen spava','sunce ne vidi biljku','voda postane slađa']),
+      V('Znak pregrijavanja','Koji znak znači da treba odmah u hlad i reći odrasloj osobi?','vrtoglavica i jaka slabost',['čiste tenisice','uredno vezane vezice','hladna boca u torbi'])
+    ],
+    spacetime:[
+      S('Položaj predmeta','Ako je lopta ispod stola, gdje je stol u odnosu na loptu?','iznad lopte',['iza lopte','unutar lopte','lijevo od svake stvari']),
+      M('Promet i primjer','Spoji vrstu prometa i sredstvo.',[['cestovni','autobus'],['željeznički','vlak'],['zračni','zrakoplov'],['vodeni','brod']]),
+      Z('Prometno sredstvo prema prostoru','Razvrstaj sredstva.',{kopno:['bicikl','vlak','autobus'],voda:['brod','trajekt','čamac'],zrak:['zrakoplov','helikopter','jedrilica']}),
+      O('Sigurno prelazim cestu','Složi postupak.',['stani uz rub kolnika','pogledaj lijevo','pogledaj desno pa opet lijevo','provjeri da su vozila stala','prijeđi mirno najkraćim putem']),
+      C('Pješački prijelaz','Zašto prelazimo na označenom prijelazu?','vozači ondje očekuju pješake',['cesta je ondje mekša','semafor ubrzava hodanje','automobili ondje nestaju']),
+      V('Čitam skicu','Na skici je park desno od škole. Kamo ideš od škole do parka?','udesno',['ulijevo','ravno unatrag bez skretanja','gore u zrak']),
+      T('Dijelovi dana','Poredaj od ranijega prema kasnijemu.',['jutro','prijepodne','podne','poslijepodne','večer']),
+      S('Mjerimo vrijeme','Čime mjerimo sate i minute?','urom',['ravnalom','vagom','termometrom']),
+      M('Prometni znak i poruka','Spoji znak i značenje.',[['STOP','obvezno zaustavljanje'],['pješački prijelaz','mjesto prelaska pješaka'],['biciklistička staza','prostor za bicikle'],['semafor crveno','čekaj']]),
+      Z('Prošlost, sadašnjost ili budućnost','Razvrstaj događaje.',{prošlost:['jučer sam čitao','prošli mjesec bio je izlet','jutros sam doručkovao'],sadašnjost:['sada rješavam zadatak','trenutačno sjedim','upravo slušam'],budućnost:['sutra ću vježbati','sljedeći tjedan je priredba','kasnije ću ručati']}),
+      C('Skica kretanja','Zašto na skici označavamo važne objekte?','pomažu nam provjeriti put',['čine papir težim','zaustavljaju promet','mijenjaju strane svijeta']),
+      V('Dani u tjednu','Ako je danas srijeda, koji je dan sutra?','četvrtak',['utorak','subota','ponedjeljak'])
+    ],
+    energy:[
+      S('Izvor energije','Što je prirodni izvor svjetlosti i topline?','Sunce',['hladnjak','olovka','stolac']),
+      M('Uređaj i pretvorba','Spoji uređaj s glavnim učinkom.',[['svjetiljka','električna u svjetlosnu energiju'],['grijalica','električna u toplinsku energiju'],['zvučnik','električna u zvuk'],['ventilator','električna u gibanje']]),
+      Z('Koristi energiju ili ne','Razvrstaj predmete.',{koristi_električnu:['hladnjak','svjetiljka','televizor'],ne_koristi_električnu:['drvena žlica','papirnata knjiga','ručna metla']}),
+      O('Sigurno gasim uređaj','Složi postupak.',['završi korištenje','isključi uređaj njegovom tipkom','odspoji samo ako odrasli kažu','provjeri da nije vruć','pospremi kabel bez povlačenja']),
+      C('Topla žlica','Zašto se metalna žlica u toplom čaju zagrije?','toplina prelazi s toplijeg čaja na žlicu',['žlica stvara Sunce','čaj postaje električan','zrak oboji metal']),
+      V('Put električne energije','Što prenosi električnu energiju do kućanskog uređaja?','vodovi i kabeli',['staklene čaše','papirnate vrećice','drvene police']),
+      T('Od izvora do svjetla','Poredaj pojednostavljeni put energije.',['energija se proizvede','prenosi se vodovima','dolazi do kuće','uključimo svjetiljku','žarulja daje svjetlost']),
+      S('Štedimo energiju','Što učiniti pri izlasku iz prazne sobe?','ugasiti svjetlo',['otvoriti hladnjak','uključiti sve uređaje','pojačati grijanje']),
+      M('Opasnost i oprez','Spoji situaciju s pravilnim postupkom.',[['mokre ruke','ne diraj električni uređaj'],['oštećen kabel','reci odrasloj osobi'],['vruća ploča','ne dodiruj'],['grmljavina','postupi prema uputi odraslih']]),
+      Z('Obnovljivo ili uređaj','Razvrstaj pojmove.',{izvor:['Sunce','vjetar','voda u kretanju'],uređaj:['sušilo','perilica','računalo']}),
+      C('Zatvaramo hladnjak','Zašto vrata hladnjaka ne držimo dugo otvorena?','uređaj tada troši više energije za hlađenje',['hrana postaje glasnija','svjetlo u kuhinji nestane','vrata postaju lakša']),
+      V('Svjetlosno onečišćenje','Koji primjer nepotrebno troši energiju i stvara previše svjetla?','jaka rasvjeta praznog igrališta cijelu noć',['svjetlo dok čitamo','semafor koji upravlja prometom','mala svjetiljka pri nestanku struje'])
+    ],
+    health:[
+      S('Zdrava navika','Što pomaže zdravlju svaki dan?','kretanje i dovoljno sna',['preskakanje svih obroka','cijeli dan bez vode','stalno sjedenje bez odmora']),
+      M('Navika i korist','Spoji naviku s koristi.',[['pranje ruku','uklanja nečistoću'],['spavanje','tijelo se odmara'],['kretanje','jača tijelo'],['raznolika prehrana','daje različite hranjive tvari']]),
+      Z('Češće ili rjeđe','Razvrstaj izbor hrane.',{češće:['povrće','voće','voda'],rjeđe:['slatki napitak','puno slatkiša','vrlo slane grickalice']}),
+      O('Pravilno perem ruke','Složi postupak.',['smoči ruke','nanesi sapun','istrljaj dlanove i među prstima','isperi vodom','obriši čistim ručnikom']),
+      C('Doručak prije škole','Zašto je koristan uravnotežen doručak?','daje tijelu energiju za početak dana',['zamjenjuje sav san','uklanja potrebu za vodom','čini torbu lakšom']),
+      V('Tanjur raznolike hrane','Koji obrok je najraznolikiji?','povrće, žitarice i izvor bjelančevina',['samo bomboni','samo gazirani napitak','samo jedna slana grickalica']),
+      T('Nakon tjelesne aktivnosti','Poredaj brigu o sebi.',['smiri disanje','popij vodu','presvuci mokru odjeću','operi se','odmori se']),
+      S('Otpad ili smeće','Što je otpad koji se može pravilno odvojiti?','čista papirnata kutija',['mješavina svega bačena na tlo','razbijeno nepoznato sredstvo','prljava tekućina u parku']),
+      M('Otpad i spremnik','Spoji otpad s uobičajenom skupinom.',[['novine','papir'],['staklenka','staklo'],['kora banane','biootpad'],['plastična boca','plastika']]),
+      Z('Čuvamo ili onečišćujemo','Razvrstaj postupke.',{čuvamo:['gasimo nepotrebno svjetlo','odvajamo otpad','hodamo ili vozimo bicikl kada možemo'],onečišćujemo:['bacamo otpad u prirodu','stvaramo nepotrebnu buku','ostavljamo jaka svjetla bez potrebe']}),
+      C('Odmor od zaslona','Zašto radimo stanke pri uporabi digitalne tehnologije?','odmaramo oči i tijelo',['uređaj zaboravi podatke','vrijeme se zaustavi','stol postane viši']),
+      V('Zvučno onečišćenje','Koji primjer pokazuje nepotrebnu jaku buku?','glasna glazba noću uz otvorene prozore',['tihi razgovor','zvono za opasnost','ptičji pjev u parku'])
+    ],
+    nature:[
+      S('Živo ili neživo','Što je živo biće?','maslačak',['kamen','lokva','oblak']),
+      M('Dio biljke i uloga','Spoji dio i ulogu.',[['korijen','upija vodu'],['stabljika','drži biljku'],['list','prima svjetlost'],['cvijet','sudjeluje u nastanku ploda']]),
+      Z('Živo ili neživo','Razvrstaj primjere.',{živo:['hrast','mrav','gljiva'],neživo:['kamen','voda','zrak']}),
+      O('Od sjemena do biljke','Složi promjene.',['sjeme je u vlažnoj zemlji','iz sjemena izlazi klica','razvijaju se korijen i stabljika','pojavljuju se novi listovi','nastaje nova biljka']),
+      C('Biljka bez svjetla','Zašto biljka dugo bez svjetla slabi?','ne dobiva uvjet potreban za zdrav rast',['zemlja postane metal','listovi prestanu imati dijelove','posuda izgubi oblik']),
+      V('Svojstvo tvari','Čaša propušta pogled na predmet iza nje. Koje svojstvo opažamo?','prozirnost',['hrapavost','miris','glasnoću']),
+      T('Jednostavno istraživanje','Poredaj korake.',['postavi pitanje','predvidi što će se dogoditi','izvedi sigurno opažanje','zapiši rezultat','usporedi rezultat s predviđanjem']),
+      S('Osjetilo za miris','Kojim osjetilom prepoznajemo miris?','njuhom',['sluhom','vidom','dodirom']),
+      M('Životinja i kretanje','Spoji životinju i način kretanja.',[['riba','pliva'],['ptica','leti'],['zmija','gmiže'],['zec','skače']]),
+      Z('Svojstvo čvrste ili tekuće tvari','Razvrstaj opažanja.',{čvrsto:['zadržava vlastiti oblik','može biti tvrdo','može biti savitljivo'],tekuće:['teče','poprima oblik posude','može se preliti']}),
+      C('Predmet pluta','Što možemo zaključiti kada predmet ostane na površini vode?','u tom pokusu pluta',['sigurno je od metala','nema nikakvu masu','mora biti proziran']),
+      V('Cjelina i dijelovi','Koja je cjelina sastavljena od korijena, stabljike i listova?','biljka',['oblak','kamen','lokva'])
+    ],
+    place:[
+      S('Mjesto u kojem živim','Što može biti dio naselja?','ulica',['ocean na Mjesecu','nevidljivi grad','oblak kao kuća']),
+      M('Ustanova i uloga','Spoji ustanovu s ulogom.',[['dom zdravlja','briga o zdravlju'],['knjižnica','posudba knjiga'],['vatrogasna postaja','pomoć pri požaru'],['pošta','slanje pošiljaka']]),
+      Z('Prirodno ili izgrađeno','Razvrstaj obilježja mjesta.',{prirodno:['rijeka','brdo','šuma'],izgrađeno:['most','škola','cesta']}),
+      O('Istražujem svoje mjesto','Složi postupak.',['odaberi što želiš saznati','pronađi siguran izvor','promatraj uz odraslu osobu','zapiši važne podatke','predstavi što si otkrio']),
+      C('Zanimanja u mjestu','Zašto su različita zanimanja važna?','zadovoljavaju različite potrebe zajednice',['sva rade isti posao','uklanjaju sva pravila','čine da nitko ne surađuje']),
+      V('Krajolik mjesta','Koji opis sadrži i prirodno i izgrađeno obilježje?','rijeka prolazi pokraj mosta',['samo tri kuće','samo šumsko drveće','samo parkirani automobili']),
+      T('Od rada do štednje','Poredaj smisleni slijed.',['osoba obavi posao','za rad primi zaradu','dio novca koristi za potrebe','dio odvoji','uštedu čuva za budući cilj']),
+      S('Baština','Što znači čuvati baštinu?','brinuti o vrijednim prirodnim i kulturnim obilježjima',['uništiti stare predmete','sakriti sve od zajednice','mijenjati bez istraživanja']),
+      M('Zanimanje i posao','Spoji zanimanje s poslom.',[['liječnik','pomaže bolesnima'],['učitelj','poučava'],['poljoprivrednik','uzgaja biljke ili životinje'],['graditelj','gradi i popravlja građevine']]),
+      Z('Kulturno ili prirodno','Razvrstaj baštinu.',{kulturno:['stara gradska jezgra','narodna nošnja','tradicijska pjesma'],prirodno:['zaštićena šuma','rijetka biljka','poseban slap']}),
+      C('Čuvamo vodu','Zašto ne bacamo otpad u potok ili rijeku?','štetimo vodi i živim bićima',['voda postane viša samo taj dan','most promijeni boju','ribe nauče letjeti']),
+      V('Blagdan i običaj','Koji je primjer blagdanskog ili tradicijskog običaja zajednice?','zajedničko obilježavanje uz poštovanje drugih',['bacanje otpada nakon slavlja','vrijeđanje tuđih običaja','uništavanje ukrasa u mjestu'])
+    ]
+  };
+
+  const take={easy:2,medium:3,hard:4};
+  const sortTake={easy:1,medium:2,hard:3};
+  const prefix={easy:'',medium:'Poveži više tragova. ',hard:'Promisli o cijeloj situaciji. '};
+
+  function groupedSteps(steps,level){
+    if(level==='hard') return steps.slice();
+    if(level==='medium') return [steps[0],steps[1],`${steps[2]}, zatim ${steps[3]}`,steps[4]];
+    return [`${steps[0]}, zatim ${steps[1]}`,`${steps[2]}, zatim ${steps[3]}`,steps[4]];
+  }
+
+  function hardDecision(base,def,wrong,rng){
+    const label=def.type==='observe'?'Opažam':def.type==='cause'?'Zaključak':'Odabir';
+    const answer=`${label}: ${def.correct} · Odbacujem: ${wrong[0]}`;
+    const options=[answer,`${label}: ${wrong[0]} · Odbacujem: ${def.correct}`,`${label}: ${wrong[1]} · Odbacujem: ${wrong[2]}`,`${label}: ${wrong[2]} · Odbacujem: ${wrong[1]}`];
+    return {...base,prompt:`Usporedi dvije odluke ili posljedice. ${def.prompt} Odaberi par koji najbolje odgovara svim tragovima.`,options:E.shuffle(options,rng),answer};
+  }
+
+  function makeQuestion(world,level,def,index,rng){
+    const meta=worlds.find(item=>item.id===world);
+    const base={id:`${world}-${level}-${index}`,world,level,type:def.type,title:def.title,prompt:prefix[level]+def.prompt};
+    if(['single','cause','observe'].includes(def.type)){
+      const wrong=E.shuffle(def.wrong,rng);
+      const question=level==='hard'?hardDecision(base,def,wrong,rng):{...base,options:E.shuffle([def.correct,...wrong.slice(0,level==='easy'?2:3)],rng),answer:def.correct};
+      return def.type==='observe'?{...question,scene:[meta.icon,meta.name]}:question;
+    }
+    if(def.type==='match'){
+      const pairs=E.shuffle(def.pairs,rng).slice(0,take[level]);
+      return {...base,left:E.shuffle(pairs.map(pair=>pair[0]),rng),right:E.shuffle(pairs.map(pair=>pair[1]),rng),answer:pairs.map(pair=>pair.slice())};
+    }
+    if(def.type==='sort'){
+      const answer={};
+      for(const [name,items] of Object.entries(def.zones)) answer[name]=E.shuffle(items,rng).slice(0,sortTake[level]);
+      return {...base,zones:Object.keys(answer),items:E.shuffle(Object.values(answer).flat(),rng),answer};
+    }
+    const answer=groupedSteps(def.steps,level);
+    return {...base,prompt:`${prefix[level]}Složi cjelovit predloženi redoslijed. ${def.prompt}`,items:E.shuffle(answer,rng),answer};
+  }
+
+  const templates={};
+  for(const world of worlds){
+    templates[world.id]={};
+    for(const level of levels) templates[world.id][level.id]=banks[world.id].map((definition,index)=>(rng)=>makeQuestion(world.id,level.id,definition,index,rng));
+  }
+
+  function templateCount(){return worlds.reduce((sum,world)=>sum+levels.reduce((total,level)=>total+templates[world.id][level.id].length,0),0);}
+
+  function buildRound(level,world,seed){
+    if(!levels.some(item=>item.id===level)) throw new Error('Nepoznata razina.');
+    const rng=E.makeRng(seed);
+    if(world==='mix') return E.shuffle(worlds.map(item=>{const list=templates[item.id][level];return list[Math.floor(rng()*list.length)](rng);}),rng);
+    if(!templates[world]) throw new Error('Nepoznati svijet.');
+    return E.shuffle(templates[world][level],rng).slice(0,5).map(factory=>factory(rng));
+  }
+
+  return {levels,worlds,templates,templateCount,buildRound};
+});
+</script>
+  <script>(function(){
+  'use strict';
+  const E=window.WorldEngine,C=window.WorldContent,app=document.getElementById('app'),announcer=document.getElementById('announcer');
+  const storageKey='world-explorers-session-v1';
+  let view='home',level='easy',session=load(),draft=null,pending=null,lastSeed=0;
+
+  const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const button=(label,action,className='button',extra='')=>`<button type="button" class="${className}" data-action="${action}" ${extra}>${label}</button>`;
+  const lumi=(className='')=>`<svg class="lumi ${className}" viewBox="0 0 190 190" role="img" aria-label="Lumi, znatiželjna krijesnica"><ellipse cx="61" cy="79" rx="34" ry="48" fill="#dff3ff" stroke="#163d31" stroke-width="6" transform="rotate(-28 61 79)"/><ellipse cx="129" cy="79" rx="34" ry="48" fill="#dff3ff" stroke="#163d31" stroke-width="6" transform="rotate(28 129 79)"/><ellipse cx="95" cy="103" rx="34" ry="58" fill="#f6c84b" stroke="#163d31" stroke-width="6"/><path d="M68 105h54M70 128h50" stroke="#163d31" stroke-width="7"/><circle cx="84" cy="76" r="6" fill="#163d31"/><circle cx="106" cy="76" r="6" fill="#163d31"/><path d="M83 91c7 6 17 6 24 0" fill="none" stroke="#163d31" stroke-width="5" stroke-linecap="round"/><path d="M79 49 65 31m46 18 14-18" stroke="#163d31" stroke-width="5" stroke-linecap="round"/><circle cx="64" cy="29" r="5" fill="#c9484b"/><circle cx="126" cy="29" r="5" fill="#c9484b"/><circle cx="95" cy="157" r="23" fill="#fff4ad" opacity=".8"/></svg>`;
+
+  function load(){try{return E.restore(localStorage.getItem(storageKey),C.buildRound);}catch(error){return null;}}
+  function save(){if(!session)return;try{localStorage.setItem(storageKey,E.serialize(session));}catch(error){}}
+  function seed(){const values=new Uint32Array(1);crypto.getRandomValues(values);let next=values[0]||Date.now();if(next===lastSeed)next=(next+1)>>>0;lastSeed=next;return next;}
+  function current(){return session?.questions?.[session.index]||null;}
+  function emptyDraft(question){
+    if(['single','cause','observe'].includes(question.type))return{selected:''};
+    if(question.type==='match')return{pairs:[]};
+    if(question.type==='sort')return{zones:Object.fromEntries(question.zones.map(zone=>[zone,[]]))};
+    return{items:[]};
+  }
+  function announce(message){announcer.textContent='';setTimeout(()=>{announcer.textContent=message;},0);}
+  function focusMain(){try{app.focus({preventScroll:true});}catch(error){app.focus();}}
+
+  function home(){
+    const resume=session&&session.phase!=='complete'?`<aside class="resume"><div><strong>Lumi čuva tvoju ekspediciju.</strong><p>${C.levels.find(item=>item.id===session.level).name} · ${E.summarize(session).solved} od ${session.questions.length} riješeno</p></div>${button('Nastavi ekspediciju →','resume','button secondary')}</aside>`:'';
+    return `<section class="home-view"><div class="hero"><div><p class="eyebrow">Priroda · Društvo · Velika otkrića</p><h1>Istraži svijet<br>uz krijesnicu <span>Lumi.</span></h1><p>Jedanaest svjetova vodi te kroz cijelu školsku godinu. Odaberi razinu i kreni tragom znanja.</p></div><div class="hero-art">${lumi('hero-lumi')}<span class="spark one">✦</span><span class="spark two">✧</span></div></div><h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${C.levels.map((item,index)=>`<article class="level-card l${index+1}"><span class="level-index">0${index+1}</span><span class="level-icon" aria-hidden="true">${item.icon}</span><h3>${item.name}</h3><p>${item.desc}</p>${button('Odaberi →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${resume}</section>`;
+  }
+
+  function worlds(){
+    const selected=C.levels.find(item=>item.id===level);
+    return `<section><div class="topline">${button('← Početna','home','text-button')}<span class="pill">${selected.name}</span></div><div class="section-heading"><p class="eyebrow">Jedanaest svjetova znanja</p><h1>Što želiš istraživati?</h1><p>Svaki svijet donosi pet novih zadataka.</p></div><div class="world-grid">${C.worlds.map(world=>`<button type="button" class="world-card" data-world="${world.id}"><span class="world-icon" aria-hidden="true">${world.icon}</span><span><strong>${world.name}</strong><small>${world.desc}</small></span><b aria-hidden="true">→</b></button>`).join('')}<button type="button" class="world-card mixed" data-world="mix"><span class="world-icon" aria-hidden="true">🎒</span><span><strong>Miješana ekspedicija</strong><small>Po jedan zadatak iz svih jedanaest svjetova</small></span><b aria-hidden="true">→</b></button></div></section>`;
+  }
+
+  function progress(){
+    const total=session.questions.length,done=E.summarize(session).solved;
+    return `<div class="topline">${button('← Svjetovi','worlds','text-button')}<span class="pill">${C.levels.find(item=>item.id===session.level).name}</span></div><div class="progress-row"><div class="progress" role="progressbar" aria-label="Napredak" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}">${session.questions.map((question,index)=>`<span class="${session.solved[index]?'done':index===session.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${session.index+1} od ${total}</span></div>`;
+  }
+
+  function optionButton(value,selected){return `<button type="button" class="choice ${selected?'selected':''}" data-choice data-value="${esc(value)}" aria-pressed="${selected?'true':'false'}"><span class="radio" aria-hidden="true"></span>${esc(value)}</button>`;}
+  function choices(question){return `<div class="choices">${question.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div>`;}
+  function observation(question){const scene=question.scene||['🔎','Opažanje'];return `<div class="observation"><div class="observation-scene"><span aria-hidden="true">${esc(scene[0])}</span><strong>${esc(scene[1])}</strong><small>Promotri tragove u opisu i odaberi zaključak.</small></div><div class="observation-options">${question.options.map(value=>optionButton(value,draft.selected===value)).join('')}</div></div>`;}
+  function match(question){
+    const usedLeft=new Set(draft.pairs.map(pair=>pair[0])),usedRight=new Set(draft.pairs.map(pair=>pair[1]));
+    return `<p class="instruction">Odaberi pojam iz prve skupine, zatim njegov par iz druge.</p><div class="match-grid"><div>${question.left.filter(value=>!usedLeft.has(value)).map(value=>`<button type="button" class="tile ${pending===value?'selected':''}" data-match-left data-value="${esc(value)}" aria-pressed="${pending===value?'true':'false'}">${esc(value)}</button>`).join('')||'<p class="empty-note">Svi pojmovi su spojeni.</p>'}</div><div>${question.right.filter(value=>!usedRight.has(value)).map(value=>`<button type="button" class="tile" data-match-right data-value="${esc(value)}">${esc(value)}</button>`).join('')}</div></div><div class="pair-list">${draft.pairs.map((pair,index)=>`<button type="button" data-remove-pair="${index}" aria-label="Ukloni par ${esc(pair.join(' i '))}"><span>${esc(pair[0])}</span><b>↔</b><span>${esc(pair[1])}</span><i aria-hidden="true">×</i></button>`).join('')}</div>`;
+  }
+  function sort(question){
+    const assigned=new Set(Object.values(draft.zones).flat());
+    return `<p class="instruction">Odaberi karticu, zatim polje u koje pripada.</p><div class="item-tray">${question.items.filter(item=>!assigned.has(item)).map(item=>`<button type="button" class="tile ${pending===item?'selected':''}" data-sort-item data-value="${esc(item)}" aria-pressed="${pending===item?'true':'false'}">${esc(item)}</button>`).join('')||'<p class="empty-note">Sve kartice su razvrstane.</p>'}</div><div class="zone-grid">${question.zones.map(zone=>`<div class="zone"><button type="button" class="zone-target" data-sort-zone data-value="${esc(zone)}"><strong>${esc(zone.replaceAll('_',' '))}</strong><small>Dodaj odabranu karticu</small></button><div class="zone-items">${draft.zones[zone].map((item,index)=>`<button type="button" data-remove-sort="${esc(zone)}:${index}" aria-label="Ukloni ${esc(item)} iz polja ${esc(zone.replaceAll('_',' '))}"><span>${esc(item)}</span><i aria-hidden="true">×</i></button>`).join('')}</div></div>`).join('')}</div>`;
+  }
+  function remaining(question){const used=new Map();draft.items.forEach(item=>used.set(item,(used.get(item)||0)+1));return question.items.filter(item=>{const count=used.get(item)||0;if(count){used.set(item,count-1);return false;}return true;});}
+  function sequence(question){const timeline=question.type==='timeline';return `<p class="instruction">${timeline?'Poredaj događaje od ranijega prema kasnijemu.':'Odaberi kartice redom kojim se radnje trebaju dogoditi.'}</p><div class="sequence-answer ${timeline?'time-line':''}">${draft.items.map((item,index)=>`<button type="button" data-remove-sequence="${index}" aria-label="Ukloni korak ${index+1}"><b>${index+1}</b><span>${esc(item)}</span><i aria-hidden="true">×</i></button>`).join('')||'<p>Ovdje će se pojaviti tvoj redoslijed.</p>'}</div><div class="item-tray">${remaining(question).map(item=>`<button type="button" class="tile" data-sequence-item data-value="${esc(item)}">${esc(item)}</button>`).join('')}</div>`;}
+  function answerArea(question){if(question.type==='observe')return observation(question);if(['single','cause'].includes(question.type))return choices(question);if(question.type==='match')return match(question);if(question.type==='sort')return sort(question);return sequence(question);}
+
+  function results(){const stats=E.summarize(session);return `<section class="results"><div class="results-hero">${lumi('results-lumi')}<div><p class="eyebrow">Ekspedicija je dovršena</p><h1>Bravo, istraživačice!</h1><p>Riješila si svih ${stats.total} zadataka.</p></div></div><div class="stats"><article class="stat"><strong>${stats.firstTry}</strong><span>Iz prvog pokušaja</span></article><article class="stat warm"><strong>${stats.retried}</strong><span>Uz ponovni pokušaj</span></article></div><p class="encouragement">Lumi kaže: svako dobro pitanje vodi prema novom otkriću.</p><div class="actions centered">${button('Nova ekspedicija →','new-round')}${button('Promijeni svijet','worlds','button secondary')}</div></section>`;}
+
+  function play(){
+    if(session.phase==='complete')return results();
+    const question=current(),world=C.worlds.find(item=>item.id===question.world);
+    if(session.phase==='incorrect')return `<section class="exercise">${progress()}<div class="question-card"><div class="feedback incorrect"><span aria-hidden="true">↻</span><div><p class="eyebrow">Pokušaj ponovno</p><h1>Pogledaj još jednom.</h1><p>Odgovor još nije točan. Mirno provjeri tragove i svoj izbor.</p></div>${lumi('feedback-lumi')}</div><div class="actions">${button('Pokušaj ponovno','retry')}</div></div></section>`;
+    if(session.phase==='correct')return `<section class="exercise">${progress()}<div class="question-card"><div class="feedback correct"><span aria-hidden="true">✓</span><div><p class="eyebrow">Zadatak riješen</p><h1>Točno!</h1><p>Dobro si povezala tragove.</p></div>${lumi('feedback-lumi')}</div><div class="actions">${button(session.index===session.questions.length-1?'Pogledaj rezultat →':'Sljedeći zadatak →','next')}</div></div></section>`;
+    if(!draft)draft=emptyDraft(question);
+    return `<section class="exercise">${progress()}<div class="question-card"><div class="question-head"><span class="question-icon" aria-hidden="true">${world.icon}</span><div><p class="eyebrow">${world.name}</p><h1>${esc(question.title)}</h1></div></div><p class="prompt">${esc(question.prompt)}</p>${answerArea(question)}<div class="actions"><button id="check-button" class="button" type="button" data-action="check" ${E.complete(question,draft)?'':'disabled'}>Provjeri</button></div></div></section>`;
+  }
+
+  function render(focusPicker){app.innerHTML=view==='home'?home():view==='worlds'?worlds():play();const node=typeof focusPicker==='function'?focusPicker():null;if(node)node.focus();else focusMain();}
+  const focusValue=(selector,value)=>()=>[...app.querySelectorAll(selector)].find(node=>node.dataset.value===value)||null;
+  const focusFirst=selector=>()=>app.querySelector(selector);
+  function start(world){
+    const previous=session&&session.level===level&&session.world===world?new Set(session.questions.map(question=>question.id)):new Set();
+    const baseSeed=seed();let selected=null,best=null,bestOverlap=Infinity;
+    for(let attempt=0;attempt<64;attempt++){
+      const trialSeed=(baseSeed+Math.imul(attempt,0x9e3779b1))>>>0,questions=C.buildRound(level,world,trialSeed);
+      const overlap=questions.reduce((total,question)=>total+(previous.has(question.id)?1:0),0);
+      if(overlap<bestOverlap){best={seed:trialSeed,questions};bestOverlap=overlap;}
+      if(overlap===0){selected=best;break;}
+    }
+    selected=selected||best;session=E.createSession(level,world,selected.seed,selected.questions);draft=null;pending=null;save();view='play';render();
+  }
+  function choose(value){draft.selected=value;render(focusValue('[data-choice]',value));}
+  function matchLeft(value){pending=value;render(focusValue('[data-match-left]',value));}
+  function matchRight(value){if(!pending)return;draft.pairs.push([pending,value]);pending=null;render(focusFirst('[data-match-left], [data-remove-pair]'));}
+  function sortItem(value){pending=value;render(focusValue('[data-sort-item]',value));}
+  function sortZone(zone){if(!pending)return;draft.zones[zone].push(pending);pending=null;render(focusFirst('[data-sort-item], [data-remove-sort]'));}
+
+  document.addEventListener('click',event=>{
+    const target=event.target.closest('button');if(!target)return;
+    if(target.dataset.level){level=target.dataset.level;view='worlds';render();return;}
+    if(target.dataset.world){start(target.dataset.world);return;}
+    if(target.hasAttribute('data-choice')){choose(target.dataset.value);return;}
+    if(target.hasAttribute('data-match-left')){matchLeft(target.dataset.value);return;}
+    if(target.hasAttribute('data-match-right')){matchRight(target.dataset.value);return;}
+    if(target.hasAttribute('data-sort-item')){sortItem(target.dataset.value);return;}
+    if(target.hasAttribute('data-sort-zone')){sortZone(target.dataset.value);return;}
+    if(target.hasAttribute('data-sequence-item')){draft.items.push(target.dataset.value);render(focusFirst('[data-sequence-item], [data-remove-sequence]'));return;}
+    if(target.dataset.removePair!==undefined){draft.pairs.splice(Number(target.dataset.removePair),1);render(focusFirst('[data-match-left]'));return;}
+    if(target.dataset.removeSort!==undefined){const [zone,index]=target.dataset.removeSort.split(':'),item=draft.zones[zone][Number(index)];draft.zones[zone].splice(Number(index),1);render(focusValue('[data-sort-item]',item));return;}
+    if(target.dataset.removeSequence!==undefined){const [item]=draft.items.splice(Number(target.dataset.removeSequence),1);render(focusValue('[data-sequence-item]',item));return;}
+    const action=target.dataset.action;
+    if(action==='home'){view='home';render();}
+    if(action==='worlds'){level=session?.level||level;view='worlds';render();}
+    if(action==='resume'){level=session.level;draft=session.responses[session.index]||null;view='play';render();}
+    if(action==='check'){const result=E.submit(session,draft);save();if(result==='incorrect')announce('Pogledaj još jednom.');if(result==='correct')announce('Točno!');render();}
+    if(action==='retry'){session.phase='answer';session.responses[session.index]=null;draft=null;pending=null;save();render();}
+    if(action==='next'){E.advance(session);draft=null;pending=null;save();render();}
+    if(action==='new-round')start(session.world);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
