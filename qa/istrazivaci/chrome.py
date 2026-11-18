@@ -27,7 +27,16 @@ def choose(browser, value, mode):
     browser.press(f'[data-choice][data-value="{value}"]', mode)
 
 
+def no_solution_controls(browser):
+    names = browser.js("""
+        return [...document.querySelectorAll('#app button')].filter(e=>e.getClientRects().length)
+          .map(e=>(e.getAttribute('aria-label')||'')+' '+e.innerText);
+    """)
+    assert not any(re.search('pokaži rješenje|mala pomoć', name, re.I) for name in names), names
+
+
 def goal(browser, correct):
+    no_solution_controls(browser)
     if correct:
         assert browser.element('h1').text == 'Točno!'
         assert '✓' in browser.element('.feedback.correct').text
@@ -35,9 +44,13 @@ def goal(browser, correct):
         browser.wait(lambda: 'Točno!' in browser.element('#announcer').get_attribute('textContent'))
     else:
         error = browser.element('.inline-feedback')
-        assert norm(error.text) == WRONG, error.text
+        assert error.is_displayed() and norm(error.text) == WRONG, error.text
         assert browser.js('return arguments[0]===document.activeElement', error)
         assert browser.js('const e=arguments[0];return e.previousElementSibling?.matches(arguments[1])', error, CHOICE)
+        gap = browser.js("""
+            const f=arguments[0].getBoundingClientRect(), c=arguments[0].previousElementSibling.getBoundingClientRect();
+            return f.top-c.bottom;""", error)
+        assert -1 <= gap <= 24, gap
         assert not browser.element('#check-button').is_enabled()
 
 
@@ -89,6 +102,7 @@ def run(mobile):
                 assert data['input']['touchPoints'] >= 1 and data['input']['viewport'] == [360, 740]
             browser.open_lesson('easy', 'spacetime', 'sat', 14, mode)
             assert clock(browser) == '03:00'
+            no_solution_controls(browser)
             assert not browser.element('#check-button').is_enabled()
             choose(browser, '01:00', mode)
             assert not browser.all('.inline-feedback')
@@ -155,7 +169,7 @@ def run(mobile):
             browser.press('[data-action="next"]', mode)
             assert [e.text for e in browser.all('.stat strong')] == ['1', '0']
             assert not browser.all('[data-action="review"]')
-            assert not re.search('pokaži rješenje|mala pomoć', browser.element('#app').text, re.I)
+            no_solution_controls(browser)
             print('PASS', mode, 'restart, 4 + 1, ciljano ponavljanje', flush=True)
         except BaseException:
             if browser:
