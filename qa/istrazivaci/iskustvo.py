@@ -88,7 +88,9 @@ try:
     WebDriverWait(d,10).until(lambda v:v.current_url.rstrip('/')==portal.rstrip('/') or v.find_elements(By.CSS_SELECTOR,'[data-lessons]'))
     metrics['after_back']=overview()
     d.get(app);element('[data-level]')
-    size(360,740,True);d.get(app+'#gradivo');element('.book-group')
+    size(360,740,True);d.get(app+'#gradivo');time.sleep(.25)
+    metrics['sameTabFragment']={'url':d.current_url,'heading':element('h1').text,'groups':len(all_('.book-group'))}
+    d.refresh();element('.book-group');metrics['freshFragment']=element('h1').text
     Select(element('#book-level')).select_by_value('hard')
     g=next(g for g in all_('.book-group') if g.find_elements(By.CSS_SELECTOR,'[data-unit="str-58"]'))
     tap(g.find_element(By.TAG_NAME,'summary'));tap(element('[data-unit="str-58"]'));element('.evidence-clue')
@@ -108,7 +110,7 @@ try:
     metrics['invalid_move']={'step':invalid,'selected':len(all_('[data-remove-sequence]')),'positionMarkers':len(all_('.route-map .map-current')),'checkEnabled':element('#check-button').is_enabled(),'feedback':len(all_('.inline-feedback')),'announced':js("return document.querySelector('#announcer').textContent"),'mapLabels':tiles}
     tap(element('[data-remove-sequence]'));metrics['position_after_undo']=len(all_('.route-map .map-current'))
     lesson('medium','health','ruke');tap(element('[data-sort-item]'))
-    metrics['sort']={'visibleGroups':len(all_('[data-sort-zone]')),'inline':js("return !!document.querySelector('[data-sort-zone]')?.closest('.sort-unit')"),'sizes':geom('[data-sort-zone]')};capture('15-razvrstavanje')
+    metrics['sort']={'cards':len(all_('[data-sort-item]')),'visibleGroups':len(all_('[data-sort-zone]')),'inline':js("return !!document.querySelector('[data-sort-zone]')?.closest('.sort-unit')"),'sizes':geom('[data-sort-zone]')};capture('15-razvrstavanje')
     tap(element('[data-sort-zone]'));assert all_('[data-remove-sort]')
     lesson('hard','place','ustanove');tap(element('[data-match-left]'));tap(element('[data-match-right]'));capture('16-spajanje')
     metrics['match']={'pairs':len(all_('[data-remove-pair]')),'removeTarget':geom('[data-remove-pair]')}
