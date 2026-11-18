@@ -4,7 +4,7 @@ import tempfile
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
-from browser import APP, EXPECTED, PORTAL, Browser, norm, record
+from browser import APP, EXPECTED, PORTAL, Browser, colors, contrast, norm, record
 
 UNIT = '[data-unit="str-58"]'
 BOOK = 'hard/health/str-58/vjezba'
@@ -273,7 +273,7 @@ def fits(data, width, height):
 
 def mobile_body(browser):
     browser.viewport(360, 740)
-    # These six fresh seeds span the four body situations and both joints in str. 58–59.
+    # These six fresh seeds cover both body families and different options on pp. 58–59.
     # Classify by the saved family, so another two-claim task never stands in for body content.
     for seed in [1, 3, 7, 8, 10, 13]:
         browser.fresh_home()
@@ -282,6 +282,8 @@ def mobile_body(browser):
         assert family in ['tijelo', 'zglobovi'] and not browser.all('.evidence-clue'), (seed, family)
         browser.wait(lambda: browser.js('return scrollY') == 0)
         data = geometry(browser)
+        data['contrast'] = {s: round(contrast(colors(browser, s)), 2) for s in ['.prompt', '[data-choice]']}
+        assert min(data['contrast'].values()) >= 4.5, data
         report['body'].append({'seed': seed, 'family': family, **data})
         fits(data, 360, 740)
         assert 0 <= data['prompt']['top'] < data['prompt']['bottom'] <= 740

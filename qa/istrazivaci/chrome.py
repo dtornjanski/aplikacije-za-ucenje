@@ -1,4 +1,3 @@
-import colorsys
 import html
 import os
 import pathlib
@@ -8,31 +7,13 @@ import time
 
 from selenium.webdriver.common.keys import Keys
 
-from browser import APP, EXPECTED, Browser, colors, norm, record
+from browser import APP, EXPECTED, Browser, colors, contrast, hue, norm, record
 
 CLOCK = 'easy/spacetime/sat/vjezba'
 WRONG = 'Još nije točno. Odaberi drugi odgovor.'
 CHOICE = '[data-choice][aria-pressed="true"]'
 metrics = {'url': APP, 'sha256': EXPECTED, 'profiles': {}, 'speech': []}
 speech_log = pathlib.Path(os.environ['ORCA_LOG'])
-
-
-def rgb(color):
-    return [int(n) / 255 for n in re.findall(r'\d+', color)[:3]]
-
-
-def hue(color):
-    h, _, saturation = colorsys.rgb_to_hls(*rgb(color))
-    assert saturation > .15, color
-    return round(360 * h, 1)
-
-
-def contrast(palette):
-    def luminance(color):
-        channels = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4 for v in rgb(color)]
-        return sum(v * weight for v, weight in zip(channels, [.2126, .7152, .0722]))
-    low, high = sorted([luminance(palette['ink']), luminance(palette['background'])])
-    return (high + .05) / (low + .05)
 
 
 def clock(browser):
@@ -102,6 +83,10 @@ def run(mobile):
         try:
             data['chrome'] = browser.driver.capabilities['browserVersion']
             browser.home()
+            data['input'] = {'mode': mode, 'touchPoints': browser.js('return navigator.maxTouchPoints'),
+                             'viewport': browser.js('return [innerWidth,innerHeight]')}
+            if mobile:
+                assert data['input']['touchPoints'] >= 1 and data['input']['viewport'] == [360, 740]
             browser.open_lesson('easy', 'spacetime', 'sat', 14, mode)
             assert clock(browser) == '03:00'
             assert not browser.element('#check-button').is_enabled()

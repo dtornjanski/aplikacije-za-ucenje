@@ -1,8 +1,10 @@
 import base64
+import colorsys
 import hashlib
 import json
 import os
 import pathlib
+import re
 import shutil
 from urllib.parse import urlsplit
 
@@ -161,6 +163,24 @@ def colors(browser, selector):
         }
         return {ink:s.color, background:background||'rgb(255, 255, 255)', border:s.borderTopColor};
     """, selector)
+
+
+def rgb(color):
+    return [int(n) / 255 for n in re.findall(r'\d+', color)[:3]]
+
+
+def hue(color):
+    h, _, saturation = colorsys.rgb_to_hls(*rgb(color))
+    assert saturation > .15, color
+    return round(360 * h, 1)
+
+
+def contrast(palette):
+    def luminance(color):
+        channels = [v / 12.92 if v <= .04045 else ((v + .055) / 1.055) ** 2.4 for v in rgb(color)]
+        return sum(v * weight for v, weight in zip(channels, [.2126, .7152, .0722]))
+    low, high = sorted([luminance(palette['ink']), luminance(palette['background'])])
+    return (high + .05) / (low + .05)
 
 
 def norm(text):

@@ -76,7 +76,7 @@ def verify():
     while True:
         try:
             html = download(portal + APP + '?qa=' + str(time.time_ns()))
-            if digest(html) == expected:
+            if digest(html) == expected and digest(download(portal + APP)) == expected:
                 break
             print('Čekam SHA-256', expected, 'trenutačno', digest(html), flush=True)
         except (OSError, urllib.error.URLError) as error:
