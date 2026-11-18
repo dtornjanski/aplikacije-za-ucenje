@@ -1,19 +1,56 @@
-name: Provjera javne aplikacije u Chromeu
+name: Istraživači – provjera kandidata i javnog izdanja
 on:
   push:
     branches: [qa/istrazivaci-browser-check-20261118]
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Mjesto provjere
+        type: choice
+        options: [candidate, public]
+        required: true
+      commit:
+        description: Puni SHA ispitivanog commita
+        required: true
+      sha256:
+        description: SHA-256 izgrađene HTML datoteke
+        required: true
+
 permissions:
   contents: read
+
 jobs:
-  chrome:
+  provjera:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [iskustvo, orca]
+    name: Chrome / ${{ matrix.suite }}
     steps:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - name: Odaberi izdanje
+        id: target
+        env:
+          QA_INPUT_MODE: ${{ inputs.mode }}
+          QA_INPUT_COMMIT: ${{ inputs.commit }}
+          QA_INPUT_SHA256: ${{ inputs.sha256 }}
+        run: python3 qa/istrazivaci/target.py configure
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.target.outputs.commit }}
+          path: candidate
+          persist-credentials: false
+      - name: Pokreni lokalni poslužitelj kandidata
+        if: steps.target.outputs.mode == 'candidate'
+        run: python3 -u -m http.server 4173 --bind 127.0.0.1 --directory candidate/javne-aplikacije >"$RUNNER_TEMP/posluzitelj.log" 2>&1 &
+      - name: Potvrdi identičnost datoteka, portal i četiri aplikacije
+        run: python3 -u qa/istrazivaci/target.py verify
       - name: Pripremi preglednik i čitač zaslona
+        if: matrix.suite == 'orca'
         run: |
           google-chrome --version
           sudo apt-get update -qq
@@ -35,27 +72,19 @@ jobs:
           PY
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
           orca --version
-      - name: Riješi zadatak, zatvori Chrome, ponovno otvori i poslušaj povratnu informaciju
-        run: |
-          export EXPECTED_SHA256=04f10c6a30c019d13d9f7c52062b272c02bc509b41fe897b18a74c73c86271e0
-          dbus-run-session -- xvfb-run -a bash qa/istrazivaci/run.sh
-
-  iskustvo:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 12
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - name: Pregled javnog sučelja u izoliranom Chromeu
+      - name: Tipkovnica, dodir, zatvaranje Chromea i govor Orce
+        if: matrix.suite == 'orca'
+        run: dbus-run-session -- xvfb-run -a bash qa/istrazivaci/run.sh
+      - name: Povijest ekrana, skice i mobilni prikazi
+        if: matrix.suite == 'iskustvo'
         run: |
           python3 -m venv "$RUNNER_TEMP/uxenv"
           "$RUNNER_TEMP/uxenv/bin/pip" --disable-pip-version-check -q install selenium==4.38.0
           "$RUNNER_TEMP/uxenv/bin/python" -u qa/istrazivaci/iskustvo.py
-      - name: Spremi prikaze i mjerenja
+      - name: Spremi snimke zaslona i stvarna mjerenja
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: javna-aplikacija-ux
-          path: ${{ runner.temp }}/iskustvo
-          retention-days: 7
+          name: ${{ steps.target.outputs.mode }}-${{ matrix.suite }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ishod
+          retention-days: 21

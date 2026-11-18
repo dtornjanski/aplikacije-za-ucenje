@@ -1,129 +1,339 @@
-import hashlib, json, os, pathlib, re, shutil, time, urllib.request
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import Select, WebDriverWait
+import itertools
+import tempfile
 
-root=pathlib.Path(os.environ["RUNNER_TEMP"])/"iskustvo"
-root.mkdir(exist_ok=True)
-portal="https://aplikacije-za-ucenje.onrender.com/"
-app=portal+"istrazivaci-naseg-svijeta/index.html"
-metrics={}
-opts=webdriver.ChromeOptions()
-opts.binary_location=shutil.which("google-chrome")
-for arg in ["--headless=new","--disable-dev-shm-usage","--no-first-run","--lang=hr","--force-renderer-accessibility=complete","--window-size=1340,900"]:
-    opts.add_argument(arg)
-d=webdriver.Chrome(service=Service(shutil.which("chromedriver")),options=opts)
-d.implicitly_wait(0.5)
-def element(s): return WebDriverWait(d,8).until(lambda v:v.find_element(By.CSS_SELECTOR,s))
-def all_(s): return d.find_elements(By.CSS_SELECTOR,s)
-def js(script,*args): return d.execute_script(script,*args)
-def size(w,h,mobile=False):
-    d.execute_cdp_cmd('Emulation.setDeviceMetricsOverride',{'width':w,'height':h,'deviceScaleFactor':1,'mobile':mobile})
-    d.execute_cdp_cmd('Emulation.setTouchEmulationEnabled',{'enabled':mobile,'maxTouchPoints':1})
-def press(s,keyboard=False):
-    e=element(s)
-    assert e.is_displayed() and e.is_enabled(),s
-    if keyboard: e.send_keys(Keys.ENTER)
-    else: e.click()
-def tap(e):
-    js("arguments[0].scrollIntoView({block:'center'})",e)
-    p=js("const r=arguments[0].getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}",e)
-    d.execute_cdp_cmd("Input.dispatchTouchEvent",{"type":"touchStart","touchPoints":[p]})
-    d.execute_cdp_cmd("Input.dispatchTouchEvent",{"type":"touchEnd","touchPoints":[]})
-def value(e): return e.get_attribute('data-value')
-def geom(selector):
-    return js("""const e=document.querySelector(arguments[0]);if(!e)return null;const r=e.getBoundingClientRect(); const s=getComputedStyle(e);return [Math.round(r.top+scrollY),Math.round(r.height),Math.round(r.width),s.color,s.backgroundColor,s.fontSize]""",selector)
-def overview():
-    return js("""return {url:location.href,h:document.querySelector('h1')?.innerText,viewport:[innerWidth,innerHeight],overflow:document.documentElement.scrollWidth>innerWidth,scrollY:Math.round(scrollY),pageHeight:document.documentElement.scrollHeight,active:document.activeElement?.getAttribute('data-action')||document.activeElement?.className,visibleControls:[...document.querySelectorAll('#app button,#app select,#app summary')].filter(e=>e.getClientRects().length).length}""")
-def capture(name):
-    time.sleep(.18)
-    d.save_screenshot(str(root/(name+'.png')))
-    metrics['screen-'+name]=overview()
-def levels(l):
-    press('.brand');press('[data-level="'+l+'"]')
-def lesson(l,w,k):
-    levels(l);press('[data-lessons="'+w+'"]');press('[data-lesson="'+k+'"]')
-def answer_time():
-    angle=float(re.search(r'rotate\(([\d.]+)deg\)',element('.hand.hour').get_attribute('style')).group(1))
-    return '%02d:00'%(round(angle/30) or 12)
-def choose(v): next(e for e in all_('[data-choice]') if value(e)==v).click()
-try:
-    d.get(portal);press('a[href*="istrazivaci-naseg-svijeta"]');element('[data-level]')
-    metrics['chrome']=d.capabilities['browserVersion']
-    with urllib.request.urlopen(app,timeout=20) as response: metrics['live_sha256']=hashlib.sha256(response.read()).hexdigest()
-    size(1280,800)
-    capture('01-pocetak')
-    metrics['home']={s:geom(s) for s in ['[data-level="easy"]','.level-card p','[data-action="book"]']}
-    press('[data-level="easy"]',True);capture('02-teme')
-    metrics['topics']={'starts':len(all_('[data-world]')),'lessonButtons':len(all_('[data-lessons]')),'mixed':element('[data-world="mix"]').text}
-    press('[data-lessons="spacetime"]');capture('03-lekcije');press('[data-lesson="sat"]')
-    capture('04-sat');ans=answer_time();wrong=next(value(e) for e in all_('[data-choice]') if value(e)!=ans)
-    metrics['before_selection']=element('#check-button').is_enabled()
-    choose(wrong);press('#check-button',True);capture('05-pogreska')
-    metrics['error']={'message':element('.inline-feedback').text,'button':element('#check-button').is_enabled(),'focus':js("return document.activeElement.className"),'selection':value(element('.choice.selected'))==wrong,'colors':geom('.inline-feedback')}
-    press('.brand');d.refresh();element('[data-run]');capture('06-nastavak')
-    press('[data-run="easy/spacetime/sat/vjezba"]',True)
-    metrics['resumed']=(wrong==value(element('.choice.selected')) and 'Još nije točno' in element('.inline-feedback').text)
-    choose(ans);press('#check-button');capture('07-tocno');press('[data-action="next"]')
-    for i in range(4):
-        choose(answer_time());press('#check-button');press('[data-action="next"]')
-    capture('08-rezultat')
-    metrics['score']=[e.text for e in all_('.stat')]
-    press('[data-action="review"]');metrics['retry']=element('.progress-text').text
-    press('.brand');press('[data-action="book"]')
-    groups=all_('.book-group');metrics['book-count']=[len(groups),len(all_('[data-unit]'))]
-    group=next(g for g in groups if g.find_elements(By.CSS_SELECTOR,'[data-unit="str-58"]'))
-    group.find_element(By.TAG_NAME,'summary').click()
-    Select(element('#book-level')).select_by_value('hard')
-    capture('09-gradivo')
-    press('[data-unit="str-58"]');capture('10-vjezba-iz-knjige')
-    press('[data-action="book"]')
-    metrics['back_catalogue']={'opened':len(all_('.book-group[open]')),'scroll':js("return scrollY"),'level':element('#book-level').get_attribute('value'),'focus':js('return document.activeElement.id')}
-    # Arrive through the actual portal, so the browser Back destination is known.
-    d.get(portal);press('a[href*="istrazivaci-naseg-svijeta"]')
-    press('[data-level="medium"]');press('[data-lessons="spacetime"]');press('[data-lesson="skica"]')
-    metrics['before_back']=overview();d.back()
-    WebDriverWait(d,10).until(lambda v:v.current_url.rstrip('/')==portal.rstrip('/') or v.find_elements(By.CSS_SELECTOR,'[data-lessons]'))
-    metrics['after_back']=overview()
-    d.get(app);element('[data-level]')
-    size(360,740,True);d.get(app+'#gradivo');time.sleep(.25)
-    metrics['sameTabFragment']={'url':d.current_url,'heading':element('h1').text,'groups':len(all_('.book-group'))}
-    d.refresh();element('.book-group');metrics['freshFragment']=element('h1').text
-    Select(element('#book-level')).select_by_value('hard')
-    g=next(g for g in all_('.book-group') if g.find_elements(By.CSS_SELECTOR,'[data-unit="str-58"]'))
-    tap(g.find_element(By.TAG_NAME,'summary'));tap(element('[data-unit="str-58"]'));element('.evidence-clue')
-    js('window.scrollTo(0,0)')
-    capture('11-mob-pitanje')
-    metrics['mobileHard']={'question':element('.prompt').text,'claims':[e.text for e in all_('.evidence-clue')],'words':len(element('.question-card').text.split()),'firstAnswer':geom('[data-choice]'),'check':geom('#check-button'),'choiceColors':geom('[data-choice]'),'promptColors':geom('.prompt'),'options':len(all_('[data-choice]'))}
-    js("document.querySelector('#check-button').scrollIntoView({block:'end'})")
-    capture('12-mob-odgovori')
-    size(320,568,True);js('scrollTo(0,0)');metrics['narrow']=overview()
-    size(360,740,True)
-    lesson('hard','spacetime','skica')
-    tiles=[e.text for e in all_('.route-map td')]
-    start=next(i for i,t in enumerate(tiles) if 'Škola' in t)
-    invalid='lijevo' if start%3==0 else 'desno' if start%3==2 else 'gore' if start<3 else 'dolje'
-    js('scrollTo(0,0)');capture('13-mob-skica')
-    tap(element('[data-route][data-value="'+invalid+'"]'));capture('14-mob-izvan-karte')
-    metrics['invalid_move']={'step':invalid,'selected':len(all_('[data-remove-sequence]')),'positionMarkers':len(all_('.route-map .map-current')),'checkEnabled':element('#check-button').is_enabled(),'feedback':len(all_('.inline-feedback')),'announced':js("return document.querySelector('#announcer').textContent"),'mapLabels':tiles}
-    tap(element('[data-remove-sequence]'));metrics['position_after_undo']=len(all_('.route-map .map-current'))
-    lesson('medium','health','ruke');tap(element('[data-sort-item]'))
-    metrics['sort']={'cards':len(all_('[data-sort-item]')),'visibleGroups':len(all_('[data-sort-zone]')),'inline':js("return !!document.querySelector('[data-sort-zone]')?.closest('.sort-unit')"),'sizes':geom('[data-sort-zone]')};capture('15-razvrstavanje')
-    tap(element('[data-sort-zone]'));assert all_('[data-remove-sort]')
-    lesson('hard','place','ustanove');tap(element('[data-match-left]'));tap(element('[data-match-right]'));capture('16-spajanje')
-    metrics['match']={'pairs':len(all_('[data-remove-pair]')),'removeTarget':geom('[data-remove-pair]')}
-    levels('hard');press('[data-world="mix"]');metrics['mixStarted']=element('.progress-text').text
-    press('.brand');capture('17-mob-nastavi')
-    metrics['mobileHomepage']={s:geom(s) for s in ['[data-level="easy"]','[data-action="book"]','[data-action="resume"]']}
-    # Revisit the fresh home page without saved work using a new, independent browser context.
-    d.execute_cdp_cmd('Storage.clearDataForOrigin',{'origin':portal.rstrip('/'),'storageTypes':'local_storage'})
-    d.get(app);element('[data-level]');capture('18-mob-pocetak')
-    metrics['freshMobileHome']={s:geom(s) for s in ['[data-level="easy"]','[data-action="book"]','[data-level="easy"]','.level-card p']}
-    d.execute_cdp_cmd('Emulation.setEmulatedMedia',{'features':[{'name':'prefers-reduced-motion','value':'reduce'}]})
-    metrics['reducedMotion']=js("return getComputedStyle(document.querySelector('.hero-lumi')).animationDuration")
-    print('AUDIT METRICS '+json.dumps(metrics,ensure_ascii=False),flush=True)
-finally:
-    (root/'mjerenja.json').write_text(json.dumps(metrics,ensure_ascii=False,indent=2))
-    d.quit()
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+
+from browser import APP, EXPECTED, PORTAL, Browser, norm, record
+
+UNIT = '[data-unit="str-58"]'
+BOOK = 'hard/health/str-58/vjezba'
+ROUTE = 'hard/spacetime/skica/vjezba'
+DIRECTIONS = {'gore': (0, -1), 'desno': (1, 0), 'dolje': (0, 1), 'lijevo': (-1, 0)}
+report = {'url': APP, 'sha256': EXPECTED, 'body': [], 'routes': [], 'history': {}}
+
+
+def chapter(browser):
+    return next(group for group in browser.all('.book-group') if group.find_elements(By.CSS_SELECTOR, UNIT))
+
+
+def open_unit(browser, seed, mode):
+    browser.press('[data-action="book"]', mode)
+    Select(browser.element('#book-level')).select_by_value('hard')
+    browser.press(chapter(browser).find_element(By.TAG_NAME, 'summary'), mode)
+    browser.next_seed(seed)
+    browser.press(UNIT, mode)
+    browser.element('.prompt')
+    assert browser.state(BOOK)['seed'] == seed
+
+
+def book_context(browser):
+    return browser.js("""
+    return {y:scrollY,open:[...document.querySelectorAll('.book-group[open]>summary')].map(e=>e.innerText),
+      level:document.querySelector('#book-level').value,focus:document.activeElement.dataset.unit};
+    """)
+
+
+def catalogue(browser):
+    browser.element('.book-group')
+    assert len(browser.all('[data-unit]')) == 41 and len(browser.all('.book-group')) > 1
+
+
+def assert_book_return(browser, before, label):
+    catalogue(browser)
+    browser.wait(lambda: browser.js('return document.activeElement.dataset.unit') == 'str-58')
+    after = book_context(browser)
+    assert after['open'] == before['open'] and after['level'] == before['level'] == 'hard', after
+    assert abs(after['y'] - before['y']) <= 2, (before, after)
+    report['history'][label] = after
+    browser.screenshot(label)
+
+
+def navigation(browser):
+    browser.viewport(1100, 650, False)
+    browser.driver.get(PORTAL)
+    browser.press('a[href*="istrazivaci-naseg-svijeta"]')
+    browser.element('[data-level]')
+    browser.driver.back()
+    browser.wait(lambda: browser.driver.current_url.rstrip('/') == PORTAL.rstrip('/'))
+    assert 'Aplikacije za učenje' in browser.element('h1').text
+    browser.driver.forward()
+    browser.element('[data-level]')
+    browser.press('[data-action="book"]')
+    catalogue(browser)
+    Select(browser.element('#book-level')).select_by_value('hard')
+    for group in (browser.all('.book-group')[0], chapter(browser)):
+        browser.press(group.find_element(By.TAG_NAME, 'summary'))
+    unit = browser.element(UNIT)
+    browser.js("arguments[0].scrollIntoView({block:'center',behavior:'instant'});arguments[0].focus({preventScroll:true})", unit)
+    before = book_context(browser)
+    assert 'Tijelo i zdravlje' in before['open'] and len(before['open']) == 2 and before['y'] > 0, before
+    report['history']['before'] = before
+    browser.next_seed(7)
+    browser.press(unit)
+    browser.element('.prompt')
+    start = browser.state(BOOK)
+    assert start['seed'] == 7
+    q = browser.js('const s=arguments[0];return WorldPractice.buildRound(s.level,s.world,s.seed,s.plan)[s.index]', start)
+    wrong = next(e for e in browser.all('[data-choice]') if e.get_attribute('data-value') != q['answer'])
+    value = wrong.get_attribute('data-value')
+    length = browser.js('return history.length')
+    browser.press(wrong)
+    browser.press('#check-button')
+    assert 'Još nije točno' in browser.element('.inline-feedback').text
+    assert browser.js('return history.length') == length
+    saved = browser.state(BOOK)
+    assert saved['phase'] == 'incorrect' and saved['attempts'][0] == 1
+    prompt = browser.element('.prompt').text
+
+    def assert_restored():
+        browser.element('.inline-feedback')
+        assert browser.element('.prompt').text == prompt
+        assert browser.element('[data-choice][aria-pressed="true"]').get_attribute('data-value') == value
+        state = browser.state(BOOK)
+        for field in ['seed', 'index', 'plan', 'attempts', 'responses', 'phase', 'draft']:
+            assert state[field] == saved[field], field
+
+    browser.press('[data-action="book"]')
+    assert_book_return(browser, before, 'gradivo-gumb')
+    browser.driver.forward()
+    assert_restored()
+    browser.driver.refresh()
+    assert_restored()
+    browser.driver.back()
+    assert_book_return(browser, before, 'gradivo-natrag')
+    browser.driver.forward()
+    assert_restored()
+    report['history'].update({'portalBackForward': True, 'reloadedExercise': True,
+                              'unchangedHistoryOnAnswer': length, 'persistedAttempts': saved['attempts']})
+    browser.driver.get('about:blank')
+    browser.driver.get(APP + '#gradivo')
+    catalogue(browser)
+    browser.driver.refresh()
+    catalogue(browser)
+    browser.driver.get('about:blank')
+    browser.home()
+    browser.js("window.qaSameDocument=true;location.hash='gradivo'")
+    catalogue(browser)
+    assert browser.js('return window.qaSameDocument')
+    browser.driver.back()
+    browser.element('[data-level]')
+    browser.driver.forward()
+    catalogue(browser)
+    assert browser.js('return window.qaSameDocument')
+    report['history'].update({'directFragment': True, 'sameTabFragment': True, 'fragmentBackForward': True})
+
+
+def grid(browser):
+    labels = [e.find_element(By.TAG_NAME, 'small').text for e in browser.all('.route-map td')]
+    assert len(labels) == 9
+    return labels.index('Škola'), labels.index('Park'), tuple(i for i, label in enumerate(labels) if label == 'Radovi')
+
+
+def follow(layout, moves):
+    start, _, blocked = layout
+    at = start
+    for move in moves:
+        dx, dy = DIRECTIONS[move]
+        x, y = at % 3 + dx, at // 3 + dy
+        if not 0 <= x < 3 or not 0 <= y < 3 or y * 3 + x in blocked:
+            return None
+        at = y * 3 + x
+    return at
+
+
+def paths(layout):
+    return [p for p in itertools.product(DIRECTIONS, repeat=3) if follow(layout, p) == layout[1]]
+
+
+def position(browser):
+    return browser.js("""
+      const cells=[...document.querySelectorAll('.route-map td')];
+      const markers=cells.filter(e=>e.matches('.map-current'));
+      return markers.length===1 ? cells.indexOf(markers[0]) : -1;
+    """)
+
+
+def move(browser, direction):
+    browser.press(f'[data-route][data-value="{direction}"]', 'touch')
+
+
+def count(browser, n):
+    assert f'{n} od 3' in norm(browser.element('.route-count').text)
+    assert len(browser.all('.route-steps li')) == n
+
+
+def undo(browser):
+    browser.press('[data-action="undo-route"]', 'touch')
+
+
+def check_position(browser, at, n, invalid):
+    count(browser, n)
+    assert position(browser) == at, (at, position(browser))
+    if invalid:
+        assert norm(browser.element('.route-note').text) == 'Potez je upisan. Položaj se nije promijenio.'
+    else:
+        assert not browser.all('.route-note')
+
+
+def routes(browser):
+    browser.viewport(360, 740)
+    browser.fresh_home()
+    browser.open_lesson('hard', 'spacetime', 'skica', 2, 'touch')
+    layout = grid(browser)
+    start, end, blocked = layout
+    canonical = browser.js("""
+      const s=arguments[0];return WorldPractice.buildRound(s.level,s.world,s.seed,s.plan)[0].answer;""", browser.state(ROUTE))
+    assert start < 3 and follow(layout, ['gore']) is None
+    valid = paths(layout)
+    alternate = next(p for p in valid if list(p) != canonical)
+    check_position(browser, start, 0, False)
+    assert not browser.element('[data-action="undo-route"]').is_enabled()
+    move(browser, 'gore')
+    check_position(browser, start, 1, True)
+    assert not browser.element('#check-button').is_enabled()
+    browser.screenshot('skica-gore')
+    undo(browser)
+    check_position(browser, start, 0, False)
+    # This fixture has a building site adjacent to the school.
+    rock = next(move for move, (dx, dy) in DIRECTIONS.items()
+                if (start % 3 + dx, start // 3 + dy) in [(b % 3, b // 3) for b in blocked])
+    move(browser, rock)
+    check_position(browser, start, 1, True)
+    undo(browser)
+    move(browser, alternate[0])
+    at = follow(layout, alternate[:1])
+    outward = next(direction for direction in DIRECTIONS if follow(layout, [alternate[0], direction]) is None)
+    move(browser, outward)
+    check_position(browser, at, 2, True)
+    browser.driver.refresh()
+    check_position(browser, at, 2, True)
+    browser.screenshot('skica-povratak-izmedu-koraka')
+    move(browser, alternate[-1])
+    after_invalid = follow(layout, [alternate[0], alternate[-1]])
+    assert after_invalid is not None and after_invalid != at and position(browser) == after_invalid
+    count(browser, 3)
+    browser.press('#check-button', 'touch')
+    assert 'Još nije točno' in browser.element('.inline-feedback').text
+    for _ in range(3):
+        undo(browser)
+    check_position(browser, start, 0, False)
+    for direction in alternate:
+        move(browser, direction)
+    check_position(browser, end, 3, False)
+    browser.screenshot('skica-drugi-put')
+    browser.press('#check-button', 'touch')
+    assert browser.element('h1').text == 'Točno!'
+    report['routes'].append({'map': layout, 'canonical': canonical, 'alternate': alternate,
+                             'outward': 'gore', 'blockedStep': rock, 'midRouteRetained': at,
+                             'nextLegalMoveReached': after_invalid})
+    seen = {layout}
+    for _ in range(4):
+        browser.press('[data-action="next"]', 'touch')
+        next_grid = grid(browser)
+        assert next_grid not in seen, next_grid
+        seen.add(next_grid)
+        chosen = paths(next_grid)[0]
+        for direction in chosen:
+            move(browser, direction)
+        browser.press('#check-button', 'touch')
+        assert browser.element('h1').text == 'Točno!'
+        report['routes'].append({'map': next_grid, 'completed': chosen})
+    browser.press('[data-action="next"]', 'touch')
+    assert [e.text for e in browser.all('.stat strong')] == ['4', '1']
+    browser.next_seed(87)
+    browser.press('[data-action="review"]', 'touch')
+    assert '1 od 1' in browser.element('.progress-text').text
+    repeat = grid(browser)
+    assert repeat != layout and follow(repeat, alternate) != repeat[1]
+    report['routeReview'] = {'map': repeat, 'originalMoves': alternate, 'newPath': paths(repeat)[0]}
+
+
+def geometry(browser):
+    return browser.js("""
+      const rect=e=>{
+        const b=e.getBoundingClientRect();
+        return {top:b.top,bottom:b.bottom,width:b.width,height:b.height,text:e.innerText,
+          font:parseFloat(getComputedStyle(e).fontSize),fits:e.scrollHeight<=e.clientHeight+1 && e.scrollWidth<=e.clientWidth+1};
+      };
+      return {viewport:[innerWidth,innerHeight],width:document.documentElement.scrollWidth,
+        scrollY, prompt:rect(document.querySelector('.prompt')),
+        choices:[...document.querySelectorAll('[data-choice]')].map(rect),
+        controls:[...document.querySelectorAll('#app button')].filter(e=>e.getClientRects().length).map(rect)};
+    """)
+
+
+def fits(data, width, height):
+    assert data['viewport'] == [width, height] and data['width'] <= width, data
+    for item in [data['prompt'], *data['controls']]:
+        assert item['fits'], item
+    for control in data['controls']:
+        assert control['width'] >= 44 and control['height'] >= 44, control
+
+
+def mobile_body(browser):
+    browser.viewport(360, 740)
+    # These six fresh seeds span the four body situations and both joints in str. 58–59.
+    # Classify by the saved family, so another two-claim task never stands in for body content.
+    for seed in [1, 3, 7, 8, 10, 13]:
+        browser.fresh_home()
+        open_unit(browser, seed, 'touch')
+        family = browser.state(BOOK)['plan'][0]['key']
+        assert family in ['tijelo', 'zglobovi'] and not browser.all('.evidence-clue'), (seed, family)
+        browser.wait(lambda: browser.js('return scrollY') == 0)
+        data = geometry(browser)
+        report['body'].append({'seed': seed, 'family': family, **data})
+        fits(data, 360, 740)
+        assert 0 <= data['prompt']['top'] < data['prompt']['bottom'] <= 740
+        assert len(data['choices']) >= 2 and all(0 <= c['top'] < c['bottom'] <= 740 for c in data['choices'][:2]), data
+        browser.screenshot('tijelo-360-' + str(seed))
+    assert {entry['family'] for entry in report['body']} == {'tijelo', 'zglobovi'}
+    assert len({entry['prompt']['text'] for entry in report['body']}) >= 4
+    browser.viewport(320, 568)
+    narrow = report['narrow'] = geometry(browser)
+    fits(narrow, 320, 568)
+    assert narrow['prompt']['font'] >= 16 and all(c['font'] >= 16 for c in narrow['choices'])
+    browser.screenshot('tijelo-320')
+    # Double actual computed font sizes, including controls declared in fixed CSS pixels.
+    # This user-style stress test scales text only. Physical phone text settings are separate.
+    browser.js("""
+       const sizes=[...document.querySelectorAll('body,body *')].map(e=>[e,parseFloat(getComputedStyle(e).fontSize)]);
+       for(const [e,size] of sizes)e.style.setProperty('font-size',String(size*2)+'px','important');
+    """)
+    enlarged = report['text200Percent'] = geometry(browser)
+    fits(enlarged, 320, 568)
+    assert enlarged['prompt']['font'] >= 2 * narrow['prompt']['font'] - .1
+    assert enlarged['choices'][0]['font'] >= 2 * narrow['choices'][0]['font'] - .1
+    browser.screenshot('tijelo-320-povecani-tekst')
+    browser.press(browser.all('[data-choice]')[0], 'touch')
+    assert browser.element('#check-button').is_enabled()
+    browser.fresh_home()
+    browser.driver.execute_cdp_cmd('Emulation.setEmulatedMedia', {
+        'features': [{'name': 'prefers-reduced-motion', 'value': 'reduce'}]})
+    motion = browser.js("""
+      const s=getComputedStyle(document.querySelector('.hero-lumi'));
+      return {requested:matchMedia('(prefers-reduced-motion: reduce)').matches,name:s.animationName,
+        seconds:parseFloat(s.animationDuration),loops:s.animationIterationCount};
+    """)
+    assert motion['requested'] and (motion['name'] == 'none' or
+                                    motion['seconds'] <= .001 and motion['loops'] == '1'), motion
+    report['reducedMotion'] = motion
+
+
+if __name__ == '__main__':
+    with tempfile.TemporaryDirectory() as profile:
+        browser = Browser(profile, headless=True)
+        try:
+            report['chrome'] = browser.driver.capabilities['browserVersion']
+            report['browserDocumentSha256'] = browser.home()
+            for section in [navigation, routes, mobile_body]:
+                section(browser)
+                record('gradivo-skica-mobitel.json', report)
+                print('PASS', section.__name__, flush=True)
+        except BaseException:
+            browser.screenshot('neuspjeh')
+            print('URL', browser.driver.current_url, 'heading', [e.text for e in browser.all('h1')], flush=True)
+            raise
+        finally:
+            record('gradivo-skica-mobitel.json', report)
+            browser.quit()
