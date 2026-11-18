@@ -39,3 +39,23 @@ jobs:
         run: |
           export EXPECTED_SHA256=04f10c6a30c019d13d9f7c52062b272c02bc509b41fe897b18a74c73c86271e0
           dbus-run-session -- xvfb-run -a bash qa/istrazivaci/run.sh
+
+  iskustvo:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Pregled javnog sučelja u izoliranom Chromeu
+        run: |
+          python3 -m venv "$RUNNER_TEMP/uxenv"
+          "$RUNNER_TEMP/uxenv/bin/pip" --disable-pip-version-check -q install selenium==4.38.0
+          "$RUNNER_TEMP/uxenv/bin/python" -u qa/istrazivaci/iskustvo.py
+      - name: Spremi prikaze i mjerenja
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: javna-aplikacija-ux
+          path: ${{ runner.temp }}/iskustvo
+          retention-days: 7
