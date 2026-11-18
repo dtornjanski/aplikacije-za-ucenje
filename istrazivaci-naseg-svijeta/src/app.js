@@ -19,7 +19,7 @@
   function remember(newRound=false){
     const key=scopeOf(session),disk=read(runPrefix+key),previous=runs.get(key);
     if(!newRound&&disk?.state&&previous&&disk.updated>previous.updated){
-      const concurrent=E.restore(disk.state,P.buildRound);
+      const concurrent=P.restore(disk.state);
       if(concurrent&&scopeOf(concurrent)===key){
         const ahead=concurrent.index>session.index||concurrent.index===session.index&&concurrent.solved[session.index]&&!session.solved[session.index];
         if(concurrent.seed!==session.seed||ahead||concurrent.phase==='complete')session=concurrent;
@@ -32,7 +32,7 @@
     const disk=read(runPrefix+key),local=runs.get(key);
     const entry=disk&&(!local||disk.updated>local.updated)?disk:local;
     if(!entry)return null;
-    const restored=E.restore(entry.state,P.buildRound);
+    const restored=P.restore(entry.state);
     return restored&&scopeOf(restored)===key?restored:null;
   }
   function record(refs){
@@ -44,7 +44,7 @@
     try{
       for(let i=0;i<localStorage.length;i++){
         const key=localStorage.key(i);if(!key?.startsWith(runPrefix))continue;
-        const entry=read(key),id=key.slice(runPrefix.length),restored=entry&&E.restore(entry.state,P.buildRound);
+        const entry=read(key),id=key.slice(runPrefix.length),restored=entry&&P.restore(entry.state);
         if(restored&&scopeOf(restored)===id)runs.set(id,entry);
       }
     }catch{/* Storage is optional. */}
@@ -67,13 +67,20 @@
   function announce(text){announcer.textContent='';setTimeout(()=>{announcer.textContent=text;},0);}
   const eqAttr=(selector,attr,value)=>[...app.querySelectorAll(selector)].find(node=>node.dataset[attr]===String(value));
   function render(focus){
-    app.innerHTML=view==='home'?home():view==='worlds'?worlds():view==='lessons'?lessonMenu():play();
+    app.innerHTML=view==='home'?home():view==='worlds'?worlds():view==='lessons'?lessonMenu():view==='book'?bookMenu():play();
     const target=focus?.()||app;
     try{target.focus({preventScroll:true});}catch{target.focus();}
     if(focus&&target!==app)target.scrollIntoView?.({block:'nearest',inline:'nearest'});
     else window.scrollTo(0,0);
   }
-  function navigate(next){view=next;render();}
+  function navigate(next){
+    view=next;
+    try{
+      if(next==='book'&&location.hash!=='#gradivo')window.history.replaceState(null,'','#gradivo');
+      else if(next!=='book'&&location.hash==='#gradivo')window.history.replaceState(null,'',location.pathname+location.search);
+    }catch{/* Offline practice can also run without the history API. */}
+    render();
+  }
   function resume(key){
     const saved=loadEntry(key);
     if(!saved)return;
@@ -97,12 +104,12 @@
   function home(){
     const saved=active();
     const resume=saved.length?`<section class="resume-list" aria-label="Nedovršene vježbe">${resumeCard(saved[0])}${saved.length>1?`<details><summary>Ostale nedovršene vježbe (${saved.length-1})</summary>${saved.slice(1).map(resumeCard).join('')}</details>`:''}</section>`:'';
-    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div></section>`;
+    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${button('Gradivo prema udžbeniku →','book','book-link')}</section>`;
   }
   const back=(label,action)=>button(label,action,'text-button');
   function worlds(){
     const mixed=button('<span class="world-icon" aria-hidden="true">🎒</span><span><strong>Miješana ekspedicija</strong><small>Po jedan zadatak iz svakog svijeta</small></span><b aria-hidden="true">→</b>','start','world-card mixed','data-world="mix"');
-    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
+    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}${button('Gradivo prema udžbeniku →','book','book-link')}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
   }
   function lessonMenu(){
     const w=P.worlds.find(w=>w.id===chosenWorld);
@@ -111,9 +118,21 @@
       return button(`<span class="world-icon" aria-hidden="true">${l.icon}</span><span><strong>${l.name}</strong><small>${info}</small></span><b aria-hidden="true">→</b>`,'lesson','world-card',`data-lesson="${l.id}"`);
     }).join('')}</div>${button('Vježbaj cijelu temu →','start','button secondary',`data-world="${w.id}"`)}</section>`;
   }
+  function bookMenu(){
+    const groups=P.bookGroups.map(([start,name],i)=>{
+      const finish=P.bookGroups[i+1]?.[0]||Infinity;
+      const units=P.units.filter(u=>u.from>=start&&u.from<finish);
+      const rows=units.map(u=>{
+        const pages=u.from===u.to?u.from:u.from+'–'+u.to;
+        return button('<span>'+esc(u.name)+'</span><small>str. '+pages+'</small>','unit','unit-link','data-unit="'+u.id+'"');
+      }).join('');
+      return '<details class="book-group"><summary>'+esc(name)+'</summary><div>'+rows+'</div></details>';
+    }).join('');
+    return `<section class="lesson-menu book-menu"><div class="topline">${back('← Početna','home')}<label for="book-level">Razina <select id="book-level">${P.levels.map(l=>`<option value="${l.id}" ${l.id===level?'selected':''}>${l.name}</option>`).join('')}</select></label></div><h1>Gradivo prema udžbeniku</h1><p class="lesson-intro">Otvori cjelinu i odaberi što želiš vježbati.</p>${groups}<details class="book-source"><summary>Odakle su brojevi stranica?</summary><p>Uz vježbe su navedene stranice iz tjednog nastavnog plana za Istražujemo naš svijet 2 iz školske godine 2020./21. Plan povezuje gradivo sa stranicama 6–99. Brojevi se mogu razlikovati u tvojem primjerku.</p></details></section>`;
+  }
   function progress(){
     const total=session.questions.length,done=E.summarize(session).solved;
-    return `<div class="topline">${back(session.lesson?'← Lekcije':'← Svjetovi',session.lesson?'back-lessons':'worlds')}<span class="pill">${levelName(level)}</span></div><div class="progress-row"><div class="progress" role="progressbar" aria-label="Riješeni zadaci" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}">${session.questions.map((_,i)=>`<span class="${session.solved[i]?'done':i===session.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${session.index+1} od ${total}</span></div>`;
+    return `<div class="topline">${P.unitById.has(session.lesson)?back('← Gradivo','book'):back(session.lesson?'← Lekcije':'← Svjetovi',session.lesson?'back-lessons':'worlds')}<span class="pill">${levelName(level)}</span></div><div class="progress-row"><div class="progress" role="progressbar" aria-label="Riješeni zadaci" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}">${session.questions.map((_,i)=>`<span class="${session.solved[i]?'done':i===session.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${session.index+1} od ${total}</span></div>`;
   }
   const direction={gore:'↑',desno:'→',dolje:'↓',lijevo:'←'};
   function picture(v){
@@ -196,6 +215,8 @@
   document.addEventListener('click',event=>{
     const t=event.target.closest('button');if(!t||t.disabled)return;
     const d=t.dataset,action=d.action;
+    if(action==='book'){navigate('book');return;}
+    if(action==='unit'){const unit=P.unitById.get(d.unit);if(unit)start(unit.world,unit.id);return;}
     if(action==='home'){navigate('home');return;}
     if(action==='level'){level=d.level;navigate('worlds');return;}
     if(action==='worlds'){navigate('worlds');return;}
@@ -206,7 +227,7 @@
     if(!session||view!=='play')return;
     if(action==='next'){if(E.advance(session)){remember();render();}return;}
     if(action==='new-round'){start(session.world,session.lesson);return;}
-    if(action==='review'){const refs=session.questions.filter((_,i)=>session.attempts[i]>1).map(q=>q.ref);if(refs.length)start(session.world,session.lesson,refs);return;}
+    if(action==='review'){const refs=session.questions.flatMap((q,i)=>session.attempts[i]>1?[q.type==='route'?{...q.ref,previousMoves:session.responses[i]?.items}:q.ref]:[]);if(refs.length)start(session.world,session.lesson,refs);return;}
     if(session.solved[session.index])return;
     const draft=session.draft,v=d.value;
     if(action==='check'){
@@ -224,5 +245,6 @@
     else if('removeSequence' in d){const [removed]=draft.items.splice(Number(d.removeSequence),1);edit(byValue('[data-sequence-item], [data-route]',removed));}
     else if('move' in d){const i=Number(d.move),j=i+Number(d.delta);[draft.items[i],draft.items[j]]=[draft.items[j],draft.items[i]];edit(()=>app.querySelector('[data-remove-sequence="'+j+'"]'));}
   });
-  load();render();
+  document.addEventListener('change',event=>{if(event.target.id==='book-level')level=event.target.value;});
+  load();if(location.hash==='#gradivo')view='book';render();
 })();

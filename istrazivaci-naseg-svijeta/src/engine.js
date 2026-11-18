@@ -132,7 +132,7 @@
 
   function serialize(session){
     const {level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending}=session;
-    return JSON.stringify({version:VERSION,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending,plan:session.questions[0].ref?session.questions.map(q=>q.ref):undefined});
+    return JSON.stringify({version:VERSION,contentRevision:3,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending,plan:session.questions[0].ref?session.questions.map(q=>q.ref):undefined});
   }
 
   function sameMembers(values,allowed){

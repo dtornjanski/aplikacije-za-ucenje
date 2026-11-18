@@ -141,6 +141,9 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
 .beaker{position:relative;width:68px;height:72px;margin:0 auto 3px;border:3px solid #416558;border-top:0;border-radius:0 0 10px 10px;background:linear-gradient(to bottom,transparent 0 35%,#5798aa 35% 38%,#d3eff5 38% 100%)}
 .beaker i{position:absolute;left:28%;width:44%;height:10px;background:#855027;border:2px solid #55321c;border-radius:6px;transform:rotate(-8deg)}.beaker .floating{top:30%}.beaker .sunk{bottom:2px}
 .leaf-branch{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin:0 auto 2px;max-width:160px}.leaf-branch i{width:9px;height:16px;background:#4f7e40;border-radius:100% 0 100% 0;border:1px solid #2e603e}.leaf-branch.late i{background:#dba435;border-color:#855b1a}
+.book-link{display:block;width:100%;padding:13px 16px;min-height:46px;margin:14px 0 20px;background:#e9f3ec;border:1px solid #8aaa95;border-radius:14px;font-weight:800;color:var(--forest-dark);text-align:center}
+.book-group{background:#fff;border:1px solid #bccfc1;border-radius:14px;margin:9px 0;overflow:hidden}.book-group summary,.book-source summary{padding:12px 14px;cursor:pointer;min-height:44px;font-weight:800;color:var(--ink)}.book-group summary:focus-visible,.book-source summary:focus-visible{outline:3px solid #823540;outline-offset:-4px}
+.unit-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:10px 14px;min-height:46px;color:var(--forest-dark);background:#f6faf6;border:0;border-top:1px solid #cbddce;font-weight:700}.unit-link:focus-visible{outline-offset:-4px}.unit-link:hover{background:var(--leaf)}.unit-link small{white-space:nowrap;font-size:14px}.book-menu .lesson-intro{margin-bottom:16px}.book-menu select{font:inherit;max-width:100%;min-height:44px;border:1px solid #7b9b88;color:var(--ink);background:white;border-radius:8px}.book-menu .topline label{font-size:14px}.book-source p{font-size:15px;padding:0 14px 10px}.book-source{margin-top:15px}
 </style>
 </head>
 <body>
@@ -286,7 +289,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
 
   function serialize(session){
     const {level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending}=session;
-    return JSON.stringify({version:VERSION,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending,plan:session.questions[0].ref?session.questions.map(q=>q.ref):undefined});
+    return JSON.stringify({version:VERSION,contentRevision:3,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending,plan:session.questions[0].ref?session.questions.map(q=>q.ref):undefined});
   }
 
   function sameMembers(values,allowed){
@@ -718,7 +721,9 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     }
     return null;
   }
-  function route(level,n){
+  const routeDecks=new Map();
+  function routeDeck(level){
+    if(routeDecks.has(level))return routeDecks.get(level);
     const length=level==='easy'?1:level==='medium'?2:3;
     const layouts=[];
     for(let start=0;start<9;start++)for(let end=0;end<9;end++){
@@ -732,7 +737,17 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
         if(path&&path.length===length)layouts.push({start,end,blocked:[rock],path});
       }
     }
-    const {start,end,blocked,path}=layouts[(n*7)%layouts.length];
+    const distance=(a,b)=>Math.abs(a%3-b%3)+Math.abs(Math.floor(a/3)-Math.floor(b/3));
+    const relevant=level==='hard'?layouts.filter(({start,end,blocked:[rock]})=>distance(start,rock)+distance(rock,end)===length):layouts;
+    const deck={all:layouts,cards:E.shuffle(relevant,E.makeRng(78321)).slice(0,24)};
+    routeDecks.set(level,deck);return deck;
+  }
+  function routeCard(level,n,legacy=false){
+    const deck=routeDeck(level);
+    return legacy?deck.all[(n*7)%deck.all.length]:deck.cards[n];
+  }
+  function route(level,n,rng,legacy){
+    const {start,end,blocked,path}=routeCard(level,n,legacy),length=path.length;
     return {type:'route',prompt:'Kreni od škole do parka u '+length+(length===1?' potezu.':' poteza.')+' Svaka strelica pomiče te za jedno polje.'+(blocked.length?' Zaobiđi radove.':''),
       visual:{kind:'map',start,end,blocked},answer:path,items:Object.keys(arrows)};
   }
@@ -826,17 +841,245 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     return choice('Učenice predlažu da '+best+'. Kako mogu provjeriti je li njihov dogovor uspio?','Obje opišu kako su sudjelovale.',['Samo prva kaže što je radila.','Prebroje stvari na stolu.','Odluku prepuste najglasnijoj učenici.'],rng,visual);
   }
   const generators={dogovor:agreement,stablo:family,lisce:autumn,tragovi:winter,pupoljci:spring,vrijeme:summer,sat:clock,kalendar:calendar,skica:route,uredaji:energy,ruke:cleanHands,pokus:experiment,ustanove:places};
-  function make(lesson,level,n,rng){
-    return {...generators[lesson.id](level,n,rng),title:lesson.name,world:lesson.world,level,lesson:lesson.id,id:lesson.world+'-'+level+'-'+lesson.id+'-'+n};
+  function make(lesson,level,n,rng,legacy=false){
+    return {...generators[lesson.id](level,n,rng,legacy),title:lesson.name,world:lesson.world,level,lesson:lesson.id,id:lesson.world+'-'+level+'-'+lesson.id+'-'+n};
   }
-  return {lessons,make,days};
+  return {lessons,make,days,routeCard};
+});
+</script>
+  <script>(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  else root.WorldActivities=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+
+  // The two valid readings are offered together only in two-speaker questions.
+  function task(prompt,a,b,x,y,z){return {prompt,right:[a,b],wrong:[x,y,z]};}
+  const cases={
+    school:{
+      0:task('U paru imate jednu lupu. Dogovor je da oboje pregledate svoj list. Koji postupak poštuje dogovor?','nakon promatranja predam lupu paru','dogovorimo kada ćemo zamijeniti uloge','zadržim lupu i opišem paru njegov list','oba lista pregleda onaj tko je prvi sjeo','drugo dijete svoj list samo nacrta bez promatranja'),
+      4:task('Učiteljica je na početku sata objasnila igru. Tin je došao kad je počeo drugi krug. Što je Tin propustio?','objašnjenje igre','prvi krug igre','objašnjenje koje će učiteljica dati na kraju','sve preostale krugove','razgovor o igri nakon sata'),
+      5:task('Četiri učenice izrađuju razredni plakat. Svaka treba pridonijeti radu. Koji plan to omogućuje?','svaka pripremi jedan dio pa zajedno slože plakat','podijele crtanje, pisanje, lijepljenje i provjeru','jedna učenica izradi plakat i potpiše sve četiri','tri učenice rade dok četvrta samo čeka odmor','samo najbrža učenica dovršava sve dijelove'),
+      7:task('Nova učenica želi sudjelovati u igri koju još ne poznaje. Kako je uključiti?','prije igre objasniti joj pravila','prvi krug odigrati s njom u paru','ostaviti joj ulogu gledateljice za cijelu igru','podijeliti ekipe prije nego što je itko pita','nastaviti igru dok sama ne pogodi pravila'),
+      10:task('Pravilo razgovora glasi „Govori jedan po jedan”. Čemu ono služi?','lakše čujemo što svatko želi reći','i tiša djeca mogu doći na red','uvijek prvo govori ista osoba','svatko treba imati isto mišljenje','smije se javiti samo onaj tko je prvi podigao ruku'),
+      11:task('Ema je jučer prva birala igru. Danas i Nika želi predložiti igru. Koja odluka daje priliku objema?','danas saslušamo i Nikin prijedlog','dogovorimo da djeca naizmjence biraju igru','svaki dan bira jučerašnja pobjednica','Nika čeka dok Ema više nema nijedan prijedlog','glasniji prijedlog uvijek ima prednost')},
+    home:{
+      0:task('Ana kaže „Luka je brat moje mame.” Što iz toga znamo o Luki?','Luka je Anin ujak','Ana i Luka su rodbina','Luka je Anin stric','Luka je brat Anina oca','Luka je Anin brat'),
+      4:task('Mila stavlja tanjure, tata čaše, a baka pribor na stol. Što pokazuje ovaj primjer?','posao oko stola podijelili su među sobom','svatko obavlja svoj dio zajedničkog posla','Mila je sama pripremila cijeli stol','svatko je donio po jedan isti predmet','baka je bila zadužena za čaše'),
+      5:task('Na zajedničkom ulazu su zvona za četiri stana. Što možeš zaključiti iz toga podatka?','isti ulaz vodi do više stanova','stanari tih stanova dijele ulaz','iza svakog zvona nalazi se druga kuća','svi stanari žive u jednoj istoj sobi','broj zvona pokazuje broj katova'),
+      7:task('Razbacane su Ivanove bojice. Na popisu kućnih poslova uz njegovo ime piše „složi svoj pribor”. Što je njegov zadatak?','vratiti bojice u pernicu','prikupiti vlastiti pribor sa stola','premjestiti bojice na sestrin stol i ostaviti ih tamo','složiti samo tuđe knjige umjesto svoga pribora','upisati sestrino ime umjesto svojega'),
+      10:task('Kutija stoji nasred zajedničkog hodnika. Susjeda prolazi s dječjim kolicima. Zašto je dobro osloboditi prolaz?','kolica mogu nesmetano proći','hodnik služi svim stanarima za kretanje','tako hodnik postaje dio samo jednoga stana','tada se hodnikom mogu koristiti samo kolica','kutija na sredini bolje označuje slobodan put'),
+      11:task('U čitaonici vratimo knjigu na policu. Kod kuće vratimo pribor u ladicu. Što je zajedničko tim postupcima?','vraćamo stvari na dogovoreno mjesto','drugoj osobi olakšavamo da pronađe stvar','obje su stvari pohranjene u školsku torbu','oba se postupka odvijaju u istoj prostoriji','i knjiga i pribor vraćaju se u ladicu')},
+    autumn:{
+      0:task('U rujnu je na označenoj grani bilo zeleno lišće. U listopadu su rubovi tih listova žuti. Što pokazuju zapisi?','promijenila se boja dijela lišća','ista je grana promatrana u dva mjeseca','promatrači su odabrali dvije različite grane','u rujnu su rubovi već bili žuti','svi su listovi do listopada pali'),
+      5:task('Ujutro su uz stazu vidjeli maglu, a poslijepodne vedro nebo. Koja bilješka odgovara opažanju?','magla je zabilježena ujutro','nebo je poslijepodne bilo vedro','magla je bila vidljiva pri oba promatranja','magla se pojavila tek poslijepodne','jutarnje i poslijepodnevno nebo izgledali su jednako'),
+      7:task('Vjeverica odnosi lješnjake i skriva ih na nekoliko mjesta. Što opažanje podupire?','sprema dio hrane za poslije','hranu je odnijela na više mjesta','odmah je pojela sve lješnjake','svaki je lješnjak ostavila gdje je pronađen','sve je lješnjake odnijela na samo jedno mjesto'),
+      10:task('Lastavice se hrane letećim kukcima. Kada zahladi, takvih je kukaca manje. Što im pomaže pronaći hranu?','odlazak u područje s više letećih kukaca','pronalaženje kraja u kojem kukci još lete','boravak tamo gdje više nema letećih kukaca','traženje isključivo sjemenki umjesto kukaca','ostanak na istom mjestu zato što hladnoća povećava broj letećih kukaca'),
+      11:task('Želiš idući tjedan usporediti boju lišća istog javora. Što treba sadržavati prvi zapis?','datum i boju lišća toga javora','oznaku stabla i crtež njegovih listova s datumom','samo datum budućeg opažanja','boju lišća susjednog hrasta bez podataka o javoru','samo boju korica bilježnice')},
+    winter:{
+      0:task('Na rukavu vidiš bijele pahulje koje upravo padaju iz oblaka. Što opažaš?','pada snijeg','iz oblaka padaju pahulje','na rukavu se pojavila samo rosa','iz oblaka padaju kapi kiše','pahulje su se podigle s tla umjesto da padaju iz oblaka'),
+      4:task('Zimi na hrastu vidiš gole grane, a na boru zelene iglice. Koji zaključak podupire taj prizor?','hrast je izgubio lišće, a bor ima iglice','ta dva stabla zimi izgledaju različito','oba stabla ostala su bez svih listova ili iglica','hrast i zimi nosi zelene iglice','bor u opažanju ima gole grane bez iglica'),
+      5:task('U zimskom zapisu piše „svitanje oko 7 sati, mrak oko 17 sati”. Što možeš zaključiti za taj dan?','u 8 sati već je bilo danje svjetlo','u 18 sati već je pao mrak','svitanje je bilo nakon 8 sati','u 16 sati već je bio noćni mrak','u 18 sati tek je počelo svitati'),
+      7:task('Luka je više dana promatrao isto stablo zimi. Pupovi su bili zatvoreni i pri posljednjem opažanju. Što može zapisati?','nije opazio otvaranje pupova u tim danima','pupovi su pri posljednjem promatranju bili zatvoreni','do zadnjeg opažanja razvio se otvoren cvijet','na svakoj je grani već vidio nove listove','stablo više nikada neće imati lišće'),
+      10:task('Kocka leda bila je na tanjuru u toploj sobi. Poslije je na tanjuru bila voda. Što se dogodilo?','led se otopio','voda je prešla iz čvrstog u tekuće stanje','tekuća se voda zaledila','voda je ostala u istom stanju','od vode je nastao novi sloj leda'),
+      11:task('Vidljivi otisci vode od grma do ograde. Što možeš zaključiti samo iz tih tragova?','na snijegu se vidi put između grma i ograde','životinja je prošla barem dijelom tog prostora','znaš točan sat svakog koraka','broj otisaka jednak je broju životinja','znaš da se životinja sada nalazi kod ograde')},
+    spring:{
+      0:task('Na istoj grani prije tjedan dana bili su pupovi. Danas iz njih vire mladi listovi. Što se promijenilo?','pojavili su se mladi listovi','neki su se pupovi počeli otvarati','listovi su otpali i ostavili golu granu','svi su se cvjetovi već pretvorili u zrele plodove','pupovi su danas zatvoreniji nego prije'),
+      4:task('Dvije su biljke iste vrste zalivene jednako. Jedna je u toploj, svijetloj sobi, a druga u hladnijoj i tamnijoj. Po čemu se razlikuju njihovi uvjeti?','po količini svjetlosti i toplini','po tome koliko je na njihovu mjestu toplo i svijetlo','samo po količini vode','po vrsti biljke koju promatramo','samo po broju zalijevanja'),
+      5:task('Na jednoj označenoj grančici iz pupa je izašao list, na drugoj cvijet. Što pokazuju ta dva primjera?','iz pupa se može razviti list ili cvijet','oba se pupa nisu razvila u isti dio biljke','svaki se pup razvije samo u list','oba su se pupa razvila u cvijet','iz svakog pupa odmah nastane zreo plod'),
+      7:task('U proljeće je ptica više puta nosila travke na isto mjesto među granama. Koji je zaključak u skladu s opažanjem?','na to mjesto donosila je materijal','moguće je da ondje gradi gnijezdo','iz opažanja se zna koliko ima jaja','viđeno je kako mladi već lete','ptica je svaki put nosila travke na različito mjesto'),
+      10:task('U proljeće opet ima više letećih kukaca. Što to znači za pticu koja ih lovi?','na tom području lakše dolazi do hrane','povratkom ondje može pronaći više svojega plijena','može se hraniti samo ondje gdje nema kukaca','kukci joj tada služe samo za građenje gnijezda','manje kukaca znači više hrane za tu pticu'),
+      11:task('Za izlet je najavljeno svježe jutro, toplije podne i moguć pljusak. Što najbolje odgovara tom planu?','odjeća u slojevima i lagana kabanica','majica, sloj koji se može skinuti i zaštita od kiše','samo debela jakna za cijeli dan bez zaštite od kiše','samo kratki rukavi iako jutro počinje hladno','obuća za kišu bez ikakvog toplijeg sloja za jutro')},
+    summer:{
+      0:task('U hladu je u 8 sati izmjereno 20 stupnjeva, a u 13 sati 30. Što pokazuju mjerenja?','u 13 sati bilo je toplije','jutarnja temperatura bila je niža','u 8 sati bilo je toplije','pri oba mjerenja bilo je 30 stupnjeva','temperatura se između dvaju mjerenja snizila'),
+      4:task('Biljci se zemlja osušila, a u toplom su danu listovi klonuli. Koje je objašnjenje moguće?','biljka je izgubila više vode nego što je primila','iz suhe zemlje nije dobila dovoljno vode','suha je zemlja biljci dala više vode nego vlažna','iz listova voda može izlaziti samo zimi','toplina biljkama posve zamjenjuje vodu'),
+      5:task('U istom mjestu oko početka ljeta u 20 sati još je svijetlo. Oko početka zime u isto je vrijeme mrak. Što podupiru zapisi?','u ljetnom zapisu još ima večernjeg svjetla','u tom zimskom zapisu mrak je pao prije 20 sati','u oba je zapisa u 20 sati mrak','zimi je prema zapisu u 20 sati svjetlije','ljetni zapis pokazuje da je Sunce već zašlo prije 20 sati i da je mrak'),
+      7:task('U dvorištu je vruće. Pas se s osunčane staze pomaknuo pod drvo pokraj zdjelice vode. Što se može zaključiti?','premjestio se u hlad','na novom je mjestu u blizini vode','izabrao je osunčano mjesto','iz opažanja znamo koliko je vode popio','iz opažanja znamo koliko će dugo ostati pod drvetom'),
+      10:task('U dva jednaka plitka tanjurića bilo je jednako vode. Stajali su na istom dvorištu, jedan na suncu, drugi u hladu. Na suncu je ostalo manje vode. Što opažaš?','u tanjuriću na suncu nestalo je više vode','u hladu je na kraju ostalo više vode','na početku je na suncu bilo manje vode','na kraju je u oba bilo jednako vode','u hladu je nestalo više vode nego na suncu'),
+      11:task('Na vrućem igralištu Ena kaže da joj se vrti i da je jako slaba. Koji je prikladan sljedeći postupak?','prekinuti igru i odmah reći odrasloj osobi','uz odraslu osobu skloniti se u hlad','pričekati kraj utakmice prije nego što ikomu kaže','nastaviti trčati dok je još na suncu','otići sama dalje od odraslih i ne reći gdje je')},
+    spacetime:{
+      0:task('Na crtežu je kutija na klupi, a lopta je točno ispod sjedala. Koji opis odgovara crtežu?','klupa je iznad lopte','lopta je niže od kutije','lopta je na sjedalu','kutija je ispod lopte','lopta i kutija nalaze se na istoj visini'),
+      4:task('Luka i odrasla osoba stigli su do obilježenoga pješačkog prijelaza. Što označuju bijele crte?','mjesto namijenjeno prelasku pješaka','mjesto na kojem vozači trebaju očekivati pješake','da je cesta zatvorena za sva vozila','da pješaci ondje trebaju čekati autobus','da bijele crte služe za parkiranje bicikala'),
+      10:task('Na skici puta do igrališta nacrtani su škola, most i knjižnica. Zašto su ti objekti korisni?','mogu ih prepoznati na putu','pomažu mi provjeriti idem li pravim smjerom','njihova veličina na papiru pokazuje broj koraka do cilja','potrebno je ući u svaku nacrtanu zgradu','redoslijed objekata mogu zanemariti i stići istim putem')},
+    energy:{
+      0:task('Na klupi je sunčeva svjetlost. Pod nadstrešnicom učiteljica je upalila baterijsku svjetiljku. Koji opis vrijedi?','Sunce je prirodni izvor svjetlosti','svjetiljka za rad koristi energiju iz baterije','sunčana klupa svjetlost dobiva iz baterije','ugašena svjetiljka jednako jako osvjetljuje klupu','nadstrešnica proizvodi svjetlost koju vidimo od svjetiljke'),
+      4:task('Hladnija metalna žličica stavljena je u topliji čaj. Nakon nekog vremena i drška je toplija. Kako to objasniti?','toplina prelazi s toplijeg čaja na žličicu','toplina se prenosi metalom do drške','hladna žličica daje toplinu toplijem čaju','drška se može zagrijati samo ako je uronjena u čaj','toplina se prenosi samo kroz vodu, a ne kroz metal'),
+      5:task('Svjetiljka na stolu ima utikač i kabel. U kojem dijelu njezina puta struja dolazi do uređaja?','kroz priključeni kabel','od utičnice do svjetiljke kroz vodiče','kroz sjenilo iz kojeg svjetlost pada na stol','od osvijetljenoga stola natrag do žarulje kroz zrak','kroz prekidač i kada je kabel izvučen iz utičnice'),
+      7:task('Čitanje je gotovo, svi napuštaju učionicu, a dvije svjetiljke još rade. Koji postupak štedi energiju?','ugasiti obje nepotrebne svjetiljke','ostaviti rasvjetu ugašenu dok nikome ne treba','ugasiti jednu i upaliti treću jednake snage','ostaviti obje upaljene cijeli odmor','premjestiti obje upaljene svjetiljke u drugu praznu sobu'),
+      10:task('Uzela si mlijeko iz hladnjaka. Zašto je dobro odmah zatvoriti vrata?','manje toplog zraka ulazi u hladnjak','hladnjak troši manje energije na ponovno hlađenje','kroz otvorena vrata unutra ulazi hladniji zrak iz tople kuhinje','otvorena vrata pomažu da uređaj manje hladi','zatvaranjem vrata prestaje potreba da se hrana drži hladnom'),
+      11:task('Usporedi rasvjetu. Koji primjer pokazuje jako svjetlo koje noću nikomu ne treba?','jaki reflektori svijetle na zatvorenom, praznom igralištu','prazno zaključano dvorište cijelu noć osvjetljuju upaljeni reflektori','svjetiljka kod stuba svijetli dok njima netko prolazi','radna lampa svijetli dok netko čita','signalno svjetlo pokazuje prometu kada treba stati')},
+    health:{
+      0:task('Leo je dugo sjedio i pisao. Sada ima kratku stanku prije sljedećeg zadatka. Koji plan uključuje kretanje?','prošetati do kraja hodnika i natrag','ustati i lagano se razgibati','ostati sjediti i listati drugu bilježnicu','ostati na istom stolcu i prijeći na igru na zaslonu','nastaviti pisati bez prekida'),
+      4:task('Mia doručkuje prije škole. Koja je uloga hrane u njezinu jutru?','hrana tijelu daje energiju','tijelo dobiva hranjive tvari','doručak može zamijeniti cijelu noć sna','jedan obrok uklanja potrebu za vodom tijekom dana','nakon doručka tijelu više ne treba nijedan obrok toga dana'),
+      5:task('Zadatak je složiti obrok koji sadrži povrće, žitaricu i hranu bogatu bjelančevinama. Koji tanjur ispunjava sva tri uvjeta?','mrkva, riža i grah','rajčica, kruh i jaje','riža, kruh i tjestenina','mrkva, krastavac i paprika','jaje, sir i jogurt'),
+      7:task('Tražiš suhu, čistu papirnatu ambalažu za spremnik za papir. Koji predmet odgovara?','prazna suha kartonska kutijica','čista papirnata vrećica','masna papirnata vrećica s ostacima hrane','staklenka s papirnatom naljepnicom','plastična kutijica u obliku kartonske'),
+      10:task('Poslije čitanja na zaslonu razred ima stanku. Što omogućuje odmor od gledanja izbliza i sjedenja?','ustati i pogledati kroz prozor u daljinu','prošetati prostorijom i odmaknuti pogled od zaslona','ostati sjediti i približiti drugi zaslon očima','samo povećati glasnoću i nastaviti istu igru','sjedeći nastaviti čitati sitna slova na mobitelu'),
+      11:task('Koji se zvuk može stišati kako buka uvečer ne bi smetala ljudima koji se odmaraju?','preglasna glazba iz zvučnika kraj otvorenog prozora','nepotrebno pojačan televizor u kasnim satima','zvučni znak hitne službe dok žuri pomoći','alarm koji upravo upozorava na opasnost','zvuk kojim netko upravo zove u pomoć')},
+    nature:{
+      0:task('Na ploči su crteži mrava, maslačka, kamena, lokve i oblaka. Koji prikazuje živo biće?','mrav','maslačak','kamen','lokva','oblak'),
+      4:task('Dvije biljke graha iste su vrste, imaju jednako vode i toplo im je. Jedna je danima u tami, a druga na svjetlu. Koji se uvjet razlikuje?','koliko svjetla dobivaju','je li mjesto osvijetljeno','količina vode koju dobivaju','vrsta biljke koju promatramo','toplina mjesta, ako je u obje sobe jednako toplo'),
+      5:task('Kroz zatvoreno staklo jasno vidiš list s druge strane. Koje svojstvo si tako provjerila?','prozirnost stakla','prolazi li svjetlost tako da se vidi predmet iza stakla','savija li se staklo pod prstima','upija li staklo kap vode','koliko je staklo teško'),
+      7:task('Zatvorenih očiju prepoznaješ miris metvice, bez dodirivanja i kušanja. Koje si osjetilo upotrijebila?','njuh','osjetilo mirisa','okus','sluh','dodir'),
+      10:task('U pokusu je čep ostao na površini vode, a kamenčić se spustio na dno. Koji zapis odgovara opažanju?','čep je u ovom pokusu plutao','kamenčić je u ovom pokusu potonuo','oba su predmeta završila na dnu','kamenčić je plutao, a čep je potonuo','oba su predmeta ostala na površini'),
+      11:task('Na crtežu su zajedno korijen, stabljika i listovi jedne mlade biljke. Koji opis obuhvaća cijeli crtež?','prikazana je biljka s nekoliko dijelova','korijen, stabljika i listovi dijelovi su iste biljke','prikazan je samo korijen','svaki list na tom crtežu zasebna je cijela biljka','na crtežu je samo stabljika bez drugih dijelova')},
+    place:{
+      0:task('Ulica vodi od pošte do trga. Ondje počinje jedina staza do parka. Koja tvrdnja opisuje taj put?','od pošte do trga možemo ići ulicom','na trgu skrećemo na stazu prema parku','staza od pošte do parka zaobilazi trg','staza počinje kod pošte i završava na trgu','od trga do parka ostajemo na istoj ulici'),
+      4:task('Pekar peče kruh, a vozač ga dostavlja trgovini. Što pokazuje ovaj primjer?','različiti poslovi povezuju ljude','oba posla pomažu da kruh stigne kupcima','vozač je ispekao kruh samom vožnjom','pekar je pečenjem već obavio i dostavu do trgovine','trgovina je u ovom primjeru primila kruh prije pečenja'),
+      5:task('Koji opis spaja jedno prirodno i jedno izgrađeno obilježje mjesta?','most prelazi preko rijeke','uz brdo je izgrađena cesta','most povezuje dvije ulice','rijeka teče ispod brda','između dviju kuća stoji klupa'),
+      7:task('U mjestu žele sačuvati stari običaj. Koji im postupak u tome pomaže?','zapisati kako se običaj provodi','naučiti mlađe sudionike tradicijskoj pjesmi','zamijeniti stari zapis praznom stranicom','sačuvati samo datum događaja i izbrisati njegov opis','organizirati susret, a zanemariti to kako se običaj izvodi'),
+      10:task('Pokraj potoka ostale su vrećice koje vjetar može odnijeti u vodu. Zašto ih s odraslom osobom spremamo u spremnik?','tako sprečavamo da vrećice dospiju u vodu','čuvamo prostor u kojem žive vodene životinje','vrećice u vodi postaju hrana za sve ribe','pomicanjem otpada nizvodno potok se posve očisti','vrećica u vodi odmah nestane bez traga')}
+  };
+  function sunset(level,rng){
+    const offset=Math.floor(rng()*3)*10,minute=String(offset).padStart(2,'0');
+    const rows=[['rujan','7:'+minute,'19:'+minute,'vedro'],['studeni','7:'+minute,'17:'+minute,'vedro']];
+    const visual={kind:'table',caption:'Primjer dvaju opažanja na istome mjestu',headers:['Mjesec','Izlazak','Zalazak','Nebo'],rows};
+    if(level==='easy')return {...task('U kojem je mjesecu u ovom primjeru Sunce zašlo ranije?','u studenome','u mjesecu u drugom retku','u rujnu','u oba mjeseca u isti sat','iz zapisa se ne vidi kada Sunce zalazi'),visual};
+    if(level==='medium')return {...task('Za koliko je u ovom primjeru razdoblje od izlaska do zalaska Sunca kraće u studenome?','za 2 sata','za 120 minuta','za 1 sat','za 3 sata','jednako je dugo'),visual};
+    return {...task('Pročitaj oba zapisa. Koje zaključke možeš potvrditi?','u studenome je razdoblje dnevnog svjetla kraće','nebo je pri obama opažanjima bilo vedro','u rujnu je Sunce zašlo ranije','kraći se studeni dan u ovom zapisu može objasniti oblačnim nebom','Sunce je u studenome izašlo dva sata kasnije'),visual};
+  }
+  return {cases,sunset};
+});
+</script>
+  <script>(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;
+  else root.WorldBook=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+  // Page references are from the 2020/21 Croatian teaching plan for this title.
+  // Labels below name the skills practised; they are not a transcription of the book.
+  const rows=[
+    [6,7,'Što volim i što učim','school',['osobine','ucenje']],
+    [8,9,'Rodbinske veze','home',[0,1,'stablo']],
+    [10,11,'Kako surađujemo u razredu','school',[5,7,11,'dogovor']],
+    [12,13,'Moja prava i obveze','school',[0,1,2,8,10]],
+    [14,15,'Odgovornost u zajednici','school',[3,6,9,11]],
+    [16,19,'Jesensko vrijeme, biljke i životinje','autumn',[4,5,7,10,'lisce']],
+    [20,21,'Ljudi i jesenski poslovi','autumn',[8,9]],
+    [22,25,'Zimska opažanja u prirodi','winter',[1,4,5,7,'tragovi']],
+    [26,27,'Život ljudi zimi','winter',[2,3,8]],
+    [28,31,'Proljetna opažanja u prirodi','spring',[0,5,7,10,'pupoljci']],
+    [32,33,'Ljudi i proljetni poslovi','spring',[3,8,11]],
+    [34,37,'Ljetno vrijeme i živi svijet','summer',[0,4,5,7,'vrijeme']],
+    [38,39,'Život ljudi ljeti','summer',[1,2,3,8,10]],
+    [40,41,'Položaj i čitanje skice puta','spacetime',[0,5,10,'skica']],
+    [42,43,'Kako putuju ljudi i roba','spacetime',[1,2]],
+    [44,45,'Pješaci i prometni znakovi','spacetime',[3,4,8]],
+    [46,49,'Očitavanje i mjerenje vremena','spacetime',[7,'sat','trajanje']],
+    [50,51,'Redoslijed i duljina mjeseci','spacetime',['mjeseci','duljina']],
+    [52,53,'Mjeseci i izmjena godišnjih doba','spacetime',['doba','smjena']],
+    [54,55,'Snalaženje na kalendaru','spacetime',['kalendar',11]],
+    [56,57,'Jučer, danas i sutra','spacetime',[9,'vremenska-crta']],
+    [58,59,'Dijelovi tijela i njihove uloge','health',['tijelo','zglobovi']],
+    [60,63,'Navike koje čuvaju zdravlje','health',[0,1,3,6,'ruke']],
+    [64,65,'Raznolikost u prehrani','health',[2,4,5]],
+    [66,67,'Kako se snalazim u svome mjestu','place',[0,1,'ustanove']],
+    [68,69,'Prirodno i izgrađeno u krajoliku','place',[2,3,5]],
+    [70,71,'Što rade ljudi u mjestu','place',[4,8]],
+    [72,73,'Rad, novac i štednja','place',[6,'stednja']],
+    [74,75,'Što čuvamo za buduće naraštaje','place',[7,9]],
+    [76,77,'Kako prepoznati živo biće','nature',[0,2,'zivo']],
+    [78,79,'Dijelovi i rast biljke','nature',[1,3,4,11]],
+    [80,81,'Životinje, kretanje i staništa','nature',[8,'staniste']],
+    [82,85,'Ispitujemo svojstva tvari','nature',[5,6,9,10,'pokus']],
+    [86,87,'Otpad i briga za okoliš','health',[7,8,9,11]],
+    [88,91,'Izvori i oblici energije','energy',[0,1,4,5,9]],
+    [92,93,'Gdje upotrebljavamo energiju','energy',[1,2,3,8]],
+    [94,95,'Štednja energije','energy',[7,10,11,'uredaji']],
+    [96,96,'Dan neovisnosti u Hrvatskoj','place',['neovisnost','datumi']],
+    [97,97,'Od zrna do kruha','place',['kruh','zrno']],
+    [98,98,'Božić i početak nove godine','place',['prosinac','nova-godina']],
+    [99,99,'Uskrs i uskrsni običaji','place',['uskrs','pisanice']]
+  ];
+  const units=rows.map(([from,to,name,world,keys])=>({id:'str-'+from,from,to,name,world,keys}));
+  const groups=[[6,'Ja, obitelj i škola'],[16,'Priroda kroz godišnja doba'],[40,'Prostor, promet i vrijeme'],[58,'Tijelo i zdravlje'],[66,'Moje mjesto'],[76,'Priroda i okoliš'],[88,'Energija'],[96,'Dani koje obilježavamo']];
+  const unitById=new Map(units.map(u=>[u.id,u]));
+
+  const month=['siječanj','veljača','ožujak','travanj','svibanj','lipanj','srpanj','kolovoz','rujan','listopad','studeni','prosinac'];
+  const seasons=['zima','proljeće','ljeto','jesen'];
+  const names=['Mia','Ema','Rita','Iva','Nika','Dora','Eva','Lana'];
+  const interests=['crtanje','čitanje priča','pjevanje','ples','plivanje','vrtlarenje'];
+  function t(prompt,a,b,x,y,z,visual){return {prompt,right:[a,b],wrong:[x,y,z],visual};}
+  function extra(key,level,rng){
+    const n=Math.floor(rng()*120),i=n%4,name=names[n%8],a=n%12,m=month[a],next=month[(a+1)%12],prev=month[(a+11)%12];
+    const visual=(caption,headers,rows)=>({kind:'table',caption,headers,rows});
+    switch(key){
+      case 'osobine':{
+        const like=interests[n%6],learn=interests[(n+2)%6];
+        return t(name+' piše „'+like+' mi je omiljena aktivnost. '+learn+' upravo učim.” Što znamo o njoj?', 'najviše voli '+like,'trenutačno uči '+learn,'najviše voli '+learn,'prestala je učiti '+learn,'rekla je da je '+like+' ne zanima');
+      }
+      case 'ucenje':
+        return t(name+' piše „Sama složim slagalicu. Još vježbam vezanje vezica.” Koja izjava odgovara njezinu opisu?','slaganje slagalice već joj ide samostalno','vezanje vezica vještina je koju još uvježbava','ni slagalicu ne zna složiti bez pomoći','vezanje vezica opisuje kao vještinu koju je već svladala','napisala je da više nema što naučiti');
+      case 'mjeseci':
+        return t('Na vremenskoj crti označen je mjesec '+m+'. Koja tvrdnja o susjednim mjesecima vrijedi?', 'sljedeći je mjesec '+next,'prethodni je mjesec '+prev,'sljedeći je mjesec '+prev,'neposredno prije njega dolazi '+next,'odmah nakon njega dolazi '+month[(a+2)%12]);
+      case 'duljina':{
+        const year=2027+n%2,counts=[31,year===2028?29:28,31],v=visual('Kalendar za '+year+'.',['Mjesec','Broj dana'],[['siječanj',31],['veljača',counts[1]],['ožujak',31]]);
+        return t('Usporedi tri mjeseca iz kalendara. Koji je zaključak točan?','veljača ovdje ima '+counts[1]+' dana','siječanj i ožujak imaju isti broj dana','sva tri mjeseca imaju jednako dana','veljača je ovdje dulja od ožujka','siječanj ima manje dana od veljače',v);
+      }
+      case 'doba':{
+        const anchor=[0,3,6,9][i]+(Math.floor(n/4)%2);
+        return t('U Hrvatskoj je sredina mjeseca. Ime mjeseca na kalendaru je '+month[anchor]+'. Koje je godišnje doba?',seasons[i],'isto godišnje doba kao i sredinom mjeseca '+month[[0,3,6,9][i]+(anchor%3===0?1:0)],...seasons.filter(s=>s!==seasons[i]));
+      }
+      case 'smjena':
+        return t('Na kotaču godišnjih doba označeno je doba „'+seasons[i]+'”. Koja tvrdnja opisuje slijed u Hrvatskoj?','sljedeće je doba '+seasons[(i+1)%4],'prethodno je doba '+seasons[(i+3)%4],'sljedeće je doba '+seasons[(i+3)%4],'odmah prije njega dolazi '+seasons[(i+1)%4],'odmah nakon njega dolazi '+seasons[(i+2)%4]);
+      case 'trajanje':{
+        const h=8+i,d=[10,15,20,30][i],shown=(h+':00'),end=h+':'+d;
+        return t('Čitanje je počelo u '+shown+', a završilo u '+end+'. Što vrijedi?','trajalo je '+d+' minuta','završilo je prije '+(h+1)+':00','trajalo je '+(60-d+(d===30?5:0))+' minuta','završilo je u '+(h+1)+':'+d,'trajalo je cijeli sat');
+      }
+      case 'vremenska-crta':{
+        const d=['ponedjeljak','utorak','srijeda','četvrtak','petak','subota'];
+        return t('U dnevniku piše: jučer — crtanje, danas — čitanje, sutra — izlet. Danas je '+d[i+1]+'. Koja tvrdnja prati dnevnik?','izlet će biti u danu poslije čitanja','crtanje je već bilo','izlet je prije crtanja','čitanje je planirano tek za sutra','sve tri aktivnosti bile su jučer');
+      }
+      case 'tijelo':
+        return [
+          t('Svaku od dvije kutije ispitaš zatvorenih očiju. Jedna zvecka kad je protreseš, a druga ima hrapav poklopac. Što si mogla doznati?', 'sluhom mogu prepoznati kutiju koja zvecka','dodirom mogu prepoznati hrapav poklopac','iz samog zveckanja mogu znati boju poklopca','po hrapavosti znam koja kutija glasnije zvecka','po zvuku znam je li na kutiji nacrtana zvijezda'),
+          t('Držiš loptu objema rukama. Najprije je pustiš, zatim je udariš stopalom. Što se dogodilo?', 'prije udarca loptu su držale ruke','stopalo je promijenilo smjer lopte','loptu si najprije udarila pa je pustila','loptu si držala dok si je udarala','lopta je napustila ruke tek nakon udarca'),
+          t('Jedan je kamen gladak, a drugi hrapav. Oba su siva. Koja bi ti provjera pomogla pronaći hrapavi kamen?', 'prijeći jagodicama prstiju preko površine','dodirnuti oba kamena i usporediti ih','odabrati kamen samo po sivoj boji','izvagati ih i zaključiti da je teži uvijek hrapav','izmjeriti duljinu i zaključiti da je kraći uvijek hrapav'),
+          t('U ogledalu promatraš kako se krećeš. Najprije kimneš glavom pa podigneš ramena. Koji opis odgovara tim pokretima?', 'pri kimanju pomičem glavu u odnosu na trup','ramena podižem poslije kimanja','ramena sam podigla prije kimanja','u prvom sam pokretu samo podigla ramena','drugi je pokret bilo okretanje glave u stranu')][i];
+      case 'zglobovi':{
+        const leg=n%2===1;
+        const part=leg?'nogu':'ruku',end=leg?'stopalo':'šaku',towards=leg?'stražnjoj strani natkoljenice':'ramenu',joint=leg?'koljeno':'lakat';
+        return t('Dijete savija '+part+' tako da '+end+' približava '+towards+'. Koji opis odgovara pokretu?', 'zglob koji se savija jest '+joint,'nakon savijanja '+(leg?'stopalo':'šaka')+' je bliže tijelu','dijete ispruža '+part,'razmak između kraja uda i tijela postaje veći','pokret se događa samo u '+(leg?'gležnju':'ručnom zglobu'));
+      }
+      case 'stednja':{
+        const have=3+i,price=have+2+i;
+        return t(name+' ima '+have+' eura. Knjiga koju želi kupiti stoji '+price+' eura. Što vrijedi?','treba uštedjeti još '+(price-have)+' eura','knjiga stoji više od iznosa koji sada ima','već ima točan iznos za kupnju','knjiga stoji manje nego što je uštedjela','nakon kupnje odmah bi joj ostala još dva eura');
+      }
+      case 'zivo':
+        return t('Na istom prozoru promatraš mladicu, lončić i povećalo. Koju promjenu možeš zabilježiti kao znak života mladice?','raste i razvija se','iz sjemenke nastaju novi dijelovi biljke','netko je pomaknuo lončić na drugo mjesto','na povećalu se vidi odraz lista','na lončiću se osušila kap vode');
+      case 'staniste':
+        return t('Učenici su najprije opazili leptira na livadi. Potom su kraj potoka opazili žabu. Koji zapis odgovara bilješkama?','leptir je opažen na livadi','žaba je opažena kraj potoka','žabu su opazili prije leptira','obje su životinje zapisali kao opažanja s livade','leptira su opazili nakon dolaska do potoka');
+      case 'neovisnost':
+        return t('U hrvatskom kalendaru usporedi Dan neovisnosti i Novu godinu. Koja tvrdnja vrijedi za Dan neovisnosti?','obilježava se 25. lipnja','u Hrvatskoj je spomendan u lipnju','obilježava se 1. siječnja','obilježava se 25. prosinca','obilježava se posljednjeg dana svibnja');
+      case 'datumi':{
+        const v=visual('Dio hrvatskog kalendara',['Datum','Dan'],[['30. svibnja','Dan državnosti'],['25. lipnja','Dan neovisnosti']]);
+        return t('Usporedi ova dva datuma iz iste godine. Što pokazuje kalendar?','Dan državnosti dolazi prije Dana neovisnosti','Dan neovisnosti obilježava se u kasnijem mjesecu','oba su dana u istom mjesecu','Dan neovisnosti dolazi u svibnju','Dan državnosti dolazi poslije Dana neovisnosti',v);
+      }
+      case 'kruh':
+        return t('Za Dane kruha razred prati kako od zrna pšenice nastaje kruh. Koji je par poredan od ranije radnje prema kasnijoj?','samljeti zrno pa zamijesiti tijesto','zamijesiti tijesto pa ispeći kruh','ispeći kruh pa od istog kruha zamijesiti prvotno tijesto','zamijesiti tijesto pa tek samljeti zrno za to isto tijesto','ispeći kruh pa tek požeti pšenicu za taj kruh');
+      case 'zrno':
+        return t('Na izložbi za Dane kruha prva slika prikazuje žetvu, druga mljevenje, a treća pekaricu kraj peći. Koje su uloge točno povezane?','mlinar melje zrno u brašno','pekarica oblikuje i peče kruh','na ovoj slici pekarica žanje pšenicu na polju','uz prikaz mljevenja zrna ide slika žetve','uz prikaz pečenja kruha ide slika rada u mlinu');
+      case 'prosinac':
+        return t('Na kalendaru su označeni Božić i prvi dan sljedeće godine. Koja tvrdnja vrijedi?','Božić se obilježava 25. prosinca','Nova godina počinje 1. siječnja','oba su dana u prosincu iste godine','Nova godina počinje zadnjeg dana prosinca','Božić se obilježava prvog dana siječnja');
+      case 'nova-godina':
+        return t('Posljednji je dan prosinca. Što se u kalendaru promijeni na početku sljedećeg dana?','počinje siječanj','počinje nova kalendarska godina','počinje veljača','počinje ponovo 1. prosinca','mjesec se mijenja, a godina zadržava stari broj');
+      case 'uskrs':
+        return t('Ove godine obitelj slavi Uskrs u nedjelju. Koja tvrdnja odgovara tom blagdanu?','Uskrs se obilježava u proljeće','Uskrsni ponedjeljak slijedi dan nakon Uskrsa','Uskrsni ponedjeljak pada dan prije Uskrsa','Uskrs je uvijek 1. siječnja','Uskrs i Božić uvijek su u istom mjesecu');
+      case 'pisanice':
+        return t('Jedna obitelj za Uskrs ukrašava jaja, a druga ima drukčiji običaj. Što možeš zaključiti?','ukrašena uskrsna jaja zovemo pisanice','obitelji mogu imati različite uskrsne običaje','druga je obitelj prema opisu ukrasila ista jaja','iz jednog primjera znamo običaje svih obitelji','pisanica je naziv za ukras na novogodišnjem drvcu');
+      default:throw new Error('Nepoznata nastavna vježba.');
+    }
+  }
+  const extraNames={osobine:'Moji interesi',ucenje:'Što već znam',mjeseci:'Susjedni mjeseci',duljina:'Koliko dana ima mjesec?',doba:'Mjesec i godišnje doba',smjena:'Kotač godišnjih doba',trajanje:'Koliko je trajala aktivnost?','vremenska-crta':'Događaji na vremenskoj crti',tijelo:'Kako mi služe dijelovi tijela?',zglobovi:'Pokret i zglob',stednja:'Moj plan štednje',zivo:'Kako prepoznati rast?',staniste:'Gdje smo opazili životinju?',neovisnost:'Dan neovisnosti',datumi:'Dva važna datuma',kruh:'Od zrna do kruha',zrno:'Tko sudjeluje u izradi kruha?',prosinac:'Blagdani na kalendaru','nova-godina':'Prvi dan godine',uskrs:'Uskrs i proljeće',pisanice:'Uskrsni običaji'};
+  return {units,unitById,groups,extraNames,extra};
 });
 </script>
   <script>(function(root,factory){
   const node=typeof module==='object'&&module.exports;
-  const api=node?factory(require('./engine.js'),require('./content.js'),require('./lessons.js')):factory(root.WorldEngine,root.WorldContent,root.WorldLessons);
+  const api=node?factory(require('./engine.js'),require('./content.js'),require('./lessons.js'),require('./activities.js'),require('./book.js')):factory(root.WorldEngine,root.WorldContent,root.WorldLessons,root.WorldActivities,root.WorldBook);
   if(node)module.exports=api;else root.WorldPractice=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(E,C,L){
+})(typeof globalThis!=='undefined'?globalThis:this,function(E,C,L,A,B){
   'use strict';
   const {levels,worlds,banks}=C,{lessons}=L;
   const direct=[0,4,5,7,10,11];
@@ -957,9 +1200,9 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     const options=['Nijedan zapis nije točan.','Samo je Lara u pravu.','Samo je Bitko u pravu.','Oba su zapisa točna.'];
     return {...base,prompt:prompt+' Procijeni oba odgovora.',clues,reasoning:'evidence',options:E.shuffle(options,rng),answer:options[pattern]};
   }
-  function spatialQuestion(base,key,level,rng){
+  function spatialQuestion(base,key,level,rng,legacy){
     const id={5:'skica',7:'sat',11:'kalendar'}[key],lesson=lessonById.get(id),example=Math.floor(rng()*lesson.cases);
-    const q=L.make(lesson,key===5?'easy':level,example,rng);
+    const q=L.make(lesson,key===5?'easy':level,example,rng,legacy);
     const info={...base,type:key===7?'single':'observe',visual:q.visual,title:key===5?'Čitam skicu':key===7?'Čitam sat':'Čitam kalendar'};
     if(key===5){
       const dir=q.answer[0],opposite={gore:'dolje',dolje:'gore',lijevo:'desno',desno:'lijevo'},pos={gore:'iznad',dolje:'ispod',desno:'desno od',lijevo:'lijevo od'};
@@ -976,9 +1219,19 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     const day=parseInt(q.answer),month=q.visual.month.toLocaleLowerCase('hr');
     return decision(info,q.prompt,['Datum radionice je '+q.answer,'Trebam pronaći broj '+day+' u kalendaru za mjesec '+month+'.'],distractors.map(v=>'Radionica je na datum '+v),rng);
   }
-  function makeBase(world,level,key,rng,review){
-    const def=definition(world,key),base={id:world+'-'+level+'-'+key,world,level,title:def.title};
-    if(world==='spacetime'&&[5,7,11].includes(key))return spatialQuestion(base,key,level,rng);
+  function reading(base,task,level,rng,review){
+    if(task.visual)base.visual=task.visual;
+    if(level==='hard')return decision(base,task.prompt,task.right,task.wrong,rng);
+    const answer=task.right[review?1:0],others=E.shuffle(task.wrong,rng).slice(0,level==='easy'?2:3);
+    return {...base,prompt:task.prompt,answer,options:E.shuffle([answer,...others],rng)};
+  }
+  function makeBase(world,level,key,rng,review,legacy){
+    const extra=B.extraNames[key],def=extra?null:definition(world,key);
+    const base={id:world+'-'+level+'-'+key,world,level,title:extra||def.title};
+    if(extra)return reading({...base,type:'single'},B.extra(key,level,rng),level,rng,review);
+    if(world==='spacetime'&&[5,7,11].includes(key))return spatialQuestion(base,key,level,rng,legacy);
+    if(!legacy&&world==='autumn'&&key===4)return reading({...base,type:'cause',title:'Dva jesenska zalaska Sunca'},A.sunset(level,rng),level,rng,review);
+    if(!legacy&&A.cases[world][key])return reading({...base,type:def.type},A.cases[world][key],level,rng,review);
     if(['single','cause','observe'].includes(def.type)){
       const [secondTrue,secondFalse]=claims[world][direct.indexOf(key)],wrong=E.shuffle(def.wrong,rng);
       if(level==='hard'){
@@ -1013,8 +1266,11 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     return {...base,type:'sort',prompt:def.prompt,zones,items:E.shuffle(Object.values(answer).flat(),rng),answer};
   }
 
-  const keys=Object.fromEntries(worlds.map(w=>[w.id,[...banks[w.id].keys(),...lessons.filter(l=>l.world===w.id).map(l=>l.id)]]));
-  const lessonById=new Map(lessons.map(l=>[l.id,l]));
+  const keys=Object.fromEntries(worlds.map(w=>{
+    const extra=B.units.filter(u=>u.world===w.id).flatMap(u=>u.keys).filter(k=>Object.hasOwn(B.extraNames,k));
+    return [w.id,[...new Set([...banks[w.id].keys(),...lessons.filter(l=>l.world===w.id).map(l=>l.id),...extra])]];
+  }));
+  const lessonById=new Map([...lessons,...B.units].map(l=>[l.id,l]));
   function bucket(level,world,lesson){return [level,world,lesson].filter(Boolean).join('/');}
   function remember(list,value){return [...list.filter(entry=>entry!==value),value];}
   function record(history,level,refs){
@@ -1034,12 +1290,24 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     if(!levels.some(l=>l.id===level)||world!=='mix'&&!Object.hasOwn(keys,world))throw new Error('Nepoznata vježba.');
     if(lesson&&lessonById.get(lesson)?.world!==world)throw new Error('Nepoznata lekcija.');
     const local={...history},rng=E.makeRng(seed),plan=[];
+    const unit=B.unitById.get(lesson),seenReviewMaps=new Set();
+    if(repeat)for(const p of repeat)if(p.key==='skica')seenReviewMaps.add(routeKey(L.routeCard(level,p.example,p.legacy)));
     function add(w,key,previous){
       const ref={world:w,key,seed:Math.floor(rng()*0x100000000)};
+      if(unit)ref.unit=unit.id;
       const l=lessonById.get(key);
       if(l){
         const recent=local[bucket(level,w,key)]||[];
-        ref.example=pick(Array.from({length:l.cases},(_,i)=>i).filter(i=>i!==previous?.example),recent,rng);
+        let candidates=Array.from({length:l.cases},(_,i)=>i).filter(i=>i!==previous?.example);
+        if(previous&&key==='skica'){
+          const before=L.routeCard(level,previous.example,previous.legacy);
+          const fresh=candidates.filter(i=>!seenReviewMaps.has(routeKey(L.routeCard(level,i))));
+          const previousPaths=[before.path,previous.previousMoves].filter(Array.isArray);
+          const changed=fresh.filter(i=>{const card=L.routeCard(level,i);return previousPaths.every(path=>E.walk(card,path)!==card.end);});
+          candidates=changed.length?changed:fresh;
+        }
+        ref.example=pick(candidates,recent,rng);
+        if(previous&&key==='skica')seenReviewMaps.add(routeKey(L.routeCard(level,ref.example)));
       }else if(previous){
         ref.review=!previous.review;
         if(ref.seed===previous.seed)ref.seed=(ref.seed+1)>>>0;
@@ -1047,6 +1315,14 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
       record(local,level,[ref]);plan.push(ref);
     }
     if(repeat){for(const ref of repeat)add(ref.world,ref.key,ref);return plan;}
+    if(unit){
+      const pool=unit.keys.slice();
+      for(let i=0;i<Math.min(5,unit.keys.length);i++){
+        const key=pick(pool,local[bucket(level,world)]||[],rng);
+        add(world,key);pool.splice(pool.indexOf(key),1);
+      }
+      return plan;
+    }
     if(world==='mix'){for(const w of E.shuffle(worlds,rng))add(w.id,pick(keys[w.id],local[bucket(level,w.id)]||[],rng));}
     else for(let i=0;i<5;i++)add(world,lesson||pick(keys[world],local[bucket(level,world)]||[],rng));
     return plan;
@@ -1059,15 +1335,42 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
       if(!ref||!Array.isArray(keys[ref.world])||!keys[ref.world].includes(ref.key)||(world!=='mix'&&ref.world!==world)||!Number.isInteger(ref.seed)||ref.seed<0||ref.seed>0xffffffff)throw new Error('Nepoznat zadatak.');
       const rng=E.makeRng(ref.seed),lesson=lessonById.get(ref.key);
       if(lesson&&(!Number.isInteger(ref.example)||ref.example<0||ref.example>=lesson.cases))throw new Error('Nepoznat primjer.');
-      const q=lesson?L.make(lesson,level,ref.example,rng):makeBase(ref.world,level,ref.key,rng,ref.review===true);
-      return {...q,ref:{...ref}};
+      if(ref.unit){
+        const unit=B.unitById.get(ref.unit);
+        if(!unit||unit.world!==ref.world||!unit.keys.includes(ref.key))throw new Error('Zadatak ne pripada ovoj temi.');
+      }
+      const q=lesson?L.make(lesson,level,ref.example,rng,ref.legacy):makeBase(ref.world,level,ref.key,rng,ref.review===true,ref.legacy);
+      return {...q,...(ref.unit?{lesson:ref.unit}:{}),ref:{...ref}};
     });
   }
   function migrateRefs(old){
     const rng=E.makeRng(old.seed);
     return old.questions.map(q=>({world:q.world,key:Number(q.id.split('-').pop()),seed:Math.floor(rng()*0x100000000)}));
   }
-  return {levels,worlds,lessons,lessonById,makePlan,record,buildRound,migrateRefs};
+  function routeKey(card){return [card.start,card.end,...card.blocked].join('/');}
+  function restore(saved){
+    if(!saved||saved.contentRevision||!Array.isArray(saved.plan))return E.restore(saved,buildRound);
+    try{
+      const seen=new Set(),old=E.restore({...saved,plan:saved.plan.map(r=>({...r,legacy:true}))},buildRound);
+      if(!old)return null;
+      const currentStarted=old.attempts[old.index]>0||old.pending!==null||
+        !E.sameResponse(old.questions[old.index],old.draft,E.emptyDraft(old.questions[old.index]));
+      const plan=saved.plan.map((r,i)=>{
+        const pinned=i<old.index||(i===old.index&&currentStarted);
+        const ref={...r,...(pinned?{legacy:true}:{})};
+        if(r.key==='skica'){
+          const card=n=>L.routeCard(old.level,n,pinned);
+          if(!pinned&&seen.has(routeKey(card(ref.example)))){
+            ref.example=Array.from({length:24},(_,n)=>(n+r.example+1)%24).find(n=>!seen.has(routeKey(card(n))));
+          }
+          seen.add(routeKey(card(ref.example)));
+        }
+        return ref;
+      });
+      return E.restore({...saved,plan},buildRound);
+    }catch{return null;}
+  }
+  return {levels,worlds,lessons,lessonById,units:B.units,unitById:B.unitById,bookGroups:B.groups,keys,makePlan,record,buildRound,migrateRefs,restore};
 });
 </script>
   <script>(function(){
@@ -1091,7 +1394,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   function remember(newRound=false){
     const key=scopeOf(session),disk=read(runPrefix+key),previous=runs.get(key);
     if(!newRound&&disk?.state&&previous&&disk.updated>previous.updated){
-      const concurrent=E.restore(disk.state,P.buildRound);
+      const concurrent=P.restore(disk.state);
       if(concurrent&&scopeOf(concurrent)===key){
         const ahead=concurrent.index>session.index||concurrent.index===session.index&&concurrent.solved[session.index]&&!session.solved[session.index];
         if(concurrent.seed!==session.seed||ahead||concurrent.phase==='complete')session=concurrent;
@@ -1104,7 +1407,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     const disk=read(runPrefix+key),local=runs.get(key);
     const entry=disk&&(!local||disk.updated>local.updated)?disk:local;
     if(!entry)return null;
-    const restored=E.restore(entry.state,P.buildRound);
+    const restored=P.restore(entry.state);
     return restored&&scopeOf(restored)===key?restored:null;
   }
   function record(refs){
@@ -1116,7 +1419,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     try{
       for(let i=0;i<localStorage.length;i++){
         const key=localStorage.key(i);if(!key?.startsWith(runPrefix))continue;
-        const entry=read(key),id=key.slice(runPrefix.length),restored=entry&&E.restore(entry.state,P.buildRound);
+        const entry=read(key),id=key.slice(runPrefix.length),restored=entry&&P.restore(entry.state);
         if(restored&&scopeOf(restored)===id)runs.set(id,entry);
       }
     }catch{/* Storage is optional. */}
@@ -1139,13 +1442,20 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   function announce(text){announcer.textContent='';setTimeout(()=>{announcer.textContent=text;},0);}
   const eqAttr=(selector,attr,value)=>[...app.querySelectorAll(selector)].find(node=>node.dataset[attr]===String(value));
   function render(focus){
-    app.innerHTML=view==='home'?home():view==='worlds'?worlds():view==='lessons'?lessonMenu():play();
+    app.innerHTML=view==='home'?home():view==='worlds'?worlds():view==='lessons'?lessonMenu():view==='book'?bookMenu():play();
     const target=focus?.()||app;
     try{target.focus({preventScroll:true});}catch{target.focus();}
     if(focus&&target!==app)target.scrollIntoView?.({block:'nearest',inline:'nearest'});
     else window.scrollTo(0,0);
   }
-  function navigate(next){view=next;render();}
+  function navigate(next){
+    view=next;
+    try{
+      if(next==='book'&&location.hash!=='#gradivo')window.history.replaceState(null,'','#gradivo');
+      else if(next!=='book'&&location.hash==='#gradivo')window.history.replaceState(null,'',location.pathname+location.search);
+    }catch{/* Offline practice can also run without the history API. */}
+    render();
+  }
   function resume(key){
     const saved=loadEntry(key);
     if(!saved)return;
@@ -1169,12 +1479,12 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   function home(){
     const saved=active();
     const resume=saved.length?`<section class="resume-list" aria-label="Nedovršene vježbe">${resumeCard(saved[0])}${saved.length>1?`<details><summary>Ostale nedovršene vježbe (${saved.length-1})</summary>${saved.slice(1).map(resumeCard).join('')}</details>`:''}</section>`:'';
-    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div></section>`;
+    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${button('Gradivo prema udžbeniku →','book','book-link')}</section>`;
   }
   const back=(label,action)=>button(label,action,'text-button');
   function worlds(){
     const mixed=button('<span class="world-icon" aria-hidden="true">🎒</span><span><strong>Miješana ekspedicija</strong><small>Po jedan zadatak iz svakog svijeta</small></span><b aria-hidden="true">→</b>','start','world-card mixed','data-world="mix"');
-    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
+    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}${button('Gradivo prema udžbeniku →','book','book-link')}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
   }
   function lessonMenu(){
     const w=P.worlds.find(w=>w.id===chosenWorld);
@@ -1183,9 +1493,21 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
       return button(`<span class="world-icon" aria-hidden="true">${l.icon}</span><span><strong>${l.name}</strong><small>${info}</small></span><b aria-hidden="true">→</b>`,'lesson','world-card',`data-lesson="${l.id}"`);
     }).join('')}</div>${button('Vježbaj cijelu temu →','start','button secondary',`data-world="${w.id}"`)}</section>`;
   }
+  function bookMenu(){
+    const groups=P.bookGroups.map(([start,name],i)=>{
+      const finish=P.bookGroups[i+1]?.[0]||Infinity;
+      const units=P.units.filter(u=>u.from>=start&&u.from<finish);
+      const rows=units.map(u=>{
+        const pages=u.from===u.to?u.from:u.from+'–'+u.to;
+        return button('<span>'+esc(u.name)+'</span><small>str. '+pages+'</small>','unit','unit-link','data-unit="'+u.id+'"');
+      }).join('');
+      return '<details class="book-group"><summary>'+esc(name)+'</summary><div>'+rows+'</div></details>';
+    }).join('');
+    return `<section class="lesson-menu book-menu"><div class="topline">${back('← Početna','home')}<label for="book-level">Razina <select id="book-level">${P.levels.map(l=>`<option value="${l.id}" ${l.id===level?'selected':''}>${l.name}</option>`).join('')}</select></label></div><h1>Gradivo prema udžbeniku</h1><p class="lesson-intro">Otvori cjelinu i odaberi što želiš vježbati.</p>${groups}<details class="book-source"><summary>Odakle su brojevi stranica?</summary><p>Uz vježbe su navedene stranice iz tjednog nastavnog plana za Istražujemo naš svijet 2 iz školske godine 2020./21. Plan povezuje gradivo sa stranicama 6–99. Brojevi se mogu razlikovati u tvojem primjerku.</p></details></section>`;
+  }
   function progress(){
     const total=session.questions.length,done=E.summarize(session).solved;
-    return `<div class="topline">${back(session.lesson?'← Lekcije':'← Svjetovi',session.lesson?'back-lessons':'worlds')}<span class="pill">${levelName(level)}</span></div><div class="progress-row"><div class="progress" role="progressbar" aria-label="Riješeni zadaci" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}">${session.questions.map((_,i)=>`<span class="${session.solved[i]?'done':i===session.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${session.index+1} od ${total}</span></div>`;
+    return `<div class="topline">${P.unitById.has(session.lesson)?back('← Gradivo','book'):back(session.lesson?'← Lekcije':'← Svjetovi',session.lesson?'back-lessons':'worlds')}<span class="pill">${levelName(level)}</span></div><div class="progress-row"><div class="progress" role="progressbar" aria-label="Riješeni zadaci" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}">${session.questions.map((_,i)=>`<span class="${session.solved[i]?'done':i===session.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${session.index+1} od ${total}</span></div>`;
   }
   const direction={gore:'↑',desno:'→',dolje:'↓',lijevo:'←'};
   function picture(v){
@@ -1268,6 +1590,8 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   document.addEventListener('click',event=>{
     const t=event.target.closest('button');if(!t||t.disabled)return;
     const d=t.dataset,action=d.action;
+    if(action==='book'){navigate('book');return;}
+    if(action==='unit'){const unit=P.unitById.get(d.unit);if(unit)start(unit.world,unit.id);return;}
     if(action==='home'){navigate('home');return;}
     if(action==='level'){level=d.level;navigate('worlds');return;}
     if(action==='worlds'){navigate('worlds');return;}
@@ -1278,7 +1602,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     if(!session||view!=='play')return;
     if(action==='next'){if(E.advance(session)){remember();render();}return;}
     if(action==='new-round'){start(session.world,session.lesson);return;}
-    if(action==='review'){const refs=session.questions.filter((_,i)=>session.attempts[i]>1).map(q=>q.ref);if(refs.length)start(session.world,session.lesson,refs);return;}
+    if(action==='review'){const refs=session.questions.flatMap((q,i)=>session.attempts[i]>1?[q.type==='route'?{...q.ref,previousMoves:session.responses[i]?.items}:q.ref]:[]);if(refs.length)start(session.world,session.lesson,refs);return;}
     if(session.solved[session.index])return;
     const draft=session.draft,v=d.value;
     if(action==='check'){
@@ -1296,7 +1620,8 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     else if('removeSequence' in d){const [removed]=draft.items.splice(Number(d.removeSequence),1);edit(byValue('[data-sequence-item], [data-route]',removed));}
     else if('move' in d){const i=Number(d.move),j=i+Number(d.delta);[draft.items[i],draft.items[j]]=[draft.items[j],draft.items[i]];edit(()=>app.querySelector('[data-remove-sequence="'+j+'"]'));}
   });
-  load();render();
+  document.addEventListener('change',event=>{if(event.target.id==='book-level')level=event.target.value;});
+  load();if(location.hash==='#gradivo')view='book';render();
 })();
 </script>
 </body>

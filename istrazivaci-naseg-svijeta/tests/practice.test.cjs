@@ -7,7 +7,7 @@ const build=(world,key,level='hard',seed=26,example=0,review=false)=>P.buildRoun
 test('every current family at all three levels can be completed, including every diagram and review type',()=>{
   let checked=0;
   for(const w of P.worlds)for(const level of P.levels){
-    const keys=[...C.banks[w.id].keys(),...P.lessons.filter(l=>l.world===w.id).map(l=>l.id)];
+    const keys=P.keys[w.id];
     for(const key of keys){
       for(let i=0;i<(P.lessonById.get(key)?.cases||6);i++)for(const review of [true,false]){
         const q=build(w.id,key,level.id,i+3,i,review),s=E.createSession(level.id,w.id,9,[q]),answer=response(q);
@@ -57,8 +57,8 @@ test('grading permits independent actions but enforces prerequisites, routes and
 });
 test('history spans all families before reuse, including across mixed and lesson rounds',()=>{
   for(const l of P.levels)for(const w of P.worlds){
-    const history={},seen=new Set(),all=12+P.lessons.filter(s=>s.world===w.id).length;let previous=[];
-    for(let n=0;n<5;n++){
+    const history={},seen=new Set(),all=P.keys[w.id].length;let previous=[];
+    for(let n=0;n<Math.ceil(all/5)+1;n++){
       const plan=P.makePlan(l.id,w.id,n,history),keys=plan.map(r=>r.key);
       assert.equal(new Set(keys).size,5);assert.ok(keys.every(k=>!previous.includes(k)));
       for(const k of keys){if(seen.size<all)assert.equal(seen.has(k),false);seen.add(k);}
@@ -103,4 +103,70 @@ test('duplicate checks do not inflate attempts and corrupted drafts never restor
   const saved=JSON.parse(E.serialize(s));
   for(const change of [{draft:{pairs:[['nepoznato','x']]}},{plan:[{world:'other',key:1,seed:1}]},{phase:'incorrect',draft:{pairs:[]}},
     {pending:q.answer[0][0]},{plan:[{world:'school',key:333,seed:3}]}])assert.equal(E.restore({...saved,...change},P.buildRound),null);
+});
+
+test('each route deck has 24 distinct visible maps and targeted practice changes the path a pupil actually used',()=>{
+  const signature=q=>JSON.stringify(q.visual);
+  for(const {id:level} of P.levels){
+    const all=Array.from({length:24},(_,i)=>build('spacetime','skica',level,1,i));
+    assert.equal(new Set(all.map(signature)).size,24);
+    for(let seed=0;seed<160;seed++){
+      const plan=P.makePlan(level,'spacetime',seed,{},'skica');
+      const first=P.buildRound(level,'spacetime',seed,plan);
+      assert.equal(new Set(first.map(signature)).size,5);
+      const mistakes=first.map(q=>{
+        let paths=[[]];
+        for(let i=0;i<q.answer.length;i++)paths=paths.flatMap(p=>q.items.map(m=>[...p,m]));
+        const accepted=paths.filter(path=>E.check(q,{items:path}));
+        return {...q.ref,previousMoves:accepted[(seed+1)%accepted.length]};
+      });
+      const repeat=P.makePlan(level,'spacetime',seed,{},'skica',mistakes);
+      const next=P.buildRound(level,'spacetime',seed,repeat);
+      assert.equal(new Set([...first,...next].map(signature)).size,10);
+      for(const [i,q] of next.entries()){
+        assert.equal(E.check(q,{items:first[i].answer}),false);
+        assert.equal(E.check(q,{items:mistakes[i].previousMoves}),false);
+      }
+    }
+  }
+});
+test('book units cover every page traced to the teaching plan and have distinct playable activities',()=>{
+  const b=require('../src/book');
+  assert.equal(b.units.length,41);
+  assert.equal(b.groups.length,8);
+  assert.equal(Object.keys(b.extraNames).length,21);
+  assert.deepEqual(b.units.flatMap(u=>Array.from({length:u.to-u.from+1},(_,i)=>u.from+i)),Array.from({length:94},(_,i)=>6+i));
+  for(const unit of b.units)for(const {id:level} of P.levels){
+    const plan=P.makePlan(level,unit.world,2,{},unit.id);
+    assert.deepEqual(new Set(plan.map(r=>r.key)),new Set(unit.keys));
+    const qs=P.buildRound(level,unit.world,2,plan);
+    for(const q of qs){assert.equal(q.lesson,unit.id);assert.ok(E.check(q,response(q)));}
+    const again=P.makePlan(level,unit.world,9,{},unit.id,[plan[0]]);
+    assert.equal(P.buildRound(level,unit.world,9,again)[0].lesson,unit.id);
+  }
+  for(const review of [true,false])for(let seed=1;seed<24;seed++){
+    const q=build('autumn',4,'medium',seed,0,review);
+    const hours=q.visual.rows.map(([,rise,set])=>Number(set.split(':')[0])-Number(rise.split(':')[0]));
+    assert.deepEqual(hours,[12,10]);assert.equal(q.answer,review?'za 120 minuta':'za 2 sata');
+    assert.doesNotMatch(JSON.stringify(q),/zaustavlja sat|gase žarulje/);
+  }
+});
+test('an existing version-two round retains attempted answers, drafts and uses fresh materials for later items',()=>{
+  const level='medium',world='spacetime';
+  const old=Array.from({length:5},(_,i)=>({world,key:'skica',seed:i+1,example:i,legacy:true}));
+  const s=E.createSession(level,world,3,P.buildRound(level,world,3,old));s.lesson='skica';
+  E.submit(s,response(s.questions[0]));E.advance(s);
+  s.draft={items:[s.questions[1].answer[0]]};
+  const saved=JSON.parse(E.serialize(s));delete saved.contentRevision;
+  for(const ref of saved.plan)delete ref.legacy;
+  const restored=P.restore(saved);assert.ok(restored);assert.deepEqual(restored.draft,s.draft);
+  assert.deepEqual(restored.questions.slice(0,2),s.questions.slice(0,2));
+  assert.equal(new Set(restored.questions.map(q=>JSON.stringify(q.visual))).size,5);
+  assert.ok(restored.questions.slice(2).every(q=>!q.ref.legacy));assert.deepEqual(restored.attempts,[1,0,0,0,0]);
+  const ref={world:'autumn',key:4,seed:22,legacy:true};
+  const before=E.createSession('easy','autumn',3,P.buildRound('easy','autumn',3,[ref]));
+  const wrong={selected:before.questions[0].options.find(v=>v!==before.questions[0].answer)};
+  E.submit(before,wrong);const raw=JSON.parse(E.serialize(before));delete raw.contentRevision;delete raw.plan[0].legacy;
+  const same=P.restore(raw);assert.deepEqual(same.draft,wrong);assert.deepEqual(same.questions,before.questions);assert.equal(same.phase,'incorrect');
+  assert.equal(E.submit(same,response(same.questions[0])),'correct');
 });

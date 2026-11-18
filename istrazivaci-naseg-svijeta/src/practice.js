@@ -1,8 +1,8 @@
 (function(root,factory){
   const node=typeof module==='object'&&module.exports;
-  const api=node?factory(require('./engine.js'),require('./content.js'),require('./lessons.js')):factory(root.WorldEngine,root.WorldContent,root.WorldLessons);
+  const api=node?factory(require('./engine.js'),require('./content.js'),require('./lessons.js'),require('./activities.js'),require('./book.js')):factory(root.WorldEngine,root.WorldContent,root.WorldLessons,root.WorldActivities,root.WorldBook);
   if(node)module.exports=api;else root.WorldPractice=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(E,C,L){
+})(typeof globalThis!=='undefined'?globalThis:this,function(E,C,L,A,B){
   'use strict';
   const {levels,worlds,banks}=C,{lessons}=L;
   const direct=[0,4,5,7,10,11];
@@ -123,9 +123,9 @@
     const options=['Nijedan zapis nije točan.','Samo je Lara u pravu.','Samo je Bitko u pravu.','Oba su zapisa točna.'];
     return {...base,prompt:prompt+' Procijeni oba odgovora.',clues,reasoning:'evidence',options:E.shuffle(options,rng),answer:options[pattern]};
   }
-  function spatialQuestion(base,key,level,rng){
+  function spatialQuestion(base,key,level,rng,legacy){
     const id={5:'skica',7:'sat',11:'kalendar'}[key],lesson=lessonById.get(id),example=Math.floor(rng()*lesson.cases);
-    const q=L.make(lesson,key===5?'easy':level,example,rng);
+    const q=L.make(lesson,key===5?'easy':level,example,rng,legacy);
     const info={...base,type:key===7?'single':'observe',visual:q.visual,title:key===5?'Čitam skicu':key===7?'Čitam sat':'Čitam kalendar'};
     if(key===5){
       const dir=q.answer[0],opposite={gore:'dolje',dolje:'gore',lijevo:'desno',desno:'lijevo'},pos={gore:'iznad',dolje:'ispod',desno:'desno od',lijevo:'lijevo od'};
@@ -142,9 +142,19 @@
     const day=parseInt(q.answer),month=q.visual.month.toLocaleLowerCase('hr');
     return decision(info,q.prompt,['Datum radionice je '+q.answer,'Trebam pronaći broj '+day+' u kalendaru za mjesec '+month+'.'],distractors.map(v=>'Radionica je na datum '+v),rng);
   }
-  function makeBase(world,level,key,rng,review){
-    const def=definition(world,key),base={id:world+'-'+level+'-'+key,world,level,title:def.title};
-    if(world==='spacetime'&&[5,7,11].includes(key))return spatialQuestion(base,key,level,rng);
+  function reading(base,task,level,rng,review){
+    if(task.visual)base.visual=task.visual;
+    if(level==='hard')return decision(base,task.prompt,task.right,task.wrong,rng);
+    const answer=task.right[review?1:0],others=E.shuffle(task.wrong,rng).slice(0,level==='easy'?2:3);
+    return {...base,prompt:task.prompt,answer,options:E.shuffle([answer,...others],rng)};
+  }
+  function makeBase(world,level,key,rng,review,legacy){
+    const extra=B.extraNames[key],def=extra?null:definition(world,key);
+    const base={id:world+'-'+level+'-'+key,world,level,title:extra||def.title};
+    if(extra)return reading({...base,type:'single'},B.extra(key,level,rng),level,rng,review);
+    if(world==='spacetime'&&[5,7,11].includes(key))return spatialQuestion(base,key,level,rng,legacy);
+    if(!legacy&&world==='autumn'&&key===4)return reading({...base,type:'cause',title:'Dva jesenska zalaska Sunca'},A.sunset(level,rng),level,rng,review);
+    if(!legacy&&A.cases[world][key])return reading({...base,type:def.type},A.cases[world][key],level,rng,review);
     if(['single','cause','observe'].includes(def.type)){
       const [secondTrue,secondFalse]=claims[world][direct.indexOf(key)],wrong=E.shuffle(def.wrong,rng);
       if(level==='hard'){
@@ -179,8 +189,11 @@
     return {...base,type:'sort',prompt:def.prompt,zones,items:E.shuffle(Object.values(answer).flat(),rng),answer};
   }
 
-  const keys=Object.fromEntries(worlds.map(w=>[w.id,[...banks[w.id].keys(),...lessons.filter(l=>l.world===w.id).map(l=>l.id)]]));
-  const lessonById=new Map(lessons.map(l=>[l.id,l]));
+  const keys=Object.fromEntries(worlds.map(w=>{
+    const extra=B.units.filter(u=>u.world===w.id).flatMap(u=>u.keys).filter(k=>Object.hasOwn(B.extraNames,k));
+    return [w.id,[...new Set([...banks[w.id].keys(),...lessons.filter(l=>l.world===w.id).map(l=>l.id),...extra])]];
+  }));
+  const lessonById=new Map([...lessons,...B.units].map(l=>[l.id,l]));
   function bucket(level,world,lesson){return [level,world,lesson].filter(Boolean).join('/');}
   function remember(list,value){return [...list.filter(entry=>entry!==value),value];}
   function record(history,level,refs){
@@ -200,12 +213,24 @@
     if(!levels.some(l=>l.id===level)||world!=='mix'&&!Object.hasOwn(keys,world))throw new Error('Nepoznata vježba.');
     if(lesson&&lessonById.get(lesson)?.world!==world)throw new Error('Nepoznata lekcija.');
     const local={...history},rng=E.makeRng(seed),plan=[];
+    const unit=B.unitById.get(lesson),seenReviewMaps=new Set();
+    if(repeat)for(const p of repeat)if(p.key==='skica')seenReviewMaps.add(routeKey(L.routeCard(level,p.example,p.legacy)));
     function add(w,key,previous){
       const ref={world:w,key,seed:Math.floor(rng()*0x100000000)};
+      if(unit)ref.unit=unit.id;
       const l=lessonById.get(key);
       if(l){
         const recent=local[bucket(level,w,key)]||[];
-        ref.example=pick(Array.from({length:l.cases},(_,i)=>i).filter(i=>i!==previous?.example),recent,rng);
+        let candidates=Array.from({length:l.cases},(_,i)=>i).filter(i=>i!==previous?.example);
+        if(previous&&key==='skica'){
+          const before=L.routeCard(level,previous.example,previous.legacy);
+          const fresh=candidates.filter(i=>!seenReviewMaps.has(routeKey(L.routeCard(level,i))));
+          const previousPaths=[before.path,previous.previousMoves].filter(Array.isArray);
+          const changed=fresh.filter(i=>{const card=L.routeCard(level,i);return previousPaths.every(path=>E.walk(card,path)!==card.end);});
+          candidates=changed.length?changed:fresh;
+        }
+        ref.example=pick(candidates,recent,rng);
+        if(previous&&key==='skica')seenReviewMaps.add(routeKey(L.routeCard(level,ref.example)));
       }else if(previous){
         ref.review=!previous.review;
         if(ref.seed===previous.seed)ref.seed=(ref.seed+1)>>>0;
@@ -213,6 +238,14 @@
       record(local,level,[ref]);plan.push(ref);
     }
     if(repeat){for(const ref of repeat)add(ref.world,ref.key,ref);return plan;}
+    if(unit){
+      const pool=unit.keys.slice();
+      for(let i=0;i<Math.min(5,unit.keys.length);i++){
+        const key=pick(pool,local[bucket(level,world)]||[],rng);
+        add(world,key);pool.splice(pool.indexOf(key),1);
+      }
+      return plan;
+    }
     if(world==='mix'){for(const w of E.shuffle(worlds,rng))add(w.id,pick(keys[w.id],local[bucket(level,w.id)]||[],rng));}
     else for(let i=0;i<5;i++)add(world,lesson||pick(keys[world],local[bucket(level,world)]||[],rng));
     return plan;
@@ -225,13 +258,40 @@
       if(!ref||!Array.isArray(keys[ref.world])||!keys[ref.world].includes(ref.key)||(world!=='mix'&&ref.world!==world)||!Number.isInteger(ref.seed)||ref.seed<0||ref.seed>0xffffffff)throw new Error('Nepoznat zadatak.');
       const rng=E.makeRng(ref.seed),lesson=lessonById.get(ref.key);
       if(lesson&&(!Number.isInteger(ref.example)||ref.example<0||ref.example>=lesson.cases))throw new Error('Nepoznat primjer.');
-      const q=lesson?L.make(lesson,level,ref.example,rng):makeBase(ref.world,level,ref.key,rng,ref.review===true);
-      return {...q,ref:{...ref}};
+      if(ref.unit){
+        const unit=B.unitById.get(ref.unit);
+        if(!unit||unit.world!==ref.world||!unit.keys.includes(ref.key))throw new Error('Zadatak ne pripada ovoj temi.');
+      }
+      const q=lesson?L.make(lesson,level,ref.example,rng,ref.legacy):makeBase(ref.world,level,ref.key,rng,ref.review===true,ref.legacy);
+      return {...q,...(ref.unit?{lesson:ref.unit}:{}),ref:{...ref}};
     });
   }
   function migrateRefs(old){
     const rng=E.makeRng(old.seed);
     return old.questions.map(q=>({world:q.world,key:Number(q.id.split('-').pop()),seed:Math.floor(rng()*0x100000000)}));
   }
-  return {levels,worlds,lessons,lessonById,makePlan,record,buildRound,migrateRefs};
+  function routeKey(card){return [card.start,card.end,...card.blocked].join('/');}
+  function restore(saved){
+    if(!saved||saved.contentRevision||!Array.isArray(saved.plan))return E.restore(saved,buildRound);
+    try{
+      const seen=new Set(),old=E.restore({...saved,plan:saved.plan.map(r=>({...r,legacy:true}))},buildRound);
+      if(!old)return null;
+      const currentStarted=old.attempts[old.index]>0||old.pending!==null||
+        !E.sameResponse(old.questions[old.index],old.draft,E.emptyDraft(old.questions[old.index]));
+      const plan=saved.plan.map((r,i)=>{
+        const pinned=i<old.index||(i===old.index&&currentStarted);
+        const ref={...r,...(pinned?{legacy:true}:{})};
+        if(r.key==='skica'){
+          const card=n=>L.routeCard(old.level,n,pinned);
+          if(!pinned&&seen.has(routeKey(card(ref.example)))){
+            ref.example=Array.from({length:24},(_,n)=>(n+r.example+1)%24).find(n=>!seen.has(routeKey(card(n))));
+          }
+          seen.add(routeKey(card(ref.example)));
+        }
+        return ref;
+      });
+      return E.restore({...saved,plan},buildRound);
+    }catch{return null;}
+  }
+  return {levels,worlds,lessons,lessonById,units:B.units,unitById:B.unitById,bookGroups:B.groups,keys,makePlan,record,buildRound,migrateRefs,restore};
 });

@@ -74,7 +74,9 @@
     }
     return null;
   }
-  function route(level,n){
+  const routeDecks=new Map();
+  function routeDeck(level){
+    if(routeDecks.has(level))return routeDecks.get(level);
     const length=level==='easy'?1:level==='medium'?2:3;
     const layouts=[];
     for(let start=0;start<9;start++)for(let end=0;end<9;end++){
@@ -88,7 +90,17 @@
         if(path&&path.length===length)layouts.push({start,end,blocked:[rock],path});
       }
     }
-    const {start,end,blocked,path}=layouts[(n*7)%layouts.length];
+    const distance=(a,b)=>Math.abs(a%3-b%3)+Math.abs(Math.floor(a/3)-Math.floor(b/3));
+    const relevant=level==='hard'?layouts.filter(({start,end,blocked:[rock]})=>distance(start,rock)+distance(rock,end)===length):layouts;
+    const deck={all:layouts,cards:E.shuffle(relevant,E.makeRng(78321)).slice(0,24)};
+    routeDecks.set(level,deck);return deck;
+  }
+  function routeCard(level,n,legacy=false){
+    const deck=routeDeck(level);
+    return legacy?deck.all[(n*7)%deck.all.length]:deck.cards[n];
+  }
+  function route(level,n,rng,legacy){
+    const {start,end,blocked,path}=routeCard(level,n,legacy),length=path.length;
     return {type:'route',prompt:'Kreni od škole do parka u '+length+(length===1?' potezu.':' poteza.')+' Svaka strelica pomiče te za jedno polje.'+(blocked.length?' Zaobiđi radove.':''),
       visual:{kind:'map',start,end,blocked},answer:path,items:Object.keys(arrows)};
   }
@@ -182,8 +194,8 @@
     return choice('Učenice predlažu da '+best+'. Kako mogu provjeriti je li njihov dogovor uspio?','Obje opišu kako su sudjelovale.',['Samo prva kaže što je radila.','Prebroje stvari na stolu.','Odluku prepuste najglasnijoj učenici.'],rng,visual);
   }
   const generators={dogovor:agreement,stablo:family,lisce:autumn,tragovi:winter,pupoljci:spring,vrijeme:summer,sat:clock,kalendar:calendar,skica:route,uredaji:energy,ruke:cleanHands,pokus:experiment,ustanove:places};
-  function make(lesson,level,n,rng){
-    return {...generators[lesson.id](level,n,rng),title:lesson.name,world:lesson.world,level,lesson:lesson.id,id:lesson.world+'-'+level+'-'+lesson.id+'-'+n};
+  function make(lesson,level,n,rng,legacy=false){
+    return {...generators[lesson.id](level,n,rng,legacy),title:lesson.name,world:lesson.world,level,lesson:lesson.id,id:lesson.world+'-'+level+'-'+lesson.id+'-'+n};
   }
-  return {lessons,make,days};
+  return {lessons,make,days,routeCard};
 });

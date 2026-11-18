@@ -6,17 +6,17 @@ const E=require('../src/engine'),C=require('../src/content'),P=require('../src/p
 const source=path.join(__dirname,'../src'),read=name=>fs.readFileSync(path.join(source,name),'utf8');
 const prefix='world-explorers-v2/run/';
 const runKey=s=>prefix+[s.level,s.world,s.lesson||'sve',s.review?'ponavljanje':'vjezba'].join('/');
-function fixture({session,entries={},legacy,blocked=false,seed=207}={}){
+function fixture({session,entries={},legacy,blocked=false,seed=207,hash=''}={}){
   const errors=[],virtualConsole=new VirtualConsole();
   virtualConsole.on('jsdomError',e=>errors.push(e.message));
-  const dom=new JSDOM(read('index.html'),{url:'https://example.test/',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole});
+  const dom=new JSDOM(read('index.html'),{url:'https://example.test/'+hash,runScripts:'outside-only',pretendToBeVisual:true,virtualConsole});
   const w=dom.window,d=w.document;
   w.scrollTo=()=>{};w.crypto.getRandomValues=v=>{v[0]=seed;return v;};
   for(const [key,value] of Object.entries(entries))w.localStorage.setItem(key,value);
   if(session)w.localStorage.setItem(runKey(session),JSON.stringify({updated:1,state:JSON.parse(E.serialize(session))}));
   if(legacy)w.localStorage.setItem('world-explorers-session-v1',JSON.stringify(legacy));
   if(blocked)Object.defineProperty(w,'localStorage',{get(){throw Error('blocked');}});
-  for(const file of ['engine','content','lessons','practice','app'])w.eval(read(file+'.js'));
+  for(const file of ['engine','content','lessons','activities','book','practice','app'])w.eval(read(file+'.js'));
   const one=s=>d.querySelector(s),all=s=>[...d.querySelectorAll(s)];
   function click(s){
     const node=typeof s==='string'?one(s):s;
@@ -151,4 +151,25 @@ test('contextual sort picker, step names, keyboard focus and motion preferences 
   const seq=make('hard','home',[3]),g=fixture({session:seq});g.action('resume');const item=seq.questions[0].items[0];g.click(g.value('[data-sequence-item]',item));
   assert.ok(g.one('[data-remove-sequence]').getAttribute('aria-label').includes(item));assert.ok(g.one('[aria-live="polite"]'));g.close();
   assert.match(read('styles.css'),/prefers-reduced-motion/);
+});
+
+test('all 41 textbook units open from the catalogue and a saved unit resumes at the chosen level',()=>{
+  const f=fixture({hash:'#gradivo'});
+  assert.equal(f.one('h1').textContent,'Gradivo prema udžbeniku');
+  assert.equal(f.all('.book-group').length,8);
+  assert.equal(f.all('[data-unit]').length,41);
+  f.one('#book-level').value='hard';
+  f.one('#book-level').dispatchEvent(new f.w.Event('change',{bubbles:true}));
+  for(const unit of P.units){
+    const button=f.one('[data-unit="'+unit.id+'"]');button.closest('details').open=true;f.click(button);
+    const saved=f.snapshot(prefix+'hard/'+unit.world+'/'+unit.id+'/vjezba');
+    assert.equal(saved.lesson,unit.id);assert.equal(saved.level,'hard');assert.ok(f.one('#check-button'));
+    f.action('book');
+  }
+  f.click('[data-unit="str-58"]');const q=f.snapshot(prefix+'hard/health/str-58/vjezba').questions[0];
+  const wrong=q.options.find(o=>o!==q.answer);enter(f,q,{selected:wrong});f.click('#check-button');
+  const entries=f.dump();f.close();const g=fixture({entries});
+  g.click('[data-run="hard/health/str-58/vjezba"]');assert.ok(g.one('.inline-feedback'));assert.equal(g.one('.choice.selected').dataset.value,wrong);
+  enter(g,q,right(q));g.click('#check-button');assert.equal(g.one('h1').textContent,'Točno!');
+  g.click('.brand');g.action('book');assert.equal(g.w.location.hash,'#gradivo');g.close();
 });
