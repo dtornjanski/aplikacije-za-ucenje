@@ -1,0 +1,24 @@
+name: Provjera javne aplikacije u Chromeu
+on:
+  push:
+    branches: [qa/istrazivaci-browser-check-20261118]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  chrome:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Pripremi preglednik i čitač zaslona
+        run: |
+          google-chrome --version
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends orca speech-dispatcher-espeak-ng pulseaudio at-spi2-core dbus-x11 xvfb xauth python3-selenium
+          orca --version
+      - name: Riješi zadatak, zatvori Chrome, ponovno otvori i poslušaj povratnu informaciju
+        run: |
+          dbus-run-session -- xvfb-run -a bash qa/istrazivaci/run.sh
