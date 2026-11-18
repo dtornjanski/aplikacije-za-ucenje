@@ -14,7 +14,7 @@ test('build creates one self-contained app and integrates four explicit portal r
 
   const dist=fs.readFileSync(path.join(project,'dist/index.html'),'utf8');
   assert.match(dist,/<!doctype html>/i);assert.match(dist,/Istraživači našeg svijeta/);
-  assert.equal((dist.match(/<script>/g)||[]).length,3);
+  assert.equal((dist.match(/<script>/g)||[]).length,5);
   assert.doesNotMatch(dist,/<script\s+src=|<link\s+rel="stylesheet"|https?:\/\//i);
   assert.ok(Buffer.byteLength(dist)<256*1024);
   assert.equal(fs.readFileSync(path.join(root,'javne-aplikacije/istrazivaci-naseg-svijeta/index.html'),'utf8'),dist);

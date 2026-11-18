@@ -247,5 +247,5 @@
     return E.shuffle(templates[world][level].slice(half*6,half*6+6),rng).slice(0,5).map(factory=>factory(rng));
   }
 
-  return {levels,worlds,templates,templateCount,buildRound};
+  return {levels,worlds,banks,templates,templateCount,buildRound};
 });
