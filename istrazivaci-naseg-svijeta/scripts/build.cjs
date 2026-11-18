@@ -13,4 +13,12 @@ if(/<script\s+src=|<link\s+rel="stylesheet"/i.test(html))throw new Error('Build 
 if(Buffer.byteLength(html)>256*1024)throw new Error('Standalone HTML exceeds 256 KiB.');
 fs.mkdirSync(dist,{recursive:true});
 fs.writeFileSync(path.join(dist,'index.html'),html,'utf8');
+if(process.argv.includes('--portal')){
+  const appName=path.basename(project);
+  const root=path.dirname(project);
+  for(const output of [path.join(root,'page-apps',appName+'.html'),path.join(root,'javne-aplikacije',appName,'index.html')]){
+    fs.mkdirSync(path.dirname(output),{recursive:true});
+    fs.writeFileSync(output,html,'utf8');
+  }
+}
 console.log('istrazivaci-naseg-svijeta/dist/index.html: '+Buffer.byteLength(html)+' bytes');

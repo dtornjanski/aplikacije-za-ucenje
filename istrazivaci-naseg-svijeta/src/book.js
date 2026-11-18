@@ -128,6 +128,171 @@
       default:throw new Error('Nepoznata nastavna vježba.');
     }
   }
+  function choice(prompt,answer,...wrong){return {prompt,answer,wrong};}
+  function table(caption,headers,rows){return {kind:'table',caption,headers,rows};}
+
+  const hardExamples={
+    osobine:[
+      choice('Iva voli crtati, a želi naučiti plesati. Koja joj radionica pomaže ostvariti tu želju?',
+        'Plesna radionica.','Likovna radionica.','Glazbena radionica.','Dramska radionica.'),
+      choice('Tin rado pliva, a tek želi naučiti svirati. Koju će aktivnost izabrati ako danas želi raditi ono što već voli?',
+        'Otići na bazen.','Poći na prvi sat klavira.','Pridružiti se crtačkoj skupini.','Otići na plesnu probu.')],
+    ucenje:[
+      choice('Mia sama složi slagalicu, ali kod vezanja vezica traži pomoć. Što treba vježbati da bi to mogla sama?',
+        'Vezanje vezica.','Slaganje slagalice.','Obje vještine već izvodi sama.','Obje vještine prvi put tek treba pokušati.'),
+      choice('Tin sam vozi bicikl, a čvor na užetu još veže uz pomoć. Što bi pokazalo da je svladao novu vještinu?',
+        'Sam zaveže čvor.','Opet sam odveze bicikl.','Promatra kako odrasla osoba veže čvor.','Netko umjesto njega zaveže čvor.')],
+    zivo:[
+      choice('Uz mladicu stoje lončić i olovka. Što pokazuje da se mladica razvija?',
+        'Na stabljici je izrastao novi list.','Netko je premjestio lončić.','Na olovku je pala sjena lista.','Na rubu lončića osušila se voda.'),
+      choice('Na prvom crtežu je sjeme, na drugom iz njega viri korjenčić. Što možeš zaključiti?',
+        'Sjeme je počelo klijati.','Netko je samo premjestio sjeme.','Narastao je samo lončić.','Razlikuje se samo boja podloge.')],
+    staniste:[
+      {...choice('Gdje bi razred prema oba zapisa ponovno potražio žabu?',
+        'Pokraj bare.','Na livadi.','Kod obližnje škole.','Samo uz grm na livadi.'),
+        visual:table('Bilješke s izleta',['Mjesto','U ponedjeljak','U utorak'],[['bara','žaba','žaba'],['livada','leptir','skakavac']])},
+      {...choice('Koju su životinju učenici vidjeli na oba mjesta?',
+        'Leptira.','Žabu.','Skakavca.','Žabu i skakavca.'),
+        visual:table('Bilješke s izleta',['Mjesto','Životinje'],[['livada','leptir, skakavac'],['uz potok','leptir, žaba']])}],
+    neovisnost:[
+      {...choice('Koji hrvatski spomendan iz kalendara dolazi dan nakon 24. lipnja?',
+        'Dan neovisnosti.','Dan državnosti.','Nova godina.','Božić.'),
+        visual:table('Dio hrvatskog kalendara',['Datum','Dan'],[['30. svibnja','Dan državnosti'],['25. lipnja','Dan neovisnosti']])},
+      {...choice('Dan prije Dana neovisnosti razred priprema izložbu. Kojeg datuma priprema izložbu?',
+        '24. lipnja.','25. lipnja.','26. lipnja.','24. svibnja.'),
+        visual:table('Dio hrvatskog kalendara',['Datum','Dan'],[['25. lipnja','Dan neovisnosti']])}],
+    datumi:[
+      {...choice('Koji se od ova dva dana prvi obilježava u istoj godini?',
+        'Dan državnosti.','Dan neovisnosti.','Oba su istoga dana.','Oba su u lipnju.'),
+        visual:table('Dio hrvatskog kalendara',['Datum','Dan'],[['25. lipnja','Dan neovisnosti'],['30. svibnja','Dan državnosti']])},
+      {...choice('Danas je 1. lipnja. Koji od ova dva dana u istoj godini tek dolazi?',
+        'Dan neovisnosti.','Dan državnosti.','Oba dana tek dolaze.','Oba su već prošla.'),
+        visual:table('Dio hrvatskog kalendara',['Datum','Dan'],[['30. svibnja','Dan državnosti'],['25. lipnja','Dan neovisnosti']])}],
+    kruh:[
+      choice('Pšenica je požnjevena, a pekarica treba brašno za tijesto. Što još treba učiniti sa zrnom?',
+        'Samljeti ga u brašno.','Ispeći već gotov kruh.','Ohladiti tek ispečeni kruh.','Narezati kruh na kriške.'),
+      choice('Brašno je već u zdjeli, a tijesto još nije umiješeno. Koji koraci sada idu redom?',
+        'Zamijesiti tijesto pa ispeći kruh.','Ispeći kruh pa zamijesiti tijesto.','Narezati kruh pa samljeti zrno.','Samljeti zrno pa tek požeti pšenicu.')],
+    zrno:[
+      choice('Poljoprivrednica je donijela zrno, a pekar treba brašno. Tko će ih povezati svojim poslom?',
+        'Mlinar koji melje zrno.','Prodavač koji naplaćuje kruh.','Pekar koji hladi gotov kruh.','Traktorist koji tek sije pšenicu.'),
+      choice('Mlinar je pripremio brašno. Kome ga treba poslati da nastane kruh?',
+        'Pekarici koja mijesi i peče.','Poljoprivrednici da ga požanje.','Prodavaču da ga nareže na kriške.','Mlinaru da ga pretvori natrag u zrno.')],
+    prosinac:[
+      choice('Božić je 25. prosinca. Koji datum pripada istom mjesecu, ali dolazi poslije Božića?',
+        '31. prosinca.','24. prosinca.','1. siječnja.','1. prosinca.'),
+      choice('Čestitke su označene datumima 25. prosinca i 1. siječnja iduće godine. Kojim redom stižu blagdani?',
+        'Božić pa Nova godina.','Nova godina pa Božić.','Oba su istoga dana.','Oba su u siječnju.')],
+    uskrs:[
+      choice('U kalendaru je Uskrs u nedjelju 5. travnja. Kojeg je datuma Uskrsni ponedjeljak?',
+        '6. travnja.','4. travnja.','5. travnja.','12. travnja.'),
+      choice('Na kalendaru piše Uskrsni ponedjeljak, 29. ožujka. Kojeg je datuma bio Uskrs?',
+        '28. ožujka.','29. ožujka.','30. ožujka.','22. ožujka.')],
+    pisanice:[
+      choice('Jedna obitelj jaja oboji lukovinom, druga iscrta uzorke voskom. Što je zajedničko njihovu uskrsnom običaju?',
+        'Obje ukrašavaju jaja i izrađuju pisanice.','Obje upotrebljavaju samo vosak.','Obje upotrebljavaju samo lukovinu.','Obje izrađuju jednake uzorke.'),
+      choice('Ema je opisala kako njezina obitelj izrađuje pisanice. Kako će saznati ima li druga obitelj isti običaj?',
+        'Pitat će kako ta obitelj slavi Uskrs.','Prepisat će svoj opis i za drugu obitelj.','Prebrojit će samo svoje pisanice.','Pogledat će jedino datum Uskrsa.')],
+  };
+  const body=[
+    [
+      choice('Vrećice izgledaju isto. Samo je u jednoj zvonce. Kako ćeš ga naći bez gledanja?',
+        'Protresti vrećice i slušati.','Usporediti im boje.','Izmjeriti im duljinu.','Opipati šav na svakoj vrećici.'),
+      choice('Oba su kamena siva, ali samo je jedan hrapav. Kako ćeš ga prepoznati zatvorenih očiju?',
+        'Prstima prijeći preko površine.','Slušati kako kamen zvuči.','Usporediti težinu kamenja.','Izmjeriti im duljinu.'),
+      choice('Držiš zdjelu objema rukama. Kako možeš pokazati da se slažeš, a da je ne ispustiš?',
+        'Kimnuti glavom.','Pljesnuti dlanovima.','Mahnuti objema rukama.','Prekrižiti ruke na prsima.'),
+      choice('Držiš loptu objema rukama. Želiš je zakotrljati nogom po podu. Što trebaš učiniti prvo?',
+        'Spustiti je pred stopalo.','Podignuti je iznad glave.','Prisloniti je uz rame.','Držati je uz prsa.'),
+    ],[
+      choice('Dva su jastučića jednake boje i veličine. Kako ćeš bez gledanja pronaći mekši?',
+        'Pritisnuti oba dlanom.','Slušati iznad kojega je tiše.','Pomirisati oba jastučića.','Izmjeriti im širinu.'),
+      choice('Metvica i riža su u jednakim platnenim vrećicama. Kako ćeš bez otvaranja potražiti metvicu?',
+        'Pomirisati obje vrećice.','Izmjeriti im vrpce.','Opipati samo šavove.','Usporediti boju platna.'),
+      choice('Knjiga se zatvara čim je pustiš. Jednom rukom držiš korice. Čime okrećeš samo jedan list?',
+        'Prstima druge ruke.','Laktom kojim držiš knjigu.','Ramenom ispod knjige.','Dlanom koji drži korice.'),
+      choice('Prvo čučneš pa posegneš za loptom na polici. Kojim je pokretom možeš dohvatiti?',
+        'Uspraviti se i ispružiti ruke.','Ostati nisko i saviti laktove.','Spustiti ruke uz tijelo.','Spustiti se u dublji čučanj.'),
+    ],
+  ];
+  const joints=[
+    [
+      choice('Približiš šaku ramenu, a nadlaktica miruje. Koji se zglob savija?','Lakat.','Rame.','Ručni zglob.','Koljeno.'),
+      choice('Stojiš i podižeš petu prema stražnjici, a natkoljenica miruje. Koji se zglob savija?',
+        'Koljeno.','Gležanj.','Kuk.','Lakat.'),
+    ],[
+      choice('Podlaktica miruje na stolu. Podižeš samo šaku. Koji se zglob pomiče?','Ručni zglob.','Lakat.','Rame.','Koljeno.'),
+      choice('Peta ostaje na podu dok podižeš prednji dio stopala. Koji se zglob pomiče?','Gležanj.','Koljeno.','Kuk.','Rame.'),
+    ],
+  ];
+
+  function hardExtra(key,rng,review){
+    const n=Math.floor(rng()*120),i=n%4,version=review?1:0;
+    if(hardExamples[key])return hardExamples[key][version];
+    if(key==='tijelo')return body[version][i];
+    if(key==='zglobovi')return joints[version][n%2];
+    const genitive=['siječnja','veljače','ožujka','travnja','svibnja','lipnja','srpnja','kolovoza','rujna','listopada','studenoga','prosinca'];
+    switch(key){
+      case 'mjeseci':{
+        const a=n%12,at=offset=>month[(a+12+offset)%12],pair=(x,y)=>at(x)+' i '+at(y);
+        return review?choice('Na kalendaru piše „'+at(0)+'”. Koja su dva mjeseca neposredno prije njega, redom?',
+          pair(-2,-1),pair(-1,-2),pair(1,2),pair(-3,-2)):
+          choice('Na kalendaru piše „'+at(0)+'”. Koja dva mjeseca slijede, redom?',pair(1,2),pair(-2,-1),pair(2,1),pair(2,3));
+      }
+      case 'duljina':{
+        if(review)return {...choice('Koja dva mjeseca iz tablice imaju jednak broj dana?',
+          'Travanj i lipanj.','Travanj i svibanj.','Svibanj i lipanj.','Sva tri mjeseca.'),
+          visual:table('Duljina mjeseci',['Mjesec','Broj dana'],[['travanj',30],['svibanj',31],['lipanj',30]])};
+        const year=2027+n%2,feb=year===2028?29:28,correct=31-feb,days=['Za 1 dan.','Za 2 dana.','Za 3 dana.','Za 4 dana.'];
+        return {...choice('Za koliko je dana veljača kraća od ožujka?',days[correct-1],...days.filter((_,j)=>j!==correct-1)),
+          visual:table('Kalendar za '+year+'.',['Mjesec','Broj dana'],[['siječanj',31],['veljača',feb],['ožujak',31]])};
+      }
+      case 'doba':{
+        const start=i*3,labels=['Zima.','Proljeće.','Ljeto.','Jesen.'];
+        if(review){
+          const dates=[1,4,7,10].map(m=>'15. '+genitive[m]+'.');
+          return choice('Izlet je 12. '+genitive[start]+'. Koji je još datum u Hrvatskoj u istom godišnjem dobu?',
+            dates[i],...dates.filter((_,j)=>j!==i));
+        }
+        return choice('Izlet je 12. '+genitive[start]+', a priredba 15. '+genitive[start+1]+'. U koje godišnje doba u Hrvatskoj padaju oba događaja?',
+          labels[i],...labels.filter((_,j)=>j!==i));
+      }
+      case 'smjena':{
+        const at=d=>seasons[(i+d+4)%4],pair=(a,b)=>at(a)+' pa '+at(b);
+        return review?choice('Na kotaču piše „'+at(0)+'”. Pomakni se jedno doba unatrag pa još jedno. Koje je to doba?',
+          at(-2),at(-1),at(0),at(1)):
+          choice('Sada je '+at(0)+'. Koja dva godišnja doba slijede, redom?',pair(1,2),pair(2,1),pair(-1,0),pair(1,-1));
+      }
+      case 'trajanje':{
+        const h=8+i,d=[20,25,30,35][i],minute=45+d-60;
+        const end=(h+1)+':'+String(minute).padStart(2,'0');
+        if(review)return choice('Igra počinje u '+h+':45 i traje '+d+' minuta. Kada završava?',
+          end,h+':'+String(minute).padStart(2,'0'),(h+1)+':45',(h+1)+':'+String(minute+5).padStart(2,'0'));
+        const options=[20,25,30,35].map(v=>v+' minuta.');
+        return choice('Čitanje počinje u '+h+':45, a završava u '+end+'. Koliko traje?',options[i],...options.filter((_,j)=>j!==i));
+      }
+      case 'vremenska-crta':{
+        const days=['ponedjeljak','utorak','srijeda','četvrtak','petak','subota','nedjelja'],at=d=>days[(n+d+7)%7];
+        return review?choice('Danas je '+at(0)+'. Jučer smo pjevali, a dan prije toga crtali. Koji smo dan crtali?',at(-2),at(-1),at(0),at(1)):
+          choice('Danas je '+at(0)+'. Sutra je izlet, a dan poslije izleta predstava. Koji je dan predstava?',at(2),at(-1),at(0),at(1));
+      }
+      case 'stednja':{
+        const have=3+i,price=have+2+i,amount=v=>v+' €';
+        return review?choice('Knjiga košta '+amount(price)+'. Imaš '+amount(have)+' pa uštediš još 1 €. Koliko ti još nedostaje?',
+          amount(price-have-1),amount(price-have),amount(price-have+1),amount(price)):
+          choice('Imaš '+amount(have)+', a knjiga košta '+amount(price)+'. Koliko još trebaš uštedjeti?',
+            amount(price-have),amount(price-have+1),amount(price),amount(price+have));
+      }
+      case 'nova-godina':{
+        const year=2027+i;
+        return review?choice('Danas je 1. siječnja '+(year+1)+'. Koji je datum bio jučer?',
+          '31. prosinca '+year+'.','31. prosinca '+(year+1)+'.','1. prosinca '+year+'.','2. siječnja '+(year+1)+'.'):
+          choice('Danas je 31. prosinca '+year+'. Koji će datum biti sutra?',
+            '1. siječnja '+(year+1)+'.','1. siječnja '+year+'.','31. siječnja '+(year+1)+'.','1. prosinca '+(year+1)+'.');
+      }
+      default:throw new Error('Nepoznata nastavna vježba.');
+    }
+  }
   const extraNames={osobine:'Moji interesi',ucenje:'Što već znam',mjeseci:'Susjedni mjeseci',duljina:'Koliko dana ima mjesec?',doba:'Mjesec i godišnje doba',smjena:'Kotač godišnjih doba',trajanje:'Koliko je trajala aktivnost?','vremenska-crta':'Događaji na vremenskoj crti',tijelo:'Kako mi služe dijelovi tijela?',zglobovi:'Pokret i zglob',stednja:'Moj plan štednje',zivo:'Kako prepoznati rast?',staniste:'Gdje smo opazili životinju?',neovisnost:'Dan neovisnosti',datumi:'Dva važna datuma',kruh:'Od zrna do kruha',zrno:'Tko sudjeluje u izradi kruha?',prosinac:'Blagdani na kalendaru','nova-godina':'Prvi dan godine',uskrs:'Uskrs i proljeće',pisanice:'Uskrsni običaji'};
-  return {units,unitById,groups,extraNames,extra};
+  return {units,unitById,groups,extraNames,extra,hardExtra};
 });

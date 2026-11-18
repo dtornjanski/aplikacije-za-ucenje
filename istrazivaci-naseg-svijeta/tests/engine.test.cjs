@@ -36,6 +36,27 @@ test('rejects partial duplicate and wrong answers including repeated sequence la
   assert.equal(E.check(questions.timeline,{items:['danas','jučer','sutra']}),false);
 });
 
+test('a route trace applies every possible arrow but the first impossible arrow makes the path invalid', () => {
+  const map={start:0,end:5,blocked:[4]};
+  const cases=[
+    [['gore','desno'],1,0,false],
+    [[],0,-1,false],
+    [['desno','desno','dolje'],5,-1,false],
+    [['lijevo'],0,0,true],
+    [['desno','dolje','desno'],2,1,false],
+    [['desno','nepoznato','desno'],2,1,false],
+    [['gore','desno','dolje'],1,0,true],
+    [['desno','desno','desno'],2,2,true],
+    [['dolje','dolje','dolje'],6,2,true],
+    [['gore','desno','desno','dolje'],5,0,false],
+    [['desno','desno','dolje','desno'],5,3,true]
+  ];
+  for(const [moves,position,firstInvalidIndex,lastMoveInvalid] of cases){
+    assert.deepEqual(E.traceRoute(map,moves),{position,firstInvalidIndex,lastMoveInvalid},moves.join(' '));
+    assert.equal(E.walk(map,moves),firstInvalidIndex<0?position:-1,moves.join(' '));
+  }
+});
+
 test('counts retries locks solved questions and summarizes the round', () => {
   const round=[questions.single,questions.cause,questions.observe,questions.order,questions.timeline];
   const session=E.createSession('easy','school',42,round);

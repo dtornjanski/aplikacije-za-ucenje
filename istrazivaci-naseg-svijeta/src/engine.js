@@ -5,22 +5,33 @@
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
   'use strict';
 
-  const VERSION=2;
+  const VERSION=2,CONTENT_REVISION=4;
   const text=value=>String(value??'').trim().replace(/\s+/g,' ').toLocaleLowerCase('hr');
   const clone=value=>JSON.parse(JSON.stringify(value));
   const choiceTypes=new Set(['single','cause','observe']);
   const sequenceTypes=new Set(['order','timeline']);
   const directions={gore:[0,-1],desno:[1,0],dolje:[0,1],lijevo:[-1,0]};
 
-  function walk(map,moves){
-    let at=map.start;
-    for(const name of moves){
-      if(!Object.hasOwn(directions,name))return -1;
-      const [dx,dy]=directions[name],x=at%3+dx,y=Math.floor(at/3)+dy,next=3*y+x;
-      if(x<0||x>2||y<0||y>2||map.blocked.includes(next))return -1;
-      at=next;
+  function positionAfterMove(map,position,move){
+    if(!Object.hasOwn(directions,move))return position;
+    const [dx,dy]=directions[move];
+    const x=position%3+dx,y=Math.floor(position/3)+dy,next=3*y+x;
+    return x<0||x>2||y<0||y>2||map.blocked.includes(next)?position:next;
+  }
+  function traceRoute(map,moves){
+    let position=map.start,firstInvalidIndex=-1,lastMoveInvalid=false,index=0;
+    for(const move of moves){
+      const next=positionAfterMove(map,position,move);
+      lastMoveInvalid=next===position;
+      if(lastMoveInvalid&&firstInvalidIndex===-1)firstInvalidIndex=index;
+      position=next;
+      index++;
     }
-    return at;
+    return {position,firstInvalidIndex,lastMoveInvalid};
+  }
+  function walk(map,moves){
+    const {position,firstInvalidIndex}=traceRoute(map,moves);
+    return firstInvalidIndex===-1?position:-1;
   }
   function emptyDraft(q){
     if(choiceTypes.has(q.type))return {selected:''};
@@ -94,9 +105,9 @@
     return false;
   }
 
-  function createSession(level,world,seed,questions){
+  function createSession(level,world,seed,questions,contentRevision=CONTENT_REVISION){
     if(!Array.isArray(questions)||questions.length===0) throw new Error('Runda mora sadržavati zadatke.');
-    return {version:VERSION,level,world,seed:Number(seed)>>>0,questions:clone(questions),lesson:null,review:false,index:0,phase:'answer',attempts:questions.map(()=>0),solved:questions.map(()=>false),responses:questions.map(()=>null),credited:[],draft:emptyDraft(questions[0]),pending:null};
+    return {version:VERSION,contentRevision,level,world,seed:Number(seed)>>>0,questions:clone(questions),lesson:null,review:false,index:0,phase:'answer',attempts:questions.map(()=>0),solved:questions.map(()=>false),responses:questions.map(()=>null),credited:[],draft:emptyDraft(questions[0]),pending:null};
   }
 
   function sameResponse(q,left,right){
@@ -131,8 +142,8 @@
   }
 
   function serialize(session){
-    const {level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending}=session;
-    return JSON.stringify({version:VERSION,contentRevision:3,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending,plan:session.questions[0].ref?session.questions.map(q=>q.ref):undefined});
+    const {contentRevision,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending}=session;
+    return JSON.stringify({version:VERSION,contentRevision,level,world,seed,lesson,review,index,phase,attempts,solved,responses,credited,draft,pending,plan:session.questions[0].ref?session.questions.map(q=>q.ref):undefined});
   }
 
   function sameMembers(values,allowed){
@@ -180,7 +191,9 @@
       const saved=typeof raw==='string'?JSON.parse(raw):raw;
       if(!saved||![1,VERSION].includes(saved.version)||typeof buildRound!=='function') return null;
       if(!Number.isInteger(saved.seed)||saved.seed<0||saved.seed>0xffffffff||!Number.isInteger(saved.index)) return null;
-      const questions=buildRound(saved.level,saved.world,saved.seed,saved.version===1?undefined:saved.plan),total=questions.length;
+      const revision=saved.version===1?1:saved.contentRevision??2;
+      if(!Number.isInteger(revision)||revision<1||revision>CONTENT_REVISION)return null;
+      const questions=buildRound(saved.level,saved.world,saved.seed,saved.version===1?undefined:saved.plan,revision),total=questions.length;
       if(saved.index<0||saved.index>=total||!['answer','incorrect','correct','complete'].includes(saved.phase)) return null;
       if(!Array.isArray(saved.attempts)||!Array.isArray(saved.solved)||!Array.isArray(saved.responses)) return null;
       if(saved.attempts.length!==total||saved.solved.length!==total||saved.responses.length!==total) return null;
@@ -198,7 +211,7 @@
       if(saved.phase==='incorrect'&&(saved.solved[current]||saved.attempts[current]<1||!response||check(question,response))) return null;
       if(saved.phase==='correct'&&(!saved.solved[current]||saved.attempts[current]<1||!passed(current))) return null;
       if(saved.phase==='complete'&&(current!==total-1||saved.solved.some(value=>!value)||saved.attempts[current]<1||!passed(current))) return null;
-      const session=createSession(saved.level,saved.world,saved.seed,questions);
+      const session=createSession(saved.level,saved.world,saved.seed,questions,revision);
       session.index=current;session.phase=saved.phase;session.attempts=saved.attempts.slice();session.solved=saved.solved.slice();session.responses=clone(saved.responses);session.credited=credited.slice();
       if(saved.version===VERSION){
         if(!draftAllowed(question,saved.draft))return null;
@@ -233,5 +246,5 @@
     session.draft=clone(session.responses[session.index]||emptyDraft(questions[session.index]));
     return session;
   }
-  return {VERSION,makeRng,shuffle,complete,check,createSession,submit,advance,summarize,serialize,restore,migrate,emptyDraft,sameResponse,walk,directions};
+  return {VERSION,CONTENT_REVISION,makeRng,shuffle,complete,check,createSession,submit,advance,summarize,serialize,restore,migrate,emptyDraft,sameResponse,traceRoute,walk,directions};
 });

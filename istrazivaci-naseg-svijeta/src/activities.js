@@ -89,5 +89,344 @@
     if(level==='medium')return {...task('Za koliko je u ovom primjeru razdoblje od izlaska do zalaska Sunca kraće u studenome?','za 2 sata','za 120 minuta','za 1 sat','za 3 sata','jednako je dugo'),visual};
     return {...task('Pročitaj oba zapisa. Koje zaključke možeš potvrditi?','u studenome je razdoblje dnevnog svjetla kraće','nebo je pri obama opažanjima bilo vedro','u rujnu je Sunce zašlo ranije','kraći se studeni dan u ovom zapisu može objasniti oblačnim nebom','Sunce je u studenome izašlo dva sata kasnije'),visual};
   }
-  return {cases,sunset};
+  function choice(prompt,answer,...wrong){return {prompt,answer,wrong};}
+  function comparison(prompt,truth,wrong,visual){return {prompt,truth,wrong,visual};}
+  function sunsetTable(prompt,answer,months,times,wrong){
+    const visual={kind:'table',caption:'Zalazak Sunca na istome mjestu',headers:['Mjesec','Zalazak'],
+      rows:months.map((month,i)=>[month,times[i]])};
+    return {...choice(prompt,answer,...wrong),visual};
+  }
+  // Each pair has an initial situation and a different situation for targeted review.
+  const hardCases={
+    school:{
+      0:[
+        choice('Imate jednu lupu i po jedan list. Kako oboje možete pregledati svoj list?',
+          'Nakon pregleda zamijenimo se za lupu.','Ja pogledam oba lista.','Svaki pregleda samo pola istog lista.','Drugi učenik samo sluša moj opis.'),
+        choice('Oboje želite voditi igru. Imate dva kruga. Kako ćete podijeliti posao?',
+          'Svatko vodi po jedan krug.','Oba kruga vodi prvi dobitnik.','Voditelj se bira samo za prvi krug.','Oba kruga vodi onaj tko prvi počne.')],
+      4:[
+        choice('Upute su bile prije igre. Tin je stigao na početku drugog kruga. Što je sve propustio?',
+          'Upute i prvi krug.','Samo upute.','Prvi i drugi krug.','Drugi krug i kraj igre.'),
+        choice('Iva dolazi nakon podjele uloga, a prije pokusa. Što treba saznati da bi se uključila?',
+          'Koja je njezina uloga u pokusu.','Kako je pokus završio.','Tko je pospremio nakon pokusa.','Koji je rezultat već zapisan.')],
+      5:[
+        choice('Četvero djece radi plakat. Troje crta, piše i lijepi. Kako može pridonijeti četvrto dijete?',
+          'Provjeriti jesu li svi naslovi uz prave slike.','Samo potpisati gotov plakat.','Otići prije završetka i prepustiti provjeru drugima.','Pričekati da ostali sve provjere.'),
+        choice('Za razrednu izložbu trebaju slike i opisi. Kako će dva para podijeliti posao?',
+          'Jedan par crta, a drugi piše opise.','Oba para crtaju i ostavljaju slike bez opisa.','Oba para pišu, a slike ostave za drugi put.','Jedan par radi oboje, a drugi samo gleda.')],
+      7:[
+        choice('Nova učenica još ne zna pravila. Što joj omogućuje da već u prvom krugu igra s vama?',
+          'Objasnimo pravila i odigramo prvi krug s njom.','Damo joj bilježnicu da zapisuje naš rezultat.','Zamolimo je da samo broji igrače.','Neka gleda do kraja igre.'),
+        choice('Tin želi igrati, ali još ne zna kako dodati loptu. Kako ga uključiti u ekipu?',
+          'Pokažemo dodavanje pa mu dodamo loptu.','Zamolimo ga da do kraja sjedi na klupi.','Povjerimo mu samo čuvanje torbi.','Dodajemo loptu samo iskusnim igračima.')],
+      10:[
+        choice('Svi pričaju u isti glas pa se Nikin prijedlog ne čuje. Koje pravilo pomaže?',
+          'Govori jedna osoba, a ostali slušaju.','Tko govori najglasnije, završava prvi.','Svi ponove svoj prijedlog istodobno.','Uvijek govori samo jedan isti učenik.'),
+        choice('U skupini nitko nije čuo Tinovo pitanje. Što mu omogućuje da ga svi čuju?',
+          'Ostali pričekaju dok Tin postavi pitanje.','Svatko odmah predloži svoj odgovor.','Parovi nastave razgovarati dok Tin pita.','Tin pitanje prepusti onome tko je glasniji.')],
+      11:[
+        choice('Ema je jučer birala igru. Dogovor je da se izmjenjuje s Nikom. Što će biti danas?',
+          'Nika bira igru.','Ema bira i danas.','Bira jučerašnja pobjednica.','Bira ona koja prva vikne.'),
+        choice('Tin i Leo naizmjence vode krugove. Leo je vodio prvi krug, Tin drugi. Tko vodi treći?',
+          'Leo.','Tin.','Pobjednik drugog kruga.','Onaj tko prvi podigne ruku.') ]},
+    home:{
+      0:[
+        choice('Luka je brat Anine mame. Kako će ga Ana predstaviti prijateljici?',
+          'Moj ujak.','Moj stric.','Moj djed.','Moj brat.'),
+        choice('Iva je sestra Tinova tate. Kako su Iva i Tin povezani?',
+          'Iva je Tinova teta.','Iva je Tinova baka.','Iva je Tinova sestra.','Iva je Tinova majka.')],
+      4:[
+        choice('Mila je postavila tanjure, tata čaše, a baka pribor. Kojim su dogovorom pripremili stol?',
+          'Svatko je preuzeo drugi dio posla.','Svatko je postavio samo svoj pribor.','Svatko je postavio cijeli stol za sebe.','Svi su donijeli iste predmete.'),
+        choice('Za objed još nedostaju čaše i pribor. Kako dva člana obitelji mogu podijeliti preostali posao?',
+          'Jedan stavi čaše, drugi pribor.','Oboje donesu samo pribor.','Oboje donesu samo čaše.','Jedan donese tanjure, drugi ih složi.')],
+      5:[
+        choice('Na istom su ulazu četiri zvona s brojevima stanova. Što sigurno znaš o stanovima?',
+          'Sva četiri imaju zajednički ulaz.','Sva četiri su na istom katu.','U svakom žive četiri osobe.','U zgradi su četiri kata.'),
+        choice('Ema i Leo otključaju ista ulazna vrata, a zatim svaki svoja vrata stana. Što dijele?',
+          'Ulaz u zgradu.','Dnevnu sobu.','Svoju kuhinju.','Ključ svakoga stana.')],
+      7:[
+        choice('Na popisu uz Ivana piše „spremi svoj pribor”. Njegove su bojice na stolu. Kamo ih treba vratiti?',
+          'U svoju pernicu.','U sestrinu školsku torbu.','Na rub istog stola.','Na stolicu pokraj stola.'),
+        choice('Uz Niku piše „spremi svoje knjige”. Koji posao odgovara njezinu dijelu dogovora?',
+          'Vratiti svoje knjige na policu.','Složiti samo bratove bojice.','Ostaviti svoje knjige na podu.','Prenijeti knjige na slobodnu stolicu.')],
+      10:[
+        choice('Kutija je nasred ulaza kojim prolaze dječja kolica. Kada će svi stanari imati slobodan prolaz?',
+          'Kad kutiju spremimo u stan.','Kad je stavimo pred susjedova vrata.','Kad je pomaknemo na sredinu stuba.','Kad na nju stavimo natpis.'),
+        choice('Na zajedničkim stubama stoji romobil. Što pomaže i susjedu koji nosi vrećice?',
+          'Spremiti romobil na mjesto izvan prolaza.','Okrenuti ga poprijeko na stubi.','Prekriti ga jaknom.','Ostaviti ga na stubi i upaliti svjetlo.')],
+      11:[
+        choice('Knjigu vratiš na označenu policu, a škare u ladicu za pribor. Kako pomažeš sljedećoj osobi?',
+          'Može ih pronaći na dogovorenom mjestu.','Oba će predmeta naći u ladici.','Znat će tko se njima zadnji služio.','Može ih odmah naći u istoj prostoriji.'),
+        choice('Nakon igre lopta ide u košaru, a kocke u kutiju s oznakom. Što je zajedničko tom pospremanju?',
+          'Svaku igračku vraćamo na njezino mjesto.','Obje igračke moraju stati u istu kutiju.','Igračke slažemo prema težini.','Sve igračke pripadaju samo jednoj osobi.')]},
+    autumn:{
+      0:[
+        choice('U rujnu je list bio zelen. U listopadu na istom listu vidiš žuti rub. Što se promijenilo?',
+          'Boja dijela lista.','Položaj označene grane.','Broj stabala u drvoredu.','Mjesto na kojem raste stablo.'),
+        choice('U ponedjeljak je na grani bilo osam listova, a u petak pet. Što se promijenilo na grani?',
+          'Ima tri lista manje.','Ima tri lista više.','Ostalo je osam listova.','Ostala su samo tri lista.')],
+      4:[
+        sunsetTable('U kojem će mjesecu u 18 sati Sunce već zaći?','U studenome.',['rujan','studeni'],['19:00','17:00'],['U rujnu.','U oba mjeseca.','Ni u jednom mjesecu.']),
+        sunsetTable('U kojem će mjesecu u 17 sati Sunce još biti iznad obzora?','U listopadu.',['listopad','prosinac'],['18:00','16:00'],['U prosincu.','U oba mjeseca.','Ni u jednom mjesecu.'])],
+      5:[
+        choice('Ujutro se klupa na kraju staze nije vidjela od magle. Poslijepodne se vidjela. Što se promijenilo?',
+          'Poslijepodne se vidjelo dalje.','Ujutro se vidjelo dalje.','Oba se puta vidjelo jednako daleko.','Klupa je poslijepodne nestala.'),
+        choice('U 8 sati vrh brda skrila je magla. U 12 sati vidio se. Koji zapis možeš unijeti uz 8 sati?',
+          'Vrh se nije vidio od magle.','Vrh se vidio bez magle.','Vrh se vidio pri oba opažanja.','Magla se pojavila tek poslije podne.')],
+      7:[
+        choice('Vjeverica jedan lješnjak pojede, a tri zakopa. Čemu mogu poslužiti zakopani lješnjaci?',
+          'Kao zaliha hrane za poslije.','Kao obrok koji je upravo pojela.','Kao dokaz da više ne traži hranu.','Kao trag da ne jede lješnjake.'),
+        choice('Vjeverica zimi otkopa orahe koje je sakrila u jesen. Kako joj je jesenski posao pomogao?',
+          'Sada može jesti spremljenu hranu.','Sada više ne mora otvarati orahe.','U jesen je već pojela sve te orahe.','Orah je pod zemljom ostao samo kao oznaka.')],
+      10:[
+        choice('Lastavica lovi leteće kukce. U hladnoj ih je dolini sve manje. Gdje će lakše naći hranu?',
+          'U toplijem kraju u kojem kukci još lete.','U kraju u kojem su nestali svi kukci.','Na mjestu gdje ima samo sjemenki.','Na hladnijem mjestu s još manje kukaca.'),
+        choice('U jednom se polju roje mušice, a u drugom ih nakon zahlađenja nema. Gdje će lastavica lakše loviti?',
+          'Nad poljem s mušicama.','Nad poljem bez mušica.','U oba jednako, jer su polja iste veličine.','U polju bez kukaca, ako ima više zrnja.')],
+      11:[
+        choice('Za tjedan dana želiš provjeriti je li isti list promijenio boju. Koji ti zapis treba danas?',
+          'Datum, oznaka lista i njegova boja.','Samo datum sljedećeg obilaska.','Boja bilo kojeg lista u parku.','Broj stabala uz školu.'),
+        choice('Danas brojiš listove na jednoj grani. Kako ćeš za tjedan dana moći usporediti broj?',
+          'Označim granu i uz datum zapišem broj.','Zapišem boju najbliže klupe.','Sutra prebrojim listove drugog stabla.','Označim stablo, ali preskočim brojanje.')]},
+    winter:{
+      0:[
+        choice('Na tamni rukav padaju pahulje. U toplom razredu ostanu kapljice. Što je vani padalo?',
+          'Snijeg.','Kiša.','Tuča u tvrdim kuglicama.','Rosa.'),
+        choice('Na prozor padaju prozirne kapi. Ne vidiš pahulje ni zrnca leda. Koju ćeš oborinu zapisati?',
+          'Kišu.','Snijeg.','Tuču.','Susnježicu s pahuljama.')],
+      4:[
+        choice('Usred zime jedno stablo ima gole grane, a drugo zelene iglice. Koje bolje odgovara opisu bora?',
+          'Stablo sa zelenim iglicama.','Stablo s golim granama.','Oba, jer je zima.','Nijedno, jer zimi nema zelenila.'),
+        choice('Na hrastu su ujesen bili široki listovi, a zimi ih nema. Bor je i dalje zelen. Što vrijedi za hrast?',
+          'Do zime je ostao bez listova.','Listovi su mu se pretvorili u iglice.','Zimi ima isto lišće kao bor.','Podaci pokazuju da ni ljeti nema listova.')],
+      5:[
+        choice('Toga je dana svanulo u 7 sati, a smračilo se u 17. U koje su doba oba izlaska bila po danu?',
+          'U 8 i u 16 sati.','U 6 i u 16 sati.','U 8 i u 18 sati.','U 6 i u 18 sati.'),
+        choice('U 8 sati već je svanulo, a u 17 se smračilo. Šetnja traje od 16 do 18 sati. Kada se smračilo?',
+          'Za vrijeme šetnje.','Prije početka šetnje.','Tek nakon završetka šetnje.','Točno na početku šetnje.')],
+      7:[
+        choice('U ponedjeljak i petak pup na označenoj grani bio je zatvoren. Što znaš iz ta dva opažanja?',
+          'Oba je puta bio zatvoren.','U srijedu se sigurno otvorio.','U petak je na njegovu mjestu bio cvijet.','Taj se pup neće nikada otvoriti.'),
+        choice('Na istoj grančici tri si jutra nacrtala zatvoren pup. Što bi na idućem crtežu pokazalo promjenu?',
+          'Iz pupa viri listić.','Pup je i dalje zatvoren.','Na papiru je novi datum.','Grančica je nacrtana većom olovkom.')],
+      10:[
+        choice('Na tanjuru je bila kocka leda. U toploj sobi na istome mjestu vidiš lokvicu. Odakle voda?',
+          'Nastala je otapanjem leda.','Nastala je smrzavanjem lokvice.','Led je ostao čitav u lokvici.','Lokvica je ondje bila prije leda.'),
+        choice('Na toplom prozoru grudica snijega postala je manja, a ispod nje je voda. Što se s njom događa?',
+          'Dio snijega otapa se u vodu.','Voda se pretvara u sve više snijega.','Sav je snijeg ostao nepromijenjen.','Snijeg iz lokvice prelazi u novu pahulju.')],
+      11:[
+        comparison('U snijegu su otisci između grma i ograde. Čiji zapis podupiru tragovi?',
+          ['Između grma i ograde vide se otisci.','Tuda je prošla životinja.'],
+          ['Životinja je prošla točno u podne.','Životinja je još kod ograde.','Svaki je otisak druge životinje.']),
+        comparison('Jedan trag u snijegu prolazi pokraj bora i klupe. Čiji zapis podupire taj trag?',
+          ['Otisci se vide pokraj klupe.','Životinja je prošla pokraj bora.'],
+          ['Životinja sada sjedi na klupi.','Trag je nastao točno u osam sati.','Otisci dokazuju da su prošle tri životinje.'])]},
+    spring:{
+      0:[
+        choice('Prošli je tjedan na grani bio zatvoren pup. Danas iz njega viri listić. Što se dogodilo?',
+          'Pup se počeo otvarati.','Listić je otpao s grane.','Na mjestu lista sazrio je plod.','Pup je danas zatvoren kao prije.'),
+        choice('Na označenoj grančici u utorak je bio pup, a u petak otvoren cvijet. Koja dva crteža idu redom?',
+          'Zatvoren pup pa otvoren cvijet.','Otvoren cvijet pa zatvoren pup.','Zreo plod pa zatvoren pup.','Gola grana pa zreo plod.')],
+      4:[
+        choice('Obje biljke dobivaju jednako vode. Jedna je na toplom i svijetlom, druga na hladnom i tamnom. Što se razlikuje?',
+          'Svjetlost i toplina.','Samo količina vode.','Samo svjetlost.','Samo toplina.'),
+        choice('Želiš provjeriti utječe li svjetlost na dvije jednake biljke. Kako ćeš ih smjestiti?',
+          'Jednu na svjetlo, drugu u tamu, uz jednaku toplinu i vodu.','Obje u tamu, jednu na toplije mjesto.','Obje na svjetlo, jednu zalijevati češće.','Jednu na svjetlo i toplinu, drugu u hladnoću i tamu.')],
+      5:[
+        choice('Iz jednog si pupa vidjela list, a iz drugoga cvijet. Što ti pokazuju oba primjera?',
+          'Iz pupa se može razviti list ili cvijet.','Svaki se pup razvije samo u list.','Svaki se pup razvije samo u cvijet.','Iz svakog pupa odmah nastane plod.'),
+        choice('Na dvije su grančice različiti pupovi. Kako ćeš doznati iz kojega će izrasti cvijet?',
+          'Označim ih i pratim što se iz svakoga razvije.','Oba upišem kao cvjetove prije otvaranja.','Promatram samo boju kore stabla.','Pogledam list na drugom stablu.')],
+      7:[
+        comparison('Ptica nosi travke u istu rašlju na stablu. Čiju tvrdnju podupire opažanje?',
+          ['Ptica na isto mjesto donosi travke.','Možda ondje gradi gnijezdo.'],
+          ['U gnijezdu su već tri jaja.','Mladi su već poletjeli.','Svaku je travku odnijela na drugo stablo.']),
+        comparison('Sjenica nosi gusjenice u istu kućicu. Čiju tvrdnju podupire opažanje?',
+          ['Sjenica nosi hranu u kućicu.','Možda u kućici hrani mlade.'],
+          ['U kućici je točno pet mladih.','Mladi su već odletjeli iz kućice.','Sjenica u kućicu nosi travke.'])],
+      10:[
+        choice('Nad livadom u proljeće opet lete kukci. Koja će ptica ondje lakše naći svoj obrok?',
+          'Lastavica koja lovi kukce.','Čaplja koja traži ribu.','Djetlić koji u kori traži ličinke.','Ptica koja pod snijegom traži sjeme.'),
+        choice('Nakon zatopljenja lastavice su se vratile nad ribnjak. Koja im promjena pomaže pri hranjenju?',
+          'Iznad vode opet lete mušice.','U daljoj su šumi sazreli češeri.','Ispod vode ima više kamenja.','Na dnu ribnjaka ima više mulja.')],
+      11:[
+        choice('Za izlet je najavljeno hladno jutro, toplo podne i pljusak. Što pokriva sva tri uvjeta?',
+          'Majica, vesta i lagana kabanica.','Samo majica i sunčane naočale.','Kaput bez sloja koji se može skinuti.','Kratke hlače i samo kišobran.'),
+        choice('Ujutro nosiš vestu preko majice i kabanicu u torbi. U podne je vruće i suho. Kako se prilagoditi?',
+          'Skinuti vestu, a kabanicu ostaviti za kišu.','Preko veste odmah odjenuti kabanicu.','Ostaviti vestu i kabanicu kod prve klupe.','Zakopčati sve slojeve dok je najtoplije.')]},
+    summer:{
+      0:[
+        choice('U hladu je u 8 sati bilo 20 °C, a u 13 sati 30 °C. Za koliko je bilo toplije u 13 sati?',
+          'Za 10 °C.','Za 5 °C.','Za 20 °C.','Za 30 °C.'),
+        choice('U podne je bilo 29 °C, a predvečer 24 °C. Kako se promijenila temperatura?',
+          'Snizila se za 5 °C.','Porasla je za 5 °C.','Snizila se za 3 °C.','Ostala je jednaka.')],
+      4:[
+        choice('Na vruć dan listovi su klonuli, a zemlja je suha. Što biljci prvo treba nadoknaditi?',
+          'Vodu koju gubi.','Još topline.','Još jače sunce.','Još suhe zemlje umjesto vode.'),
+        choice('Nakon zalijevanja klonuli listovi opet su se uspravili. Koja je promjena tome mogla pomoći?',
+          'Korijen je ponovno dobio vodu.','Zemlja je nakon zalijevanja ostala suha.','Listovi su prestali trebati vodu.','Biljka je nakon zalijevanja dobila više sunca.')],
+      5:[
+        choice('Na istome je mjestu u lipnju u 20 sati svijetlo, a u prosincu mrak. U kojem mjesecu šetnju u 20 sati završavaš po danu?',
+          'U lipnju.','U prosincu.','U oba mjeseca jednako dugo.','Samo u mjesecu u kojem je u 20 sati mrak.'),
+        choice('Ljeti Sunce zađe u 21 sat, a zimi u 16 sati. Koja šetnja od 17 do 18 sati završava prije zalaska?',
+          'Ljetna šetnja.','Zimska šetnja.','Obje šetnje.','Nijedna šetnja.')],
+      7:[
+        choice('Pas je na vrućini prešao pod drvo. Ondje je i zdjelica vode. Što mu novo mjesto nudi?',
+          'Hlad i vodu.','Više izravnog sunca i vodu.','Hlad, ali nema vode.','Samo topliju podlogu za ležanje.'),
+        choice('U dvorištu biraš mjesto za psa tijekom vrućeg dana. Koje ima oba potrebna uvjeta za predah?',
+          'Hladovina s dostupnom pitkom vodom.','Osunčana staza sa zdjelom vode.','Sjena pokraj prazne zdjele.','Suha klupa na suncu.')],
+      10:[
+        comparison('Čiji zapis odgovara mjerenju?',
+          ['U hladu su ostale četiri žlice.','Na suncu su nestale tri žlice.'],
+          ['Na suncu je ostalo više vode.','U hladu su nestale tri žlice.','Na početku je više vode bilo u hladu.'],
+          {kind:'table',caption:'Žlice vode u jednakim tanjurićima',headers:['Mjesto','Na početku','Na kraju'],rows:[['na suncu',5,2],['u hladu',5,4]]}),
+        comparison('Čiji zapis opisuje pokus s čašama?',
+          ['U hladu je ostalo više vode.','Na suncu je ostala jedna žlica.'],
+          ['U hladu je ostala jedna žlica.','Na početku je više vode bilo na suncu.','Na suncu je nestala samo jedna žlica.'],
+          {kind:'table',caption:'Žlice vode u jednakim čašama',headers:['Mjesto','Na početku','Na kraju'],rows:[['u hladu',4,2],['na suncu',4,1]]})],
+      11:[
+        choice('Eni se na vrućem igralištu vrti. Učiteljica stoji blizu. Što Ena treba prvo učiniti?',
+          'Prekinuti igru i odmah reći učiteljici.','Pretrčati još jedan krug prije odmora.','Sama otići dalje od učiteljice.','Pričekati kraj igre da kaže kako se osjeća.'),
+        choice('Tinu je nakon trčanja na suncu jako slabo. Koji je plan za njega i prijateljicu?',
+          'Odmah javiti odrasloj osobi i zajedno otići u hlad.','Nastaviti trčati sporije do kraja igre.','Sakriti se dok slabost ne prođe.','Čekati na sunčanoj stazi bez javljanja odraslima.')]},
+    spacetime:{
+      0:[
+        choice('Kutija je na klupi, a lopta točno ispod sjedala. Što je iznad lopte?',
+          'I sjedalo i kutija.','Samo kutija, bez sjedala.','Samo sjedalo, bez kutije.','Ni sjedalo ni kutija.'),
+        choice('Olovka je u ladici ispod ploče stola. Knjiga je na stolu. Gdje je olovka u odnosu na knjigu?',
+          'Ispod knjige.','Iznad knjige.','Na istoj visini.','U knjizi.')],
+      4:[
+        choice('Ispred škole su preko kolnika bijele pruge. Za koga je označeno to mjesto?',
+          'Za pješake koji prelaze cestu.','Za vozila koja čekaju putnike.','Za bicikle ostavljene uz školu.','Za automobile koji ondje parkiraju.'),
+        choice('S odraslom osobom stojiš uz zebru. Zašto ondje i vozači trebaju osobito paziti?',
+          'Na tom mjestu pješaci prelaze cestu.','Na tom mjestu sva vozila parkiraju.','Tu promet smiju pratiti samo biciklisti.','Bijele pruge označuju kraj svake ceste.')],
+      10:[
+        choice('Na skici su redom škola, most i park. Od škole si stigla do mosta. Što slijedi na označenom putu?',
+          'Park.','Ponovno škola.','Još jedan most.','Kraj puta kod škole.'),
+        choice('Do knjižnice treba proći poštu pa most. Stojiš kod pošte. Po čemu ćeš dalje provjeriti svoj put?',
+          'Prepoznat ću most prije knjižnice.','Tražit ću poštu nakon knjižnice.','Očekujem knjižnicu prije mosta.','Most trebam sresti tek na povratku.')]},
+    energy:{
+      0:[
+        choice('Pod nadstrešnicom učiteljica pali baterijsku svjetiljku. Što svjetiljci daje energiju?',
+          'Baterija u svjetiljci.','Nadstrešnica iznad nje.','Stol koji osvjetljava.','Sjena na tlu.'),
+        choice('Na klupi vidiš lice iz knjige i kad ugasiš svjetiljku. Dan je vedar. Koji izvor i dalje osvjetljava knjigu?',
+          'Sunce.','Ugašena svjetiljka.','Papir na klupi.','Korice knjige.')],
+      4:[
+        choice('Metalna žličica stoji u toplom čaju. Drška izvan čaja postaje toplija. Odakle stiže toplina?',
+          'Iz čaja preko metalne žličice.','Iz hladnije drške prema toplijem čaju.','Iz šalice samo kroz zrak iznad čaja.','Iz čaja tek kad dršku uronimo u njega.'),
+        choice('Topao dlan drži hladniju metalnu kovanicu. Nakon nekog vremena kovanica je toplija. U kojem je smjeru išla toplina?',
+          'Od dlana prema kovanici.','Od kovanice prema toplijem dlanu.','Iz kovanice prema stolu na kojem nije ležala.','Samo unutar dlana, bez prijelaza u kovanicu.')],
+      5:[
+        choice('Stolna svjetiljka nema bateriju. Kabel joj je izvučen iz utičnice. Zašto ne svijetli?',
+          'Kroz kabel ne dobiva struju iz utičnice.','Sjenilo je između žarulje i stola.','Stol je predaleko od žarulje.','U sobi već ima danjeg svjetla.'),
+        choice('Utikač je priključen, a svjetiljka gori. Kojim putem struja dolazi do svjetiljke?',
+          'Iz utičnice kroz kabel.','Od stola kroz sjenilo.','Od zida kroz zrak do žarulje.','Od osvijetljene knjige prema žarulji.')],
+      7:[
+        choice('Dvije svjetiljke svijetle u učionici iz koje svi odlaze. Kako uštedjeti najviše energije?',
+          'Ugasiti obje.','Ugasiti samo prvu.','Ugasiti samo drugu.','Ostaviti obje upaljene.'),
+        choice('Učenici rade kod jedne lampe, a druga svijetli u praznom kutu. Kako uštedjeti i zadržati potrebno svjetlo?',
+          'Ugasiti samo lampu u praznom kutu.','Ugasiti samo lampu kod učenika.','Ugasiti obje dok učenici rade.','Premjestiti obje upaljene lampe u prazni kut.')],
+      10:[
+        choice('U toploj kuhinji vrata hladnjaka ostanu otvorena. Što hladnjak zatim mora ponovno ohladiti?',
+          'Topliji zrak koji je ušao.','Zrak koji je ostao u hodniku.','Samo kvaku s vanjske strane.','Cijelu kuhinju izvan hladnjaka.'),
+        choice('Mia prije otvaranja hladnjaka odluči što joj treba. Kako joj to pomaže štedjeti energiju?',
+          'Vrata su kraće otvorena pa ulazi manje toplog zraka.','Hladnjak uopće više ne mora hladiti hranu.','Otvorena vrata dulje zadržavaju hladan zrak.','Hrana postaje hladnija kad stoji izvan hladnjaka.')],
+      11:[
+        choice('Što se može ugasiti da noću bude manje nepotrebnog svjetla?',
+          'Reflektor na praznom zatvorenom igralištu.','Lampu uz stube dok se njima silazi.','Svjetlo na biciklu koji vozi u mraku.','Radnu lampu uz knjigu koju netko čita.'),
+        choice('Uz stazu svjetlo treba ljudima dok prolaze. Koji dogovor smanjuje suvišnu noćnu rasvjetu?',
+          'Svjetlo se pali kad netko prolazi.','Svi reflektori svijetle jako cijelu noć.','Svjetlo se gasi baš kad netko dođe.','Rasvjeta se usmjeri u nebo umjesto na stazu.')]},
+    health:{
+      0:[
+        choice('Leo je dugo sjedio i pisao. Koja stanka mijenja i posao i položaj tijela?',
+          'Ustati i prošetati hodnikom.','Sjedeći prijeći na slagalicu.','Na istom stolcu otvoriti drugu knjigu.','Sjedeći nastaviti crtati.'),
+        choice('Nakon vožnje autobusom Ema ima deset minuta do sata. Kako će u taj dio jutra uključiti kretanje?',
+          'Prošetati školskim dvorištem.','Sjedeći čekati uz novu igru.','Prelistati bilježnicu u klupi.','Sjedeći slušati snimku.')],
+      4:[
+        choice('Mia nakon doručka uči i trči na odmoru. Što njezino tijelo dobiva iz hrane za te aktivnosti?',
+          'Energiju.','Zamjenu za noćni san.','Zamjenu za sav dnevni odmor.','Svjež zrak za disanje.'),
+        choice('Tin je doručkovao, a nakon škole opet je gladan. Kako je tijelo iskoristilo dio energije iz doručka?',
+          'Za jutarnje hodanje i rad.','Čuva svu energiju dok ne dođe večer.','Energiju iz doručka dobiva tek nakon škole.','Sva energija ostaje u tijelu i poslije trčanja.')],
+      5:[
+        choice('Na tanjuru su riža i grah. Što treba dodati da imaš i povrće, žitaricu i grah?',
+          'Mrkvu.','Kruh.','Još riže.','Jaje.'),
+        choice('Na tanjuru su jaje i rajčica. Što još nedostaje ako treba obuhvatiti i žitarice?',
+          'Kriška kruha.','Krastavac.','Jogurt.','Sir.')],
+      7:[
+        choice('Kamo možeš staviti suhu kartonsku kutiju kad iz nje izvadiš plastičnu vrećicu?',
+          'U spremnik za papir.','U spremnik za staklo.','U spremnik za plastiku.','U spremnik za ostatke hrane.'),
+        choice('Tražiš čist, suh papir za spremnik. Koja je ambalaža spremna za njega?',
+          'Prazna papirnata vrećica.','Staklenka s papirnatom naljepnicom.','Masna papirnata vrećica s hranom.','Plastična kutija omotana papirom.')],
+      10:[
+        choice('Nakon rada na zaslonu želiš protegnuti noge i odmoriti pogled od blizine. Što radiš?',
+          'Prošećem i pogledam u daljinu.','Sjednem bliže drugom zaslonu.','Ostanem sjediti i čitam sa zaslona.','Hodam gledajući cijelo vrijeme u mobitel.'),
+        choice('Ema ustane od računala, ali nastavi gledati u mobitel. Što još može promijeniti da odmori pogled?',
+          'Odložiti mobitel i pogledati kroz prozor u daljinu.','Približiti mobitel očima.','Vratiti se čitanju na računalu.','Na mobitelu otvoriti drugu igru.')],
+      11:[
+        choice('Susjedi noću čuju glasan televizor. Koji postupak uklanja uzrok te buke?',
+          'Smanjiti glasnoću televizora.','Smanjiti svjetlinu zaslona.','Promijeniti program uz istu glasnoću.','Otvoriti prozor uz televizor.'),
+        choice('Navečer čuješ glazbu s prozora i sirenu vozila hitne pomoći. Koji se zvuk može stišati radi odmora susjeda?',
+          'Glazba iz stana.','Sirena vozila koje žuri pomoći.','Oba zvuka, čak i dok vozilo žuri.','Samo upozorenje vozila u prolazu.')]},
+    nature:{
+      0:[
+        choice('U posudi su kamen, žličica i mladica graha. Na kojem bi od njih mogla vidjeti kako raste novi list?',
+          'Na mladici graha.','Na kamenu.','Na žličici.','Na sva tri predmeta.'),
+        choice('U travi vidiš kamen i mrava koji nosi mrvicu prema mravinjaku. Koji je znak života mrav pokazao?',
+          'Sam se kreće i nosi hranu.','Nalazi se na istome tlu kao kamen.','Baca sjenu na travu.','Može se vidjeti povećalom.')],
+      4:[
+        choice('Dvije su biljke jednako zalivene i tople. Jedna je uza svijetli prozor, druga u tamnom ormaru. Što ispituješ?',
+          'Utjecaj svjetlosti.','Utjecaj različitih količina vode.','Utjecaj različite topline.','Razliku između dviju vrsta biljaka.'),
+        choice('U pokusu s dvije jednake biljke mijenjaš samo svjetlost. Što treba biti jednako u oba lončića?',
+          'Količina vode i toplina.','Samo veličina natpisa.','Osvjetljenje i položaj na suncu.','Boja papira u bilježnici.')],
+      5:[
+        choice('Kroz jednu pločicu jasno vidiš nacrtani list, a kroz drugu ga ne vidiš. Što si ispitala?',
+          'Prozirnost pločica.','Njihovu težinu.','Njihovu hrapavost.','Njihovu savitljivost.'),
+        choice('Želiš provjeriti je li folija prozirna. Koji ti postupak daje potreban podatak?',
+          'Staviti je ispred crteža i pogledati vidi li se crtež.','Izvagati je na vagi.','Presaviti je i pogledati rub.','Preliti je vodom i protresti.')],
+      7:[
+        choice('Dvije su zatvorene vrećice jednake na dodir. Iz jedne dopire miris metvice. Kojim ih osjetilom razlikuješ?',
+          'Njuhom.','Sluhom.','Dodirom.','Vidom.'),
+        choice('Zatvorenih očiju prepoznaješ lavandu, bez kušanja i dodira. Koji ti podatak pomaže?',
+          'Njezin miris.','Boja njezinih cvjetova.','Duljina njezine stabljike.','Oblik njezinih listova.')],
+      10:[
+        comparison('U pokusu je čep ostao na površini, a kamen na dnu. Čiji zapis odgovara pokusu?',
+          ['Čep je plutao.','Kamen je potonuo.'],
+          ['Oba su predmeta potonula.','Kamen je plutao.','Čep je bio na dnu.']),
+        comparison('U posudi je list ostao na površini, a kovanica na dnu. Čiji zapis odgovara opažanju?',
+          ['List je ostao na površini.','Kovanica je potonula.'],
+          ['Na dnu je završio list.','Kovanica je plutala.','Oba su predmeta ostala na površini.'])],
+      11:[
+        choice('Na crtežu se korijen nastavlja u stabljiku, a na njoj rastu listovi. Što čine zajedno?',
+          'Dijelove jedne biljke.','Tri zasebne cijele biljke.','Samo jedan list.','Samo jedan korijen.'),
+        choice('Na crtežu graha vidiš stabljiku i listove. Koji dio treba docrtati pod zemljom?',
+          'Korijen.','Cvijet.','Plod.','Još jedan list.')]},
+    place:{
+      0:[
+        choice('Od pošte ulica vodi do trga. Tek na trgu počinje staza za park. Kojim putem ideš iz pošte?',
+          'Ulicom do trga pa stazom do parka.','Stazom do trga pa ulicom do parka.','Iz pošte ravno stazom mimo trga.','Ulicom sve do parka, bez staze.'),
+        choice('Do knjižnice treba proći most pa trg. Vraćaš se istim putem. Što ćeš proći prvo?',
+          'Trg pa most.','Most pa trg.','Dvaput most.','Dvaput trg.')],
+      4:[
+        choice('Pekar je ispekao kruh, a trgovina ga još čeka. Čiji posao u tom lancu tek treba obaviti?',
+          'Vozačev, da dostavi kruh.','Pekarov, da ponovno zamijesi isti kruh.','Mlinarov, da tek samelje zrno za taj kruh.','Poljoprivrednikov, da tek požanje tu pšenicu.'),
+        choice('Poljoprivrednica je uzgojila jabuke, a prodavač ih nudi kupcima. Kako su njihovi poslovi povezani?',
+          'Prodavač nudi ono što je poljoprivrednica uzgojila.','Prodavač je izlaganjem uzgojio jabuke.','Poljoprivrednica je branjem naplatila svaku jabuku.','Kupci su kupili te jabuke prije nego što su narasle.')],
+      5:[
+        choice('Na fotografiji most prelazi preko rijeke. Koji par redom navodi prirodno pa izgrađeno obilježje?',
+          'Rijeka pa most.','Most pa rijeka.','Most pa cesta.','Rijeka pa brdo.'),
+        choice('Učenici trebaju nacrtati prirodno i izgrađeno obilježje jedno uz drugo. Koji prizor odgovara?',
+          'Cesta podno brda.','Dvije susjedne kuće.','Rijeka između dva brda.','Klupa uz školsku zgradu.')],
+      7:[
+        choice('U mjestu još samo baka zna staru pjesmu. Što će pomoći da je djeca mogu pjevati i poslije?',
+          'Snimiti pjesmu uz bakin pristanak i naučiti je.','Zapisati samo datum susreta.','Sačuvati samo sliku prostora za pjevanje.','Izmisliti novu pjesmu i zaboraviti staru.'),
+        choice('Razred uči stari ples. Što treba sačuvati da ga idući razred može naučiti?',
+          'Redoslijed koraka i glazbu uz koju se pleše.','Samo broj gledatelja.','Samo boju zidova dvorane.','Samo datum prvog školskog nastupa.')],
+      10:[
+        choice('Vjetar nosi praznu vrećicu prema potoku. Kako s odraslom osobom spriječiti da dospije u vodu?',
+          'Pokupiti je i odložiti u odgovarajući spremnik.','Premjestiti je na drugu obalu.','Gurnuti je nizvodno.','Ostaviti je uz rub vode.'),
+        choice('Nakon čišćenja obale sve je smeće u spremniku. Kako to pomaže životinjama u potoku?',
+          'Manje otpada može završiti u njihovoj vodi.','Sav je otpad samo premješten nizvodno.','Životinje sada moraju izaći na obalu po hranu.','Voda će pretvoriti vrećice u hranu za ribe.')]},
+  };
+  return {cases,sunset,hardCases};
 });

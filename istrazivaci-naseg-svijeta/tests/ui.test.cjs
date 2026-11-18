@@ -1,17 +1,19 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
-const {JSDOM,VirtualConsole}=require('../../math-site/node_modules/jsdom');
+const {JSDOM,VirtualConsole}=require('jsdom');
 const E=require('../src/engine'),C=require('../src/content'),P=require('../src/practice');
 const source=path.join(__dirname,'../src'),read=name=>fs.readFileSync(path.join(source,name),'utf8');
 const prefix='world-explorers-v2/run/';
 const runKey=s=>prefix+[s.level,s.world,s.lesson||'sve',s.review?'ponavljanje':'vjezba'].join('/');
-function fixture({session,entries={},legacy,blocked=false,seed=207,hash=''}={}){
+function fixture({session,entries={},legacy,blocked=false,seed=207,hash='',url='https://example.test/',historyState,blockedHistory=false}={}){
   const errors=[],virtualConsole=new VirtualConsole();
   virtualConsole.on('jsdomError',e=>errors.push(e.message));
-  const dom=new JSDOM(read('index.html'),{url:'https://example.test/'+hash,runScripts:'outside-only',pretendToBeVisual:true,virtualConsole});
+  const dom=new JSDOM(read('index.html'),{url:url+hash,runScripts:'outside-only',pretendToBeVisual:true,virtualConsole});
   const w=dom.window,d=w.document;
-  w.scrollTo=()=>{};w.crypto.getRandomValues=v=>{v[0]=seed;return v;};
+  w.scrollTo=(x,y)=>{w.scrollX=x;w.scrollY=y;};w.crypto.getRandomValues=v=>{v[0]=seed;return v;};
+  if(historyState)w.history.replaceState(historyState,'');
+  if(blockedHistory)for(const method of ['pushState','replaceState'])w.history[method]=()=>{throw Error('blocked');};
   for(const [key,value] of Object.entries(entries))w.localStorage.setItem(key,value);
   if(session)w.localStorage.setItem(runKey(session),JSON.stringify({updated:1,state:JSON.parse(E.serialize(session))}));
   if(legacy)w.localStorage.setItem('world-explorers-session-v1',JSON.stringify(legacy));
@@ -41,6 +43,14 @@ function enter(f,q,response){
 }
 const right=q=>q.options?{selected:q.answer}:q.left?{pairs:q.answer}:q.zones?{zones:q.answer}:{items:q.answer};
 
+function navigationEvent(f,event,action){
+  return new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(Error('Missing '+event)),1000);
+    f.w.addEventListener(event,()=>{clearTimeout(timer);resolve();},{once:true});
+    action();
+  });
+}
+
 test('all topic, level and mixed entry points work without a sign-in or answer reveal',()=>{
   for(const level of P.levels)for(const w of [...P.worlds,{id:'mix'}]){
     const f=fixture();assert.equal(new Set(f.all('[data-level]').map(b=>b.textContent)).size,3);
@@ -52,17 +62,64 @@ test('all topic, level and mixed entry points work without a sign-in or answer r
     assert.doesNotMatch(f.d.body.textContent,/pokaži rješenje|mala pomoć/i);f.close();
   }
 });
-test('every original hard observation shows both actual claims before submission in a world and in mixed practice',()=>{
+test('a clock choice is provisional, its submitted error stays with it across reopening, and editing clears it',async()=>{
+  const refs=[{world:'spacetime',key:'sat',seed:20,example:2}];
+  const s=E.createSession('easy','spacetime',101,P.buildRound('easy','spacetime',101,refs));
+  const key=runKey(s);
+  assert.equal(s.questions[0].answer,'03:00');
+  let f=fixture({session:s});
+  f.action('resume');
+  const choose=time=>f.click(f.value('[data-choice]',time));
+  choose('01:00');
+  assert.equal(f.one('.choice.selected').getAttribute('aria-pressed'),'true');
+  assert.equal(f.one('.inline-feedback, .choice-incorrect, .correct'),null);
+  assert.equal(f.snapshot(key).attempts[0],0);
+  f.action('check');
+  const attachedError=()=>{
+    const wrong=f.one('.choice.selected.choice-incorrect');
+    assert.ok(wrong);
+    assert.equal(wrong.dataset.value,'01:00');
+    const msg=wrong.nextElementSibling;
+    assert.ok(msg.matches('.inline-feedback.choice-feedback'));
+    assert.equal(msg.id,wrong.getAttribute('aria-describedby'));
+    assert.equal(msg.textContent,'Još nije točno. Odaberi drugi odgovor.');
+    assert.equal(f.one('.check-area .inline-feedback, .correct'),null);
+    assert.ok(f.one('#check-button').disabled);
+    assert.equal(f.snapshot(key).attempts[0],1);
+    return msg;
+  };
+  assert.equal(attachedError(),f.d.activeElement);
+  await new Promise(resolve=>f.w.setTimeout(resolve,10));
+  assert.equal(f.one('#announcer').textContent,'');
+  const entries=f.dump();f.close();
+  f=fixture({entries});f.action('resume');attachedError();
+  choose('04:00');
+  choose('01:00');
+  assert.equal(f.one('.inline-feedback'),null);
+  assert.ok(!f.one('#check-button').disabled,'a previously checked option can be checked again after editing');
+  f.action('check');attachedError();
+  choose('03:00');
+  assert.equal(f.one('.inline-feedback, [aria-describedby="choice-feedback"], .choice-incorrect, .correct'),null);
+  assert.ok(!f.one('#check-button').disabled);
+  f.action('check');
+  assert.equal(f.one('.feedback.correct h1').textContent,'Točno!');
+  assert.equal(f.snapshot(key).attempts[0],2);
+  f.action('next');
+  assert.equal(f.one('.stat.warm strong').textContent,'1');
+  f.close();
+});
+
+test('saved revision-three observations show both original claims in a world and in mixed practice',()=>{
   let count=0;const outcomes=new Set();
   for(const w of P.worlds)for(const [key,def] of C.banks[w.id].entries())if(def.type==='observe'){
     count++;
     const seeds=new Map();
     for(let seed=1;seed<=100&&seeds.size<4;seed++){
-      const [q]=P.buildRound('hard',w.id,seed,[{world:w.id,key,seed}]);seeds.set(q.answer,seed);
+      const [q]=P.buildRound('hard',w.id,seed,[{world:w.id,key,seed}],3);seeds.set(q.answer,seed);
     }
     assert.equal(seeds.size,4,w.id+'-'+key);
     for(const world of [w.id,'mix'])for(const seed of seeds.values()){
-      const ref={world:w.id,key,seed},s=E.createSession('hard',world,seed,P.buildRound('hard',world,seed,[ref]));
+      const ref={world:w.id,key,seed},s=E.createSession('hard',world,seed,P.buildRound('hard',world,seed,[ref],3),3);
       const f=fixture({session:s});f.action('resume');const q=s.questions[0];
       assert.deepEqual(f.all('.evidence-clue').map(e=>e.textContent),q.clues);assert.ok(q.clues.every(c=>c.length>12));
       assert.deepEqual(f.all('[data-choice]').map(b=>b.dataset.value),q.options);assert.equal(f.one('#check-button').disabled,true);
@@ -153,7 +210,82 @@ test('contextual sort picker, step names, keyboard focus and motion preferences 
   assert.match(read('styles.css'),/prefers-reduced-motion/);
 });
 
-test('all 41 textbook units open from the catalogue and a saved unit resumes at the chosen level',()=>{
+test('route arrows stay visible at the last reachable square and undo replays the remaining sequence',async()=>{
+  const ref={world:'spacetime',key:'skica',seed:47,example:20};
+  const s=E.createSession('hard',ref.world,47,P.buildRound('hard',ref.world,47,[ref]));
+  s.lesson='skica';
+  const q=s.questions[0];
+  let f=fixture({session:s});
+  // School at 0, roadworks at 3, park at 5. Both →→↓ and →↓→ reach the park.
+  assert.deepEqual(q.visual,{kind:'map',start:0,end:5,blocked:[3]});
+  const marker=()=>f.all('.route-map td').findIndex(cell=>cell.classList.contains('map-current'));
+  const undo=()=>f.all('button').find(node=>node.textContent.trim()==='Vrati potez');
+  const move=name=>f.click(f.value('[data-route]',name));
+  const note='Potez je upisan. Položaj se nije promijenio.';
+  f.action('resume');
+  for(const [name,arrow] of [['gore','↑'],['dolje','↓']]){
+    move(name);
+    assert.equal(marker(),0,'the marker stays at school after '+name);
+    assert.match(f.one('.sequence-answer').textContent,new RegExp(arrow));
+    assert.match(f.one('#app').textContent,/1 od 3/);
+    assert.ok(f.one('#app').textContent.includes(note));
+    assert.ok(f.one('#check-button').disabled);
+    await new Promise(resolve=>f.w.setTimeout(resolve,0));
+    assert.ok(f.one('#announcer').textContent.includes(note));
+    move('desno');
+    assert.equal(marker(),1,'the right arrow moves off the school square despite the earlier impossible arrow');
+    assert.ok(!f.one('#app').textContent.includes(note));
+    await new Promise(resolve=>f.w.setTimeout(resolve,0));
+    assert.ok(!f.one('#announcer').textContent.includes(note));
+    f.click(undo());
+    assert.equal(marker(),0);
+    assert.ok(f.one('#app').textContent.includes(note));
+    f.click(undo());
+    assert.equal(marker(),0);
+    assert.match(f.one('#app').textContent,/0 od 3/);
+    assert.ok(undo().disabled);
+    assert.ok(!f.one('#app').textContent.includes(note));
+  }
+  move('desno');
+  assert.equal(marker(),1);
+  move('gore');
+  const entries=f.dump();
+  f.close();
+  f=fixture({entries});
+  f.action('resume');
+  assert.equal(marker(),1);
+  assert.match(f.one('#app').textContent,/2 od 3/);
+  assert.ok(f.one('#app').textContent.includes(note));
+  move('dolje');
+  assert.equal(marker(),4,'the down arrow applies from the last reached square');
+  assert.ok(!f.one('#app').textContent.includes(note));
+  assert.match(f.one('#app').textContent,/3 od 3/);
+  assert.deepEqual(f.snapshot(runKey(s)).draft.items,['desno','gore','dolje']);
+  assert.equal(f.snapshot(runKey(s)).attempts[0],0);
+  assert.equal(f.one('.inline-feedback'),null);
+  f.click(undo());
+  assert.equal(marker(),1);
+  assert.ok(f.one('#app').textContent.includes(note));
+  assert.equal(f.d.activeElement,undo());
+  await new Promise(resolve=>f.w.setTimeout(resolve,0));
+  assert.match(f.one('#announcer').textContent,/Potez je uklonjen/);
+  move('dolje');
+  f.click('#check-button');
+  assert.ok(f.one('.inline-feedback'));
+  f.click('[data-remove-sequence="1"]');
+  assert.equal(marker(),4,'the remaining right and down arrows reach the centre');
+  assert.ok(!f.one('#app').textContent.includes(note));
+  assert.ok(f.one('#check-button').disabled);
+  move('desno');
+  assert.equal(marker(),5);
+  assert.equal(f.snapshot(runKey(s)).phase,'answer');
+  f.click('#check-button');
+  assert.equal(f.one('h1').textContent,'Točno!');
+  assert.equal(f.snapshot(runKey(s)).attempts[0],2);
+  f.close();
+});
+
+test('all 41 textbook units open from the catalogue and a saved unit resumes at the chosen level',async()=>{
   const f=fixture({hash:'#gradivo'});
   assert.equal(f.one('h1').textContent,'Gradivo prema udžbeniku');
   assert.equal(f.all('.book-group').length,8);
@@ -164,7 +296,7 @@ test('all 41 textbook units open from the catalogue and a saved unit resumes at 
     const button=f.one('[data-unit="'+unit.id+'"]');button.closest('details').open=true;f.click(button);
     const saved=f.snapshot(prefix+'hard/'+unit.world+'/'+unit.id+'/vjezba');
     assert.equal(saved.lesson,unit.id);assert.equal(saved.level,'hard');assert.ok(f.one('#check-button'));
-    f.action('book');
+    await navigationEvent(f,'popstate',()=>f.action('book'));
   }
   f.click('[data-unit="str-58"]');const q=f.snapshot(prefix+'hard/health/str-58/vjezba').questions[0];
   const wrong=q.options.find(o=>o!==q.answer);enter(f,q,{selected:wrong});f.click('#check-button');
@@ -172,4 +304,145 @@ test('all 41 textbook units open from the catalogue and a saved unit resumes at 
   g.click('[data-run="hard/health/str-58/vjezba"]');assert.ok(g.one('.inline-feedback'));assert.equal(g.one('.choice.selected').dataset.value,wrong);
   enter(g,q,right(q));g.click('#check-button');assert.equal(g.one('h1').textContent,'Točno!');
   g.click('.brand');g.action('book');assert.equal(g.w.location.hash,'#gradivo');g.close();
+});
+
+test('both ways back restore the textbook unit, level, open chapters, focus and scroll; Forward loads the latest attempt',async()=>{
+  for(const back of ['browser','button']){
+    const f=fixture(),h=f.w.history;
+    assert.equal(h.length,1);
+    f.click('[data-level="hard"]');f.action('book');
+    assert.equal(h.length,3);
+    const unit=f.one('[data-unit="str-58"]'),groups=f.all('.book-group');
+    groups[0].open=true;unit.closest('details').open=true;
+    const opened=groups.filter(g=>g.open).map(g=>g.querySelector('summary').textContent);
+    f.one('#book-level').focus();f.w.scrollTo(0,391);
+    if(back==='button')unit.focus();
+    f.click(unit);
+    const key=prefix+'hard/health/str-58/vjezba',saved=f.snapshot(key),q=saved.questions[0];
+    enter(f,q,{selected:q.options.find(o=>o!==q.answer)});f.click('#check-button');
+    assert.equal(h.length,4);
+    assert.doesNotMatch(JSON.stringify(h.state),/"(?:responses|draft|attempts)":/);
+    await navigationEvent(f,'popstate',()=>back==='browser'?h.back():f.action('book'));
+    assert.equal(f.one('#book-level').value,'hard');
+    assert.deepEqual(f.all('.book-group[open] summary').map(g=>g.textContent),opened);
+    assert.equal(f.d.activeElement,f.one('[data-unit="str-58"]'));assert.equal(f.w.scrollY,391);
+    const latest=f.snapshot(key);assert.equal(latest.phase,'incorrect');
+    E.submit(latest,right(q));E.advance(latest);
+    const updated=JSON.parse(f.w.localStorage.getItem(key)).updated+100;
+    f.w.localStorage.setItem(key,JSON.stringify({updated,state:JSON.parse(E.serialize(latest))}));
+    await navigationEvent(f,'popstate',()=>h.forward());
+    assert.equal(f.one('.progress-text').textContent,'Zadatak 2 od '+saved.questions.length);
+    assert.equal(f.snapshot(key).attempts[0],2);assert.equal(h.length,4);f.close();
+  }
+});
+
+test('direct textbook links, same-tab hash changes and refresh keep the correct screen',async()=>{
+  const direct=fixture({hash:'#gradivo'});
+  assert.equal(direct.w.history.length,1);assert.ok(direct.one('#book-level'));direct.close();
+  const f=fixture(),h=f.w.history;
+  f.click('[data-level="medium"]');
+  await navigationEvent(f,'hashchange',()=>{f.w.location.hash='gradivo';});
+  assert.equal(f.one('#book-level').value,'medium');assert.equal(h.length,3);
+  await navigationEvent(f,'popstate',()=>h.back());
+  assert.ok(f.one('[data-world="mix"]'));assert.equal(f.one('.pill').textContent,P.levels.find(l=>l.id==='medium').name);
+  await navigationEvent(f,'popstate',()=>h.forward());
+  const button=f.one('[data-unit="str-58"]');
+  button.closest('details').open=true;button.focus();f.w.scrollTo(0,280);
+  f.w.dispatchEvent(new f.w.Event('pagehide'));
+  const refreshed=fixture({hash:'#gradivo',historyState:JSON.parse(JSON.stringify(h.state))});
+  assert.equal(refreshed.one('#book-level').value,'medium');
+  assert.ok(refreshed.one('[data-unit="str-58"]').closest('details').open);
+  assert.equal(refreshed.d.activeElement.dataset.unit,'str-58');assert.equal(refreshed.w.scrollY,280);
+  refreshed.close();
+  await navigationEvent(f,'hashchange',()=>{f.w.location.hash='';});
+  assert.ok(f.one('[data-level="easy"]'));
+  await navigationEvent(f,'popstate',()=>h.back());
+  assert.ok(f.one('[data-unit="str-58"]').closest('details').open);f.close();
+});
+
+test('an unavailable textbook exercise returns to its chapter without creating a run, including after refresh',async()=>{
+  const f=fixture({hash:'#gradivo'});
+  const key=prefix+'easy/health/str-58/vjezba',unit=f.one('[data-unit="str-58"]');
+  unit.closest('details').open=true;f.click(unit);
+  const playState=JSON.parse(JSON.stringify(f.w.history.state));
+  const missing=fixture({historyState:playState});
+  assert.equal(missing.d.activeElement.dataset.unit,'str-58');
+  assert.ok(missing.d.activeElement.closest('details').open);
+  assert.equal(missing.w.localStorage.getItem(key),null);missing.close();
+  await navigationEvent(f,'popstate',()=>f.w.history.back());
+  f.w.localStorage.removeItem(key);
+  await navigationEvent(f,'popstate',()=>f.w.history.forward());
+  assert.ok(f.one('#book-level'));assert.equal(f.d.activeElement.dataset.unit,'str-58');
+  assert.equal(f.w.localStorage.getItem(key),null);f.close();
+});
+
+test('offline practice retains the textbook parent when local storage and browser history are unavailable',()=>{
+  const f=fixture({url:'file:///offline/istrazivaci.html',hash:'#gradivo',blocked:true,blockedHistory:true});
+  const unit=f.one('[data-unit="str-58"]');unit.closest('details').open=true;
+  f.w.scrollTo(0,231);f.click(unit);assert.ok(f.one('#check-button'));f.action('book');
+  assert.ok(f.one('[data-unit="str-58"]').closest('details').open);
+  assert.equal(f.d.activeElement.dataset.unit,'str-58');assert.equal(f.w.scrollY,231);f.close();
+});
+
+test('revisiting either of two saved runs, a same-tab textbook link and a refresh always restore that run',async()=>{
+  const a=make('hard','school',[0,4]),b=make('easy','home',[0,4]);
+  const aKey=runKey(a),bKey=runKey(b),aLink='[data-run="'+aKey.slice(prefix.length)+'"]',bLink='[data-run="'+bKey.slice(prefix.length)+'"]';
+  const f=fixture({session:a,entries:{[bKey]:JSON.stringify({updated:2,state:JSON.parse(E.serialize(b))})}}),h=f.w.history;
+  f.one(aLink).closest('details').open=true;f.click(aLink);
+  const wrong=a.questions[0].options.find(o=>o!==a.questions[0].answer);
+  enter(f,a.questions[0],{selected:wrong});f.click('#check-button');
+  f.click('.brand');f.one(bLink).closest('details').open=true;
+  f.click(bLink);enter(f,b.questions[0],right(b.questions[0]));
+  f.click('#check-button');f.action('next');assert.equal(h.length,4);
+  await navigationEvent(f,'hashchange',()=>{f.w.location.hash='gradivo';});
+  await navigationEvent(f,'popstate',()=>f.action('back-play'));
+  assert.equal(f.one('h1').textContent,b.questions[1].title);assert.equal(h.length,5);
+  await navigationEvent(f,'popstate',()=>h.back());
+  assert.equal(f.d.activeElement,f.one(bLink));assert.ok(f.one(bLink).closest('details')?.open??true);
+  await navigationEvent(f,'popstate',()=>h.back());
+  assert.equal(f.one('.choice.selected').dataset.value,wrong);assert.ok(f.one('.inline-feedback'));
+  enter(f,a.questions[0],right(a.questions[0]));f.click('#check-button');f.action('next');
+  const refreshed=fixture({historyState:JSON.parse(JSON.stringify(h.state)),entries:f.dump()});
+  assert.equal(refreshed.one('h1').textContent,a.questions[1].title);
+  assert.deepEqual(refreshed.snapshot(aKey).attempts,[2,0]);assert.deepEqual(refreshed.snapshot(bKey).attempts,[1,0]);
+  refreshed.close();
+  await navigationEvent(f,'popstate',()=>h.forward());
+  f.click(aLink);assert.equal(f.one('h1').textContent,a.questions[1].title);
+  assert.deepEqual(f.snapshot(aKey).attempts,[2,0]);assert.deepEqual(f.snapshot(bKey).attempts,[1,0]);f.close();
+});
+
+test('file links can traverse between the catalogue and an in-memory exercise',async()=>{
+  const f=fixture({url:'file:///offline/istrazivaci.html',hash:'#gradivo',blocked:true}),h=f.w.history;
+  const unit=f.one('[data-unit="str-58"]');unit.closest('details').open=true;f.click(unit);
+  assert.equal(h.length,2);assert.ok(f.one('#check-button'));
+  await navigationEvent(f,'popstate',()=>h.back());assert.equal(f.d.activeElement.dataset.unit,'str-58');
+  await navigationEvent(f,'popstate',()=>h.forward());assert.ok(f.one('#check-button'));f.close();
+});
+
+test('new hard body and sunset exercises show the direct question, evidence and response buttons',()=>{
+  for(const [world,key] of [['health','tijelo'],['health','zglobovi'],['autumn',4],['winter',11]]){
+    const s=make('hard',world,[key]),q=s.questions[0],f=fixture({session:s});f.action('resume');
+    assert.equal(f.one('.prompt').textContent,q.prompt);
+    assert.deepEqual(f.all('[data-choice]').map(b=>b.dataset.value),q.options);
+    assert.deepEqual(f.all('.evidence-clue').map(e=>e.textContent),q.clues||[]);
+    if(q.visual?.kind==='table'){
+      assert.equal(f.one('.data-table caption').textContent,q.visual.caption);
+      assert.deepEqual(f.all('.data-table tbody tr').map(row=>[...row.children].map(cell=>cell.textContent)),q.visual.rows);
+    }
+    assert.equal(f.one('#check-button').disabled,true);
+    enter(f,q,right(q));f.click('#check-button');assert.equal(f.one('h1').textContent,'Točno!');f.close();
+  }
+});
+test('loading a version-one wrong answer keeps its wording and selected choice after another reload',()=>{
+  const seed=3,qs=C.buildRound('hard','school',seed),s=E.createSession('hard','school',seed,qs);
+  while(!qs[s.index].options){E.submit(s,right(qs[s.index]));E.advance(s);}
+  const q=qs[s.index],selected=q.options.find(v=>v!==q.answer);
+  E.submit(s,{selected});
+  const legacy={...JSON.parse(E.serialize(s)),version:1};delete legacy.contentRevision;
+  const f=fixture({legacy});f.action('resume');
+  assert.equal(f.one('.prompt').textContent,q.prompt);
+  assert.equal(f.one('.choice.selected').dataset.value,selected);
+  const entries=f.dump();f.close();const g=fixture({entries});g.action('resume');
+  assert.deepEqual(g.all('[data-choice]').map(b=>b.dataset.value),q.options);
+  enter(g,q,right(q));g.click('#check-button');assert.equal(g.snapshot(runKey(s)).attempts[s.index],2);g.close();
 });
