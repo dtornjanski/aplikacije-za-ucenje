@@ -8,17 +8,34 @@ permissions:
 jobs:
   chrome:
     runs-on: ubuntu-24.04
-    timeout-minutes: 12
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Pripremi preglednik i čitač zaslona
         run: |
           google-chrome --version
           sudo apt-get update -qq
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends orca speech-dispatcher-espeak-ng pulseaudio at-spi2-core dbus-x11 xvfb xauth python3-selenium
+          packages=(orca speech-dispatcher-espeak-ng pulseaudio at-spi2-core dbus-x11 xvfb xauth python3-selenium openbox)
+          sudo apt-get --print-uris -y --no-install-recommends install "${packages[@]}" > "$RUNNER_TEMP/debs.txt"
+          python3 - <<'PY'
+          import concurrent.futures, os, pathlib, shlex, subprocess
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])
+          def get(line):
+              uri,name,*rest=shlex.split(line)
+              if '/pool/' not in uri: return
+              suffix='/pool/'+uri.split('/pool/',1)[1]
+              for source in ['https://archive.ubuntu.com/ubuntu','https://azure.archive.ubuntu.com/ubuntu','https://security.ubuntu.com/ubuntu']:
+                  if subprocess.run(['curl','-fsSL','--connect-timeout','8','--max-time','55',source+suffix,'-o',str(root/name)],capture_output=True).returncode==0:
+                      subprocess.run(['sudo','cp',str(root/name),'/var/cache/apt/archives/'+name],check=True)
+                      return
+          lines=[l for l in (root/'debs.txt').read_text().splitlines() if l.startswith("'")]
+          with concurrent.futures.ThreadPoolExecutor(20) as pool: list(pool.map(get,lines))
+          PY
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${packages[@]}"
           orca --version
       - name: Riješi zadatak, zatvori Chrome, ponovno otvori i poslušaj povratnu informaciju
         run: |
+          export EXPECTED_SHA256=04f10c6a30c019d13d9f7c52062b272c02bc509b41fe897b18a74c73c86271e0
           dbus-run-session -- xvfb-run -a bash qa/istrazivaci/run.sh
