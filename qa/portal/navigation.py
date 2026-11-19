@@ -47,7 +47,9 @@ class Navigation:
         self.take_screenshot(self.b, name, full=full)
 
     def click(self, target):
-        self.b.press(target, self.input)
+        element = self.b.element(target) if isinstance(target, str) else target
+        self.b.wait(lambda: element.is_displayed() and element.is_enabled(), 'Visible enabled control: '+str(target))
+        self.b.press(element, self.input)
 
     def document(self, expected):
         self.b.wait(lambda: path_app(self.b.driver.current_url) == expected, expected or 'portal')
@@ -56,8 +58,8 @@ class Navigation:
         assert self.b.driver.current_window_handle == self.window
 
     def no_overflow(self):
-        size = self.b.js('return [document.documentElement.clientWidth,document.documentElement.scrollWidth]')
-        assert size[0] == self.width and size[1] <= size[0] + 1, (self.b.driver.current_url, size)
+        size = self.b.js('return [innerWidth,document.documentElement.clientWidth,document.documentElement.scrollWidth]')
+        assert size[0] == self.width and size[2] <= size[1] + 1, (self.b.driver.current_url, size)
 
     def card_links(self):
         self.document('')
@@ -200,7 +202,7 @@ class Navigation:
         self.choose(app)
 
     def homes(self, app):
-        for suffix, stage in [('/', 'izravna-mapa'), ('/index.html', 'izravna-datoteka')]:
+        for suffix, stage in [('/', 'izravna-mapa'), ('/index.html', 'izravna-datoteka'), ('', 'cista-adresa')]:
             self.b.driver.get(PORTAL + app + suffix)
             self.leave(app, stage, self.input if suffix == '/' else self.nav_input)
             other = list(NAMES)[(list(NAMES).index(app) + 1) % len(NAMES)]
