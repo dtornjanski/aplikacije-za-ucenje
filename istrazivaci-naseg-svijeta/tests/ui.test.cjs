@@ -307,6 +307,93 @@ test('all 41 textbook units open from the catalogue and a saved unit resumes at 
   g.click('.brand');g.action('book');assert.equal(g.w.location.hash,'#gradivo');g.close();
 });
 
+function fillPage(f,value){
+  const input=f.one('#book-page');
+  input.value=value;
+  input.dispatchEvent(new f.w.Event('input',{bubbles:true}));
+}
+function bookLevel(f,value){
+  const select=f.one('#book-level');
+  select.value=value;
+  select.dispatchEvent(new f.w.Event('change',{bubbles:true}));
+}
+
+test('page lookup covers both ends of every unit, including single pages, and recovers from an unmatched entry',()=>{
+  const f=fixture({hash:'#gradivo'});
+  const status=f.one('#page-lookup-status');
+  assert.equal(status.getAttribute('role'),'status');
+  for(const unit of P.units)for(const number of new Set([unit.from,unit.to])){
+    fillPage(f,String(number));
+    assert.ok(status.textContent.includes(unit.name),'page '+number);
+    assert.equal(f.one('#found-unit').dataset.foundUnit,unit.id);
+    assert.equal(f.one('#found-unit').hash,'#vjezba/'+unit.id+'/easy');
+  }
+  for(const number of ['105','0','abc','5.9']){
+    fillPage(f,number);assert.ok(status.textContent.length>0);
+    assert.equal(f.one('[data-found-unit]'),null);
+  }
+  fillPage(f,'');assert.equal(status.textContent,'');
+  assert.equal(f.all('.book-group').length,8);assert.equal(f.all('[data-unit]').length,41);
+  assert.equal(Object.keys(f.dump()).filter(k=>k.startsWith(prefix)).length,0);
+  f.close();
+});
+
+test('a found exercise keeps the query, level and focused link on Back and a fresh recipient gets independent progress',async()=>{
+  const f=fixture({url:'https://example.test/app/index.html?from=letter',hash:'#gradivo'});
+  fillPage(f,'59');bookLevel(f,'hard');
+  const found=f.one('#found-unit'),key=prefix+'hard/health/str-58/vjezba';
+  assert.match(f.one('#page-lookup-status').textContent,/Dijelovi tijela i njihove uloge.*58–59/);
+  assert.equal(found.hash,'#vjezba/str-58/hard');
+  f.click(found);assert.equal(f.w.location.hash,'#vjezba/str-58/hard');
+  const q=f.snapshot(key).questions[0],wrong=q.options.find(x=>x!==q.answer);
+  enter(f,q,{selected:wrong});f.action('check');
+  await navigationEvent(f,'popstate',()=>f.w.history.back());
+  assert.equal(f.one('#book-page').value,'59');assert.equal(f.one('#book-level').value,'hard');
+  assert.equal(f.d.activeElement,f.one('#found-unit'));
+  const mine=fixture({url:'https://example.test/app/index.html',hash:'#vjezba/str-58/hard',entries:f.dump()});
+  assert.equal(mine.snapshot(key).attempts[0],1);assert.equal(mine.one('.choice.selected').dataset.value,wrong);
+  const fresh=fixture({url:'https://example.test/app/index.html',hash:'#vjezba/str-58/hard'});
+  assert.equal(fresh.snapshot(key).attempts[0],0);assert.equal(fresh.one('.choice.selected'),null);
+  assert.equal(fresh.w.history.length,1);fresh.action('book');
+  assert.equal(fresh.w.location.hash,'#gradivo');assert.equal(fresh.d.activeElement.dataset.unit,'str-58');
+  const reloaded=fixture({hash:'#gradivo',historyState:JSON.parse(JSON.stringify(f.w.history.state))});
+  assert.equal(reloaded.one('#book-page').value,'59');assert.equal(reloaded.one('#found-unit').hash,'#vjezba/str-58/hard');
+  reloaded.close();fresh.close();mine.close();f.close();
+});
+
+test('the share control copies only the lesson and level and offers selectable text if the clipboard fails',async()=>{
+  const f=fixture({url:'https://example.test/app/index.html?private=temporary',hash:'#gradivo'});
+  const copied=[];
+  Object.defineProperty(f.w.navigator,'clipboard',{value:{writeText:async value=>copied.push(value)},configurable:true});
+  fillPage(f,'59');bookLevel(f,'medium');f.click('#share-unit');
+  await new Promise(resolve=>f.w.setTimeout(resolve,0));
+  assert.deepEqual(copied,['https://example.test/app/index.html#vjezba/str-58/medium']);
+  assert.match(f.one('#share-feedback').textContent,/kopirana/i);
+  Object.defineProperty(f.w.navigator,'clipboard',{value:{writeText:async()=>{throw Error('blocked');}},configurable:true});
+  bookLevel(f,'hard');f.click('#share-unit');await new Promise(resolve=>f.w.setTimeout(resolve,0));
+  const input=f.one('#share-url');
+  assert.equal(input.value,'https://example.test/app/index.html#vjezba/str-58/hard');
+  assert.equal(input.selectionStart,0);assert.equal(input.selectionEnd,input.value.length);
+  assert.equal(f.d.activeElement,input);assert.equal(Object.keys(f.dump()).filter(k=>k.startsWith(prefix)).length,0);
+  f.close();
+});
+
+test('a link pasted in the same tab, a damaged link and a file copy resolve without losing the catalogue',async()=>{
+  const f=fixture({hash:'#gradivo'});
+  await navigationEvent(f,'hashchange',()=>{f.w.location.hash='vjezba/str-96/medium';});
+  assert.ok(f.one('#check-button'));assert.equal(f.snapshot(prefix+'medium/place/str-96/vjezba').lesson,'str-96');
+  await navigationEvent(f,'popstate',()=>f.w.history.back());assert.ok(f.one('#book-page'));
+  for(const hash of ['#vjezba','#vjezba/str-999/hard','#vjezba/str-58/nista']){
+    const bad=fixture({hash});assert.ok(bad.one('#book-page'));assert.equal(bad.w.location.hash,'#gradivo');
+    assert.ok(bad.one('#page-lookup-status').textContent.length>0);bad.close();
+  }
+  const local=fixture({url:'file:///offline/moja-vjezba.html',hash:'#gradivo',blocked:true});
+  fillPage(local,'59');local.click('#share-unit');await Promise.resolve();
+  assert.equal(local.one('#share-url').value,'https://aplikacije-za-ucenje.onrender.com/istrazivaci-naseg-svijeta/index.html#vjezba/str-58/easy');
+  local.click('#found-unit');assert.ok(local.one('#check-button'));
+  local.close();f.close();
+});
+
 test('both ways back restore the textbook unit, level, open chapters, focus and scroll; Forward loads the latest attempt',async()=>{
   for(const back of ['browser','button']){
     const f=fixture(),h=f.w.history;

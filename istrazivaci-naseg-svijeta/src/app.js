@@ -78,7 +78,7 @@
   }
   const eqAttr=(selector,attr,value)=>[...app.querySelectorAll(selector)].find(node=>node.dataset[attr]===String(value));
   const browserHistory=window.history,pageKey='worldExplorersScreen',pages=new Map();
-  const controls='button,select,summary,[tabindex]',appPath=location.pathname;
+  const controls='button,select,input,a[href],summary,[tabindex]',appPath=location.pathname;
   let page,timer,renderedURL;
   function focusKey(node,index){
     if(!node||node===app||!app.contains(node))return null;
@@ -91,10 +91,11 @@
   }
   function render(focus,position){
     app.innerHTML=view==='home'?home():view==='worlds'?worlds():view==='lessons'?lessonMenu():view==='book'?bookMenu():play();
+    if(view==='book')updatePageLookup();
     if(position)for(const details of app.querySelectorAll('details[data-group]')){
       details.open=position.opened.includes(details.dataset.group);
     }
-    const remembered=position?.focus&&[...app.querySelectorAll(controls)].find((node,i)=>!node.disabled&&focusKey(node,i)===position.focus);
+    const remembered=position?.focus&&[...app.querySelectorAll(controls)].find((node,i)=>!node.disabled&&!node.closest('[hidden]')&&focusKey(node,i)===position.focus);
     if(remembered&&remembered.tagName!=='SUMMARY'){
       const details=remembered.closest('details');
       if(details)details.open=true;
@@ -119,6 +120,7 @@
       if(changeURL){
         const url=new URL(location.href);
         url.hash=entry.view==='book'?'gradivo':'';
+        if(entry.view==='play'&&P.unitById.has(entry.lesson))url.hash=unitHash(entry.lesson,entry.level);
         try{browserHistory[method](state,'',url.href);return;}catch{/* Some file readers only accept state changes. */}
       }
       browserHistory[method](state,'');
@@ -187,34 +189,52 @@
     const entry=parentPage(next,page);
     storePage('replaceState',entry,true);show(entry);
   }
+  const unitHash=(id,difficulty)=>'#vjezba/'+id+'/'+difficulty;
+  function linkedPage(existing,previous){
+    if(location.hash!=='#vjezba'&&!location.hash.startsWith('#vjezba/'))return null;
+    const parts=location.hash.split('/');
+    const unit=P.unitById.get(parts[1]),difficulty=parts[2];
+    if(parts.length!==3||!unit||!P.levels.some(item=>item.id===difficulty)){
+      return {...newPage('book',previous),invalidLink:true};
+    }
+    if(existing?.view==='play'&&existing.lesson===unit.id&&existing.level===difficulty)return existing;
+    level=difficulty;
+    selectPractice(unit.world,unit.id);
+    return newPage('play',previous);
+  }
   function locationChanged(){
     if(location.pathname!==appPath)return;
     const incoming=browserPage();
-    if(incoming?.id===page.id||(!incoming&&renderedURL===location.href))return;
+    if(renderedURL===location.href&&(!incoming||incoming.id===page.id))return;
     checkpoint(document.activeElement,false);
-    if(incoming){
-      const entry=pages.get(incoming.id)||incoming;
-      storePage('replaceState',entry);show(entry);
-    }else{
+    const previous={id:page.id,view};
+    const stored=incoming&&(pages.get(incoming.id)||incoming);
+    let entry=linkedPage(stored,previous)||stored;
+    if(!entry){
       const anchor=location.hash&&location.hash!=='#gradivo';
       const next=anchor?view:location.hash==='#gradivo'?'book':'home';
-      const entry=newPage(next,{id:page.id,view});
-      if(anchor)Object.assign(entry,{opened:page.opened,focus:page.focus,scroll:page.scroll});
-      storePage('replaceState',entry);show(entry);
+      entry=newPage(next,previous);
+      if(anchor)Object.assign(entry,{opened:page.opened,focus:page.focus,scroll:page.scroll,lookup:page.lookup});
     }
+    storePage('replaceState',entry,!!entry.invalidLink);show(entry);
   }
   function resume(button,key){
     const saved=loadEntry(key);
     if(!saved){render(null,page);return;}
     session=saved;level=session.level;chosenWorld=session.world;remember();navigate('play',button);
   }
-  function start(button,world,lesson=null,repeat=null){
+  function selectPractice(world,lesson,repeat){
     const id=scope(level,world,lesson,!!repeat),saved=loadEntry(id);
-    if(!repeat&&saved&&saved.phase!=='complete'){resume(button,id);return;}
+    if(!repeat&&saved&&saved.phase!=='complete'){
+      session=saved;chosenWorld=world;remember();return;
+    }
     const value=seed(),plan=P.makePlan(level,world,value,history,lesson,repeat);
     session=E.createSession(level,world,value,P.buildRound(level,world,value,plan));
     session.lesson=lesson;session.review=!!repeat;chosenWorld=world;
-    record(plan);remember(true);navigate('play',button);
+    record(plan);remember(true);
+  }
+  function start(button,world,lesson=null,repeat=null){
+    selectPractice(world,lesson,repeat);navigate('play',button);
   }
   function active(){
     return [...runs.entries()].filter(([,entry])=>entry.state.phase!=='complete').sort((a,b)=>b[1].updated-a[1].updated);
@@ -226,12 +246,12 @@
   function home(){
     const saved=active();
     const resume=saved.length?`<section class="resume-list" aria-label="Nedovršene vježbe">${resumeCard(saved[0])}${saved.length>1?`<details data-group="other-runs"><summary>Ostale nedovršene vježbe (${saved.length-1})</summary>${saved.slice(1).map(resumeCard).join('')}</details>`:''}</section>`:'';
-    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${button('Gradivo prema udžbeniku →','book','book-link')}</section>`;
+    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${button('Pronađi vježbu po stranici udžbenika →','book','book-link')}</section>`;
   }
   const back=(label,action)=>button(label,action,'text-button');
   function worlds(){
     const mixed=button('<span class="world-icon" aria-hidden="true">🎒</span><span><strong>Miješana ekspedicija</strong><small>Po jedan zadatak iz svakog svijeta</small></span><b aria-hidden="true">→</b>','start','world-card mixed','data-world="mix"');
-    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}${button('Gradivo prema udžbeniku →','book','book-link')}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
+    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}${button('Pronađi vježbu po stranici udžbenika →','book','book-link')}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
   }
   function lessonMenu(){
     const w=P.worlds.find(w=>w.id===chosenWorld);
@@ -240,18 +260,77 @@
       return button(`<span class="world-icon" aria-hidden="true">${l.icon}</span><span><strong>${l.name}</strong><small>${info}</small></span><b aria-hidden="true">→</b>`,'lesson','world-card',`data-lesson="${l.id}"`);
     }).join('')}</div>${button('Vježbaj cijelu temu →','start','button secondary',`data-world="${w.id}"`)}</section>`;
   }
+  const pageRange=unit=>unit.from===unit.to?String(unit.from):unit.from+'–'+unit.to;
+  const publicApp='https://aplikacije-za-ucenje.onrender.com/istrazivaci-naseg-svijeta/index.html';
+  function pageLookupForm(){
+    const options=P.levels.map(item=>`<option value="${item.id}" ${item.id===level?'selected':''}>${item.name}</option>`).join('');
+    return `<section class="page-finder"><form id="page-lookup" role="search" aria-label="Traženje vježbe po stranici">
+      <div class="lookup-fields">
+        <label for="book-page">Broj stranice<input id="book-page" type="text" inputmode="numeric" enterkeyhint="search" autocomplete="off" placeholder="npr. 59" value="${esc(page.lookup||'')}"></label>
+        <label for="book-level">Razina<select id="book-level">${options}</select></label>
+      </div>
+      </form>
+      <p id="page-lookup-status" role="status" aria-atomic="true"></p>
+      <div id="page-match" hidden>
+        <div class="lookup-actions"><a id="found-unit" class="button" aria-describedby="page-lookup-status">Vježbaj</a>${button('Kopiraj poveznicu','share-unit','button secondary','id="share-unit"')}</div>
+        <p id="share-feedback" role="status" aria-atomic="true"></p>
+        <label id="share-manual" for="share-url" hidden>Poveznica za ovu vježbu<input id="share-url" type="text" readonly></label>
+      </div>
+    </section>`;
+  }
+  function updatePageLookup(){
+    const query=app.querySelector('#book-page').value.trim();
+    const number=/^\d+$/.test(query)?Number(query):0;
+    const unit=P.units.find(item=>item.from<=number&&number<=item.to);
+    const status=app.querySelector('#page-lookup-status'),link=app.querySelector('#found-unit');
+    app.querySelector('#page-match').hidden=!unit;
+    app.querySelector('#share-manual').hidden=true;
+    app.querySelector('#share-feedback').textContent='';
+    let message='';
+    if(unit){
+      message=unit.name+' · str. '+pageRange(unit);
+      link.dataset.foundUnit=unit.id;
+      link.href=unitHash(unit.id,level);
+    }else{
+      delete link.dataset.foundUnit;link.removeAttribute('href');
+      if(query)message=Number.isSafeInteger(number)&&number>0
+        ?'Za stranicu '+number+' još nema vježbe. Odaberi cjelinu ispod.'
+        :'Upiši cijeli broj stranice veći od nule.';
+      else if(page.invalidLink)message='Poveznica nije prepoznata. Pronađi vježbu po stranici ili cjelini.';
+    }
+    if(status.textContent!==message)status.textContent=message;
+  }
+  async function copyUnitLink(){
+    const link=app.querySelector('#found-unit');
+    if(!link?.dataset.foundUnit)return;
+    const hash=link.hash;
+    const url=new URL(location.protocol==='http:'||location.protocol==='https:'?location.href:publicApp);
+    url.username='';url.password='';url.search='';url.hash=hash;
+    const status=app.querySelector('#share-feedback'),manual=app.querySelector('#share-manual');
+    manual.hidden=true;
+    try{
+      await navigator.clipboard.writeText(url.href);
+      if(link.isConnected&&link.hash===hash)status.textContent='Poveznica je kopirana.';
+    }catch{
+      if(!link.isConnected||link.hash!==hash)return;
+      manual.hidden=false;
+      const field=app.querySelector('#share-url');
+      field.value=url.href;field.focus();field.select();
+      status.textContent='Kopiraj označenu poveznicu.';
+    }
+  }
   function bookMenu(){
     const groups=P.bookGroups.map(([start,name],i)=>{
       const finish=P.bookGroups[i+1]?.[0]||Infinity;
       const units=P.units.filter(u=>u.from>=start&&u.from<finish);
       const rows=units.map(u=>{
-        const pages=u.from===u.to?u.from:u.from+'–'+u.to;
+        const pages=pageRange(u);
         return button('<span>'+esc(u.name)+'</span><small>str. '+pages+'</small>','unit','unit-link','data-unit="'+u.id+'"');
       }).join('');
       return '<details class="book-group" data-group="'+start+'"><summary>'+esc(name)+'</summary><div>'+rows+'</div></details>';
     }).join('');
     const parent={worlds:['← Svjetovi','worlds'],lessons:['← Lekcije','back-lessons'],play:['← Vježba','back-play']}[page.previous?.view]||['← Početna','home'];
-    return `<section class="lesson-menu book-menu"><div class="topline">${back(...parent)}<label for="book-level">Razina <select id="book-level">${P.levels.map(l=>`<option value="${l.id}" ${l.id===level?'selected':''}>${l.name}</option>`).join('')}</select></label></div><h1>Gradivo prema udžbeniku</h1><p class="lesson-intro">Otvori cjelinu i odaberi što želiš vježbati.</p>${groups}<details class="book-source" data-group="source"><summary>Odakle su brojevi stranica?</summary><p>Uz vježbe su navedene stranice iz tjednog nastavnog plana za Istražujemo naš svijet 2 iz školske godine 2020./21. Plan povezuje gradivo sa stranicama 6–99. Brojevi se mogu razlikovati u tvojem primjerku.</p></details></section>`;
+    return `<section class="lesson-menu book-menu"><div class="topline">${back(...parent)}</div><h1>Gradivo prema udžbeniku</h1><p class="lesson-intro">Upiši broj stranice ili otvori cjelinu.</p>${pageLookupForm()}${groups}<details class="book-source" data-group="source"><summary>Odakle su brojevi stranica?</summary><p>Uz vježbe su navedene stranice iz tjednog nastavnog plana za Istražujemo naš svijet 2 iz školske godine 2020./21. Plan povezuje gradivo sa stranicama 6–99. Brojevi se mogu razlikovati u tvojem primjerku.</p></details></section>`;
   }
   function progress(){
     const total=session.questions.length,done=E.summarize(session).solved;
@@ -377,7 +456,14 @@
   const first=selector=>()=>app.querySelector(selector);
   const byValue=(selector,value)=>()=>eqAttr(selector,'value',value);
   document.addEventListener('click',event=>{
-    const t=event.target.closest('button');if(!t||t.disabled)return;
+    const t=event.target.closest('button,a[data-found-unit]');if(!t||t.disabled)return;
+    if(t.dataset.foundUnit){
+      if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0)return;
+      event.preventDefault();
+      const unit=P.unitById.get(t.dataset.foundUnit);
+      start(t,unit.world,unit.id);return;
+    }
+    if(t.id==='share-unit'){copyUnitLink();return;}
     const d=t.dataset,action=d.action;
     if(action==='book'){if(view==='play')goParent('book',t);else navigate('book',t);return;}
     if(action==='unit'){const unit=P.unitById.get(d.unit);if(unit)start(t,unit.world,unit.id);return;}
@@ -429,8 +515,22 @@
     }
     else if('move' in d){const i=Number(d.move),j=i+Number(d.delta);[draft.items[i],draft.items[j]]=[draft.items[j],draft.items[i]];edit(()=>app.querySelector('[data-remove-sequence="'+j+'"]'));}
   });
+  app.addEventListener('input',event=>{
+    if(event.target.id!=='book-page')return;
+    page.lookup=event.target.value;delete page.invalidLink;
+    updatePageLookup();checkpoint(event.target);
+  });
+  app.addEventListener('submit',event=>{
+    if(event.target.id!=='page-lookup')return;
+    event.preventDefault();
+    const link=app.querySelector('[data-found-unit]');
+    if(link)link.focus();
+    else app.querySelector('#book-page').focus();
+  });
   document.addEventListener('change',event=>{
-    if(event.target.id==='book-level'){level=event.target.value;page.level=level;checkpoint(event.target);}
+    if(event.target.id==='book-level'){
+      level=event.target.value;page.level=level;updatePageLookup();checkpoint(event.target);
+    }
   });
   app.addEventListener('toggle',scheduleCheckpoint,true);
   app.addEventListener('focusin',scheduleCheckpoint);
@@ -440,6 +540,7 @@
   window.addEventListener('hashchange',locationChanged);
   load();
   try{browserHistory.scrollRestoration='manual';}catch{/* Optional in offline readers. */}
-  const initial=browserPage()||newPage(location.hash==='#gradivo'?'book':'home',null);
-  storePage('replaceState',initial);show(initial);
+  const savedPage=browserPage();
+  const initial=linkedPage(savedPage,null)||savedPage||newPage(location.hash==='#gradivo'?'book':'home',null);
+  storePage('replaceState',initial,!!initial.invalidLink);show(initial);
 })();

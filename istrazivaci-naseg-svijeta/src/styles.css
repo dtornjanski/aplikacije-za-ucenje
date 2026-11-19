@@ -141,7 +141,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
 .leaf-branch{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin:0 auto 2px;max-width:160px}.leaf-branch i{width:9px;height:16px;background:#4f7e40;border-radius:100% 0 100% 0;border:1px solid #2e603e}.leaf-branch.late i{background:#dba435;border-color:#855b1a}
 .book-link{display:block;width:100%;padding:13px 16px;min-height:46px;margin:14px 0 20px;background:#e9f3ec;border:1px solid #8aaa95;border-radius:14px;font-weight:800;color:var(--forest-dark);text-align:center}
 .book-group{background:#fff;border:1px solid #bccfc1;border-radius:14px;margin:9px 0;overflow:hidden}.book-group summary,.book-source summary{padding:12px 14px;cursor:pointer;min-height:44px;font-weight:800;color:var(--ink)}.book-group summary:focus-visible,.book-source summary:focus-visible{outline:3px solid #823540;outline-offset:-4px}
-.unit-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:10px 14px;min-height:46px;color:var(--forest-dark);background:#f6faf6;border:0;border-top:1px solid #cbddce;font-weight:700}.unit-link:focus-visible{outline-offset:-4px}.unit-link:hover{background:var(--leaf)}.unit-link small{white-space:nowrap;font-size:14px}.book-menu .lesson-intro{margin-bottom:16px}.book-menu select{font:inherit;max-width:100%;min-height:44px;border:1px solid #7b9b88;color:var(--ink);background:white;border-radius:8px}.book-menu .topline label{font-size:14px}.book-source p{font-size:15px;padding:0 14px 10px}.book-source{margin-top:15px}
+.unit-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:10px 14px;min-height:46px;color:var(--forest-dark);background:#f6faf6;border:0;border-top:1px solid #cbddce;font-weight:700}.unit-link:focus-visible{outline-offset:-4px}.unit-link:hover{background:var(--leaf)}.unit-link small{white-space:nowrap;font-size:14px}.book-menu .lesson-intro{margin-bottom:16px}.book-menu select{font:inherit;max-width:100%;min-height:44px;border:1px solid #7b9b88;color:var(--ink);background:white;border-radius:8px}.book-source p{font-size:15px;padding:0 14px 10px}.book-source{margin-top:15px}
 
 @media(max-width:650px){
   .topline{flex-wrap:wrap;row-gap:6px}
@@ -156,3 +156,17 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   .choices{gap:8px}
   .choices .choice{min-height:48px;padding:10px 12px}
 }
+
+.page-finder{background:#edf5f0;border:1px solid #b3cabe;border-radius:16px;padding:16px 18px;margin:0 0 18px}
+.lookup-fields,.lookup-actions{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end}
+.page-finder label{display:grid;gap:4px;min-width:0;color:var(--ink);font-weight:800}
+.lookup-fields label:first-child{flex:1 1 6em;max-width:12em}
+.lookup-fields label:last-child{flex:2 1 9em;max-width:17em}
+.page-finder input,.page-finder select{width:100%;min-width:0;min-height:46px;line-height:1.3;padding:8px 10px;border:1px solid #759180;border-radius:8px;background:white;color:var(--ink);font:inherit}
+.page-finder input::placeholder{color:#52665d;opacity:1}
+.page-finder :is(input,select):focus-visible{outline:3px solid #205780;outline-offset:2px}
+.page-finder [hidden]{display:none}
+#page-lookup-status:not(:empty){margin-top:12px;font-weight:800;overflow-wrap:anywhere}
+.lookup-actions{margin-top:10px;align-items:stretch}
+.lookup-actions .button{min-height:46px;max-width:100%;text-decoration:none;overflow-wrap:anywhere}
+#share-feedback:not(:empty),#share-manual:not([hidden]){margin-top:10px}
