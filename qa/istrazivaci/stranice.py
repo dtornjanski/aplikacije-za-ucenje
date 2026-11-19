@@ -53,6 +53,21 @@ def visible(browser, selector):
     return [element for element in browser.all(selector) if element.is_displayed()]
 
 
+def finder_width(browser):
+    layout = browser.js("""
+      const controls = {};
+      for (const id of ['book-page','book-level','found-unit','share-unit']) {
+        const r = document.getElementById(id).getBoundingClientRect();
+        controls[id] = {left:r.left, right:r.right, width:r.width, height:r.height};
+      }
+      return {viewport:innerWidth, document:document.documentElement.scrollWidth, controls};
+    """)
+    assert layout['document'] <= layout['viewport'], layout
+    for control in layout['controls'].values():
+        assert 0 <= control['left'] < control['right'] <= layout['viewport'] + 1, layout
+    return layout
+
+
 def test_lookup(browser, mode, evidence):
     browser.driver.get(APP + '#gradivo')
     catalogue(browser)
@@ -80,7 +95,15 @@ def test_lookup(browser, mode, evidence):
     assert link.get_attribute('href') == LINK and link.accessible_name
     assert browser.element('#share-unit').accessible_name
     evidence.update(page59=lookup_status(browser), link=LINK)
+    evidence['finderLayout'] = finder_width(browser)
     browser.screenshot(mode + '-stranica-59')
+    if mode == 'touch':
+        browser.viewport(320, 568)
+        assert lookup_status(browser) == TITLE
+        evidence['finderLayout320'] = finder_width(browser)
+        browser.js("document.querySelector('#page-lookup').scrollIntoView({block:'start',behavior:'instant'})")
+        browser.screenshot('touch-stranica-59-na-320')
+        browser.viewport(360, 740)
 
 
 def clipboard(browser, operation, value=''):
@@ -148,7 +171,8 @@ def fresh_body(browser):
     state = hard_body(browser)
     assert state['index'] == 0 and state['phase'] == 'answer' and not any(state['attempts'])
     assert not any(state['solved']) and not any(state['responses']) and state['draft'] == {'selected': ''}
-    assert norm(browser.element('.progress-text').text) == 'Zadatak 1 od 5'
+    assert len(state['plan']) > 0 and len(state['attempts']) == len(state['plan'])
+    assert norm(browser.element('.progress-text').text) == f"Zadatak 1 od {len(state['plan'])}"
     assert not browser.all(SELECTED) and not browser.all('.inline-feedback') and not browser.element('#check-button').is_enabled()
     return state
 
@@ -161,7 +185,7 @@ def wrong_answer(browser, mode):
     browser.press('#check-button', mode)
     assert 'Još nije točno' in browser.element('.inline-feedback').text
     saved = personal_state(browser)
-    assert saved['phase'] == 'incorrect' and saved['attempts'] == [1, 0, 0, 0, 0]
+    assert saved['phase'] == 'incorrect' and saved['attempts'][0] == 1 and not any(saved['attempts'][1:])
     return saved
 
 
