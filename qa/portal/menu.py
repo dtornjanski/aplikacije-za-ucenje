@@ -21,6 +21,7 @@ def screenshot(browser, name, full=False):
 
 def baseline(browser, width):
     browser.driver.get(PORTAL)
+    assert browser.js('return innerWidth') == width
     heading = browser.element('main h1').text
     links = [link.accessible_name for link in browser.all('main a[href]')]
     assert heading and len(links) == 4, (heading, links)
@@ -34,7 +35,7 @@ def baseline(browser, width):
 def main():
     width = int(os.environ['WIDTH'])
     with tempfile.TemporaryDirectory() as profile:
-        browser = Browser(profile, mobile=width < 500, headless=True)
+        browser = Browser(profile, mobile=width < 500, headless=True, mobile_width=width)
         try:
             browser.driver.get(PORTAL)
             browser.viewport(width, 840 if width >= 500 else 740, mobile=width < 500)

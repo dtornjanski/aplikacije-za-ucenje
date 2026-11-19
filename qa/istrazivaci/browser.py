@@ -27,7 +27,7 @@ def record(filename, data):
 
 
 class Browser:
-    def __init__(self, profile, mobile=False, headless=False):
+    def __init__(self, profile, mobile=False, headless=False, mobile_width=360):
         options = webdriver.ChromeOptions()
         options.binary_location = os.environ.get('CHROME_BINARY') or shutil.which('google-chrome')
         for argument in ['--user-data-dir=' + str(profile), '--force-renderer-accessibility=complete',
@@ -37,7 +37,7 @@ class Browser:
             options.add_argument('--headless=new')
         if mobile:
             options.add_experimental_option('mobileEmulation', {'deviceMetrics': {
-                'width': 360, 'height': 740, 'pixelRatio': 1, 'touch': True, 'mobile': True}})
+                'width': mobile_width, 'height': 740, 'pixelRatio': 1, 'touch': True, 'mobile': True}})
         options.set_capability('goog:loggingPrefs', {'performance': 'ALL'})
         self.driver = webdriver.Chrome(service=Service(shutil.which('chromedriver')), options=options)
         self.driver.set_page_load_timeout(35)
