@@ -75,12 +75,18 @@ jobs:
       - name: Tipkovnica, dodir, zatvaranje Chromea i govor Orce
         if: matrix.suite == 'orca'
         run: dbus-run-session -- xvfb-run -a bash qa/istrazivaci/run.sh
-      - name: Povijest ekrana, skice i mobilni prikazi
+      - name: Pripremi Selenium za Google Chrome
+        id: selenium
         if: matrix.suite == 'iskustvo'
         run: |
           python3 -m venv "$RUNNER_TEMP/uxenv"
           "$RUNNER_TEMP/uxenv/bin/pip" --disable-pip-version-check -q install selenium==4.38.0
-          "$RUNNER_TEMP/uxenv/bin/python" -u qa/istrazivaci/iskustvo.py
+      - name: Stranice, dijeljena vježba i redoslijed nastavka na računalu i dodirnom zaslonu
+        if: matrix.suite == 'iskustvo'
+        run: '"$RUNNER_TEMP/uxenv/bin/python" -u qa/istrazivaci/stranice.py'
+      - name: Povijest ekrana, skice i mobilni prikazi
+        if: ${{ !cancelled() && matrix.suite == 'iskustvo' && steps.selenium.outcome == 'success' }}
+        run: '"$RUNNER_TEMP/uxenv/bin/python" -u qa/istrazivaci/iskustvo.py'
       - name: Spremi snimke zaslona i stvarna mjerenja
         if: always()
         uses: actions/upload-artifact@v4

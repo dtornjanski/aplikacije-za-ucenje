@@ -63,10 +63,13 @@ class Browser:
         self.driver.get(APP)
         self.driver.execute_cdp_cmd('Page.bringToFront', {})
         self.element('[data-level]')
-        # Hash the document loaded in this tab, including direct navigation after Chrome relaunch.
+        return self.document_digest()
+
+    def document_digest(self):
+        # Network responses identify the HTTP document, independently of the exercise fragment.
         events = [json.loads(e['message'])['message'] for e in self.driver.get_log('performance')]
         documents = [e['params'] for e in events if e['method'] == 'Network.responseReceived'
-                     and e['params']['type'] == 'Document' and e['params']['response']['url'] == APP]
+                     and e['params']['type'] == 'Document' and e['params']['response']['url'].split('#')[0] == APP]
         assert documents, 'Chrome did not report an HTTP response for the exercise document'
         response = documents[-1]
         assert response['response']['status'] == 200, response['response']
