@@ -77,7 +77,7 @@ h1 {
   font-size: clamp(1.04rem, 1.45vw, 1.22rem);
   color: var(--secondary);
 }
-.return-note strong { color: var(--ink); font-weight: 800; }
+.return-note strong { color: var(--ink); font-weight: 800; white-space: nowrap; }
 .subjects {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
