@@ -288,6 +288,12 @@
   }
   const pageRange=unit=>unit.from===unit.to?String(unit.from):unit.from+'–'+unit.to;
   const publicApp='https://aplikacije-za-ucenje.onrender.com/istrazivaci-naseg-svijeta/index.html';
+  const hosted=location.protocol==='http:'||location.protocol==='https:';
+  function shareableURL(hash){
+    const url=new URL(hosted?location.origin:publicApp);
+    if(hosted)url.pathname=location.pathname;
+    url.hash=hash;return url.href;
+  }
   function pageLookupForm(){
     const options=P.levels.map(item=>`<option value="${item.id}" ${item.id===level?'selected':''}>${item.name}</option>`).join('');
     return `<section class="page-finder"><form id="page-lookup" role="search" aria-label="Traženje vježbe po stranici">
@@ -316,7 +322,8 @@
     if(unit){
       message=unit.name+' · str. '+pageRange(unit);
       link.dataset.foundUnit=unit.id;
-      link.href=unitHash(unit.id,level);
+      const hash=unitHash(unit.id,level);
+      link.href=hosted?shareableURL(hash):hash;
     }else{
       delete link.dataset.foundUnit;link.removeAttribute('href');
       if(query)message=Number.isSafeInteger(number)&&number>0
@@ -329,19 +336,17 @@
   async function copyUnitLink(){
     const link=app.querySelector('#found-unit');
     if(!link?.dataset.foundUnit)return;
-    const hash=link.hash;
-    const url=new URL(location.protocol==='http:'||location.protocol==='https:'?location.href:publicApp);
-    url.username='';url.password='';url.search='';url.hash=hash;
+    const hash=link.hash,url=shareableURL(hash);
     const status=app.querySelector('#share-feedback'),manual=app.querySelector('#share-manual');
     manual.hidden=true;
     try{
-      await navigator.clipboard.writeText(url.href);
+      await navigator.clipboard.writeText(url);
       if(link.isConnected&&link.hash===hash)status.textContent='Poveznica je kopirana.';
     }catch{
       if(!link.isConnected||link.hash!==hash)return;
       manual.hidden=false;
       const field=app.querySelector('#share-url');
-      field.value=url.href;field.focus();field.select();
+      field.value=url;field.focus();field.select();
       status.textContent='Kopiraj označenu poveznicu.';
     }
   }

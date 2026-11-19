@@ -401,7 +401,7 @@ test('a found exercise keeps the query, level and focused link on Back and a fre
   fillPage(f,'59');bookLevel(f,'hard');
   const found=f.one('#found-unit'),key=prefix+'hard/health/str-58/vjezba';
   assert.match(f.one('#page-lookup-status').textContent,/Dijelovi tijela i njihove uloge.*58–59/);
-  assert.equal(found.hash,'#vjezba/str-58/hard');
+  assert.equal(found.href,'https://example.test/app/index.html#vjezba/str-58/hard');
   f.click(found);assert.equal(f.w.location.hash,'#vjezba/str-58/hard');
   const q=f.snapshot(key).questions[0],wrong=q.options.find(x=>x!==q.answer);
   enter(f,q,{selected:wrong});f.action('check');

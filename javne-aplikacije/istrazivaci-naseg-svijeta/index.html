@@ -149,7 +149,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
 .leaf-branch{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin:0 auto 2px;max-width:160px}.leaf-branch i{width:9px;height:16px;background:#4f7e40;border-radius:100% 0 100% 0;border:1px solid #2e603e}.leaf-branch.late i{background:#dba435;border-color:#855b1a}
 .book-link{display:block;width:100%;padding:13px 16px;min-height:46px;margin:14px 0 20px;background:#e9f3ec;border:1px solid #8aaa95;border-radius:14px;font-weight:800;color:var(--forest-dark);text-align:center}
 .book-group{background:#fff;border:1px solid #bccfc1;border-radius:14px;margin:9px 0;overflow:hidden}.book-group summary,.book-source summary{padding:12px 14px;cursor:pointer;min-height:44px;font-weight:800;color:var(--ink)}.book-group summary:focus-visible,.book-source summary:focus-visible{outline:3px solid #823540;outline-offset:-4px}
-.unit-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:10px 14px;min-height:46px;color:var(--forest-dark);background:#f6faf6;border:0;border-top:1px solid #cbddce;font-weight:700}.unit-link:focus-visible{outline-offset:-4px}.unit-link:hover{background:var(--leaf)}.unit-link small{white-space:nowrap;font-size:14px}.book-menu .lesson-intro{margin-bottom:16px}.book-menu select{font:inherit;max-width:100%;min-height:44px;border:1px solid #7b9b88;color:var(--ink);background:white;border-radius:8px}.book-menu .topline label{font-size:14px}.book-source p{font-size:15px;padding:0 14px 10px}.book-source{margin-top:15px}
+.unit-link{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:10px 14px;min-height:46px;color:var(--forest-dark);background:#f6faf6;border:0;border-top:1px solid #cbddce;font-weight:700}.unit-link:focus-visible{outline-offset:-4px}.unit-link:hover{background:var(--leaf)}.unit-link small{white-space:nowrap;font-size:14px}.book-menu .lesson-intro{margin-bottom:16px}.book-menu select{font:inherit;max-width:100%;min-height:44px;border:1px solid #7b9b88;color:var(--ink);background:white;border-radius:8px}.book-source p{font-size:15px;padding:0 14px 10px}.book-source{margin-top:15px}
 
 @media(max-width:650px){
   .topline{flex-wrap:wrap;row-gap:6px}
@@ -164,6 +164,20 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   .choices{gap:8px}
   .choices .choice{min-height:48px;padding:10px 12px}
 }
+
+.page-finder{background:#edf5f0;border:1px solid #b3cabe;border-radius:16px;padding:16px 18px;margin:0 0 18px}
+.lookup-fields,.lookup-actions{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:flex-end}
+.page-finder label{display:grid;gap:4px;min-width:0;color:var(--ink);font-weight:800}
+.lookup-fields label:first-child{flex:1 1 6em;max-width:12em}
+.lookup-fields label:last-child{flex:2 1 9em;max-width:17em}
+.page-finder input,.page-finder select{width:100%;min-width:0;min-height:46px;line-height:1.3;padding:8px 10px;border:1px solid #759180;border-radius:8px;background:white;color:var(--ink);font:inherit}
+.page-finder input::placeholder{color:#52665d;opacity:1}
+.page-finder :is(input,select):focus-visible{outline:3px solid #205780;outline-offset:2px}
+.page-finder [hidden]{display:none}
+#page-lookup-status:not(:empty){margin-top:12px;font-weight:800;overflow-wrap:anywhere}
+.lookup-actions{margin-top:10px;align-items:stretch}
+.lookup-actions .button{min-height:46px;max-width:100%;text-decoration:none;overflow-wrap:anywhere}
+#share-feedback:not(:empty),#share-manual:not([hidden]){margin-top:10px}
 </style>
 </head>
 <body>
@@ -1977,28 +1991,46 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     try{return JSON.parse(raw);}catch{return null;}
   }
   function write(key,data){try{localStorage.setItem(key,JSON.stringify(data));return true;}catch{return false;}}
-  function remember(newRound=false){
-    const key=scopeOf(session),disk=read(runPrefix+key),previous=runs.get(key);
+  function hasWork(s){
+    const q=s.questions[s.index];
+    return s.attempts.some(Boolean)||s.solved.some(Boolean)||s.pending!==null||!E.sameResponse(q,s.draft,E.emptyDraft(q));
+  }
+  function restoreEntry(key,entry){
+    const restored=entry&&P.restore(entry.state);
+    if(!restored||scopeOf(restored)!==key)return null;
+    if(!Number.isFinite(entry.workedAt))entry.workedAt=hasWork(restored)?entry.updated||1:0;
+    return restored;
+  }
+  function remember(newRound=false,worked=false){
+    const key=scopeOf(session),disk=read(runPrefix+key);
+    let previous=runs.get(key);
     if(!newRound&&disk?.state&&previous&&disk.updated>previous.updated){
-      const concurrent=P.restore(disk.state);
-      if(concurrent&&scopeOf(concurrent)===key){
+      const concurrent=restoreEntry(key,disk);
+      if(concurrent){
+        previous=disk;
         const ahead=concurrent.index>session.index||concurrent.index===session.index&&concurrent.solved[session.index]&&!session.solved[session.index];
-        if(concurrent.seed!==session.seed||ahead||concurrent.phase==='complete')session=concurrent;
+        if(!worked||concurrent.seed!==session.seed||ahead||concurrent.phase==='complete'){session=concurrent;worked=false;}
       }
     }
-    const entry={updated:Math.max(Date.now(),(previous?.updated||0)+1,(disk?.updated||0)+1),state:JSON.parse(E.serialize(session))};
+    let updated=Math.max(Date.now(),(disk?.updated||0)+1);
+    for(const other of runs.values())updated=Math.max(updated,(other.updated||0)+1);
+    let workedAt=0;
+    if(worked)workedAt=updated;
+    else if(!newRound)workedAt=previous?.workedAt??(hasWork(session)?updated:0);
+    const entry={updated,workedAt,state:JSON.parse(E.serialize(session))};
     runs.set(key,entry);
     if(write(runPrefix+key,entry))memoryOnly.delete(key);else memoryOnly.add(key);
   }
-  function loadEntry(key){
-    const disk=read(runPrefix+key,unavailable),local=runs.get(key);
+  const rememberWork=()=>remember(false,true);
+  function loadEntry(key,disk=read(runPrefix+key,unavailable)){
+    const local=runs.get(key);
     let entry=local;
     if(disk!==unavailable){
       if(!disk&&!memoryOnly.has(key))entry=null;
       if(disk&&(!local||disk.updated>local.updated))entry=disk;
     }
-    const restored=entry&&P.restore(entry.state);
-    if(!restored||scopeOf(restored)!==key){runs.delete(key);return null;}
+    const restored=restoreEntry(key,entry);
+    if(!restored){runs.delete(key);return null;}
     runs.set(key,entry);return restored;
   }
   function record(refs){
@@ -2006,14 +2038,20 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     for(const key of Object.keys(stored))if(Array.isArray(stored[key]))history[key]=stored[key];
     P.record(history,session.level,refs);write(prefix+'history',history);
   }
-  function load(){
+  function refreshRuns(){
     try{
+      const keys=new Set(runs.keys());
       for(let i=0;i<localStorage.length;i++){
-        const key=localStorage.key(i);if(!key?.startsWith(runPrefix))continue;
-        const entry=read(key),id=key.slice(runPrefix.length),restored=entry&&P.restore(entry.state);
-        if(restored&&scopeOf(restored)===id)runs.set(id,entry);
+        const key=localStorage.key(i);if(key?.startsWith(runPrefix))keys.add(key.slice(runPrefix.length));
+      }
+      for(const key of keys){
+        const disk=read(runPrefix+key,unavailable),local=runs.get(key);
+        if(disk!==unavailable&&(!disk||!local||disk.updated>local.updated))loadEntry(key,disk);
       }
     }catch{/* Storage is optional. */}
+  }
+  function load(){
+    refreshRuns();
     const stored=read(prefix+'history');
     if(stored&&typeof stored==='object')for(const [key,value] of Object.entries(stored))if(Array.isArray(value))history[key]=value;
     if(!runs.size){
@@ -2035,7 +2073,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   }
   const eqAttr=(selector,attr,value)=>[...app.querySelectorAll(selector)].find(node=>node.dataset[attr]===String(value));
   const browserHistory=window.history,pageKey='worldExplorersScreen',pages=new Map();
-  const controls='button,select,summary,[tabindex]',appPath=location.pathname;
+  const controls='button,select,input,a[href],summary,[tabindex]',appPath=location.pathname;
   let page,timer,renderedURL;
   function focusKey(node,index){
     if(!node||node===app||!app.contains(node))return null;
@@ -2048,10 +2086,11 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   }
   function render(focus,position){
     app.innerHTML=view==='home'?home():view==='worlds'?worlds():view==='lessons'?lessonMenu():view==='book'?bookMenu():play();
+    if(view==='book')updatePageLookup();
     if(position)for(const details of app.querySelectorAll('details[data-group]')){
       details.open=position.opened.includes(details.dataset.group);
     }
-    const remembered=position?.focus&&[...app.querySelectorAll(controls)].find((node,i)=>!node.disabled&&focusKey(node,i)===position.focus);
+    const remembered=position?.focus&&[...app.querySelectorAll(controls)].find((node,i)=>!node.disabled&&!node.closest('[hidden]')&&focusKey(node,i)===position.focus);
     if(remembered&&remembered.tagName!=='SUMMARY'){
       const details=remembered.closest('details');
       if(details)details.open=true;
@@ -2076,6 +2115,7 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
       if(changeURL){
         const url=new URL(location.href);
         url.hash=entry.view==='book'?'gradivo':'';
+        if(entry.view==='play'&&P.unitById.has(entry.lesson))url.hash=unitHash(entry.lesson,entry.level);
         try{browserHistory[method](state,'',url.href);return;}catch{/* Some file readers only accept state changes. */}
       }
       browserHistory[method](state,'');
@@ -2144,37 +2184,57 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     const entry=parentPage(next,page);
     storePage('replaceState',entry,true);show(entry);
   }
+  const unitHash=(id,difficulty)=>'#vjezba/'+id+'/'+difficulty;
+  function linkedPage(existing,previous){
+    if(location.hash!=='#vjezba'&&!location.hash.startsWith('#vjezba/'))return null;
+    const parts=location.hash.split('/');
+    const unit=P.unitById.get(parts[1]),difficulty=parts[2];
+    if(parts.length!==3||!unit||!P.levels.some(item=>item.id===difficulty)){
+      return {...newPage('book',previous),invalidLink:true};
+    }
+    if(existing?.view==='play'&&existing.lesson===unit.id&&existing.level===difficulty)return existing;
+    level=difficulty;
+    selectPractice(unit.world,unit.id);
+    return newPage('play',previous);
+  }
   function locationChanged(){
     if(location.pathname!==appPath)return;
     const incoming=browserPage();
-    if(incoming?.id===page.id||(!incoming&&renderedURL===location.href))return;
+    if(renderedURL===location.href&&(!incoming||incoming.id===page.id))return;
     checkpoint(document.activeElement,false);
-    if(incoming){
-      const entry=pages.get(incoming.id)||incoming;
-      storePage('replaceState',entry);show(entry);
-    }else{
+    const previous={id:page.id,view};
+    const stored=incoming&&(pages.get(incoming.id)||incoming);
+    let entry=linkedPage(stored,previous)||stored;
+    if(!entry){
       const anchor=location.hash&&location.hash!=='#gradivo';
       const next=anchor?view:location.hash==='#gradivo'?'book':'home';
-      const entry=newPage(next,{id:page.id,view});
-      if(anchor)Object.assign(entry,{opened:page.opened,focus:page.focus,scroll:page.scroll});
-      storePage('replaceState',entry);show(entry);
+      entry=newPage(next,previous);
+      if(anchor)Object.assign(entry,{opened:page.opened,focus:page.focus,scroll:page.scroll,lookup:page.lookup});
     }
+    storePage('replaceState',entry,!!entry.invalidLink);show(entry);
   }
   function resume(button,key){
     const saved=loadEntry(key);
     if(!saved){render(null,page);return;}
     session=saved;level=session.level;chosenWorld=session.world;remember();navigate('play',button);
   }
-  function start(button,world,lesson=null,repeat=null){
+  function selectPractice(world,lesson,repeat){
     const id=scope(level,world,lesson,!!repeat),saved=loadEntry(id);
-    if(!repeat&&saved&&saved.phase!=='complete'){resume(button,id);return;}
+    if(!repeat&&saved&&saved.phase!=='complete'){
+      session=saved;chosenWorld=world;remember();return;
+    }
     const value=seed(),plan=P.makePlan(level,world,value,history,lesson,repeat);
     session=E.createSession(level,world,value,P.buildRound(level,world,value,plan));
     session.lesson=lesson;session.review=!!repeat;chosenWorld=world;
-    record(plan);remember(true);navigate('play',button);
+    record(plan);remember(true);
+  }
+  function start(button,world,lesson=null,repeat=null){
+    selectPractice(world,lesson,repeat);navigate('play',button);
   }
   function active(){
-    return [...runs.entries()].filter(([,entry])=>entry.state.phase!=='complete').sort((a,b)=>b[1].updated-a[1].updated);
+    refreshRuns();
+    return [...runs.entries()].filter(([,entry])=>entry.state.phase!=='complete')
+      .sort(([,a],[,b])=>a.workedAt||b.workedAt?b.workedAt-a.workedAt:b.updated-a.updated);
   }
   function resumeCard([id,entry]){
     const s=entry.state,total=s.attempts.length;
@@ -2183,12 +2243,12 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   function home(){
     const saved=active();
     const resume=saved.length?`<section class="resume-list" aria-label="Nedovršene vježbe">${resumeCard(saved[0])}${saved.length>1?`<details data-group="other-runs"><summary>Ostale nedovršene vježbe (${saved.length-1})</summary>${saved.slice(1).map(resumeCard).join('')}</details>`:''}</section>`:'';
-    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${button('Gradivo prema udžbeniku →','book','book-link')}</section>`;
+    return `<section class="home-view"><div class="hero"><div><h1>Istraži svijet uz krijesnicu <span>Lumi.</span></h1></div><div class="hero-art" aria-hidden="true">${lumi('hero-lumi')}<span class="spark one">✦</span></div></div>${resume}<h2 class="section-title">Odaberi razinu</h2><div class="level-grid">${P.levels.map((item,i)=>`<article class="level-card l${i+1}"><span class="level-icon" aria-hidden="true">${item.icon}</span><p>${item.desc}</p>${button(item.name+' →','level','button',`data-level="${item.id}"`)}</article>`).join('')}</div>${button('Pronađi vježbu po stranici udžbenika →','book','book-link')}</section>`;
   }
   const back=(label,action)=>button(label,action,'text-button');
   function worlds(){
     const mixed=button('<span class="world-icon" aria-hidden="true">🎒</span><span><strong>Miješana ekspedicija</strong><small>Po jedan zadatak iz svakog svijeta</small></span><b aria-hidden="true">→</b>','start','world-card mixed','data-world="mix"');
-    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}${button('Gradivo prema udžbeniku →','book','book-link')}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
+    return `<section><div class="topline">${back('← Početna','home')}<span class="pill">${levelName(level)}</span></div><div class="section-heading"><h1>Što želiš istraživati?</h1></div>${mixed}${button('Pronađi vježbu po stranici udžbenika →','book','book-link')}<div class="world-grid">${P.worlds.map(w=>`<article class="world-tile">${button(`<span class="world-icon" aria-hidden="true">${w.icon}</span><span><strong>${w.name}</strong><small>${w.desc}</small></span><b aria-hidden="true">→</b>`,'start','world-card',`data-world="${w.id}" aria-label="Vježbaj temu: ${w.name}"`)}${button('Odaberi lekciju','lessons','lesson-link',`data-lessons="${w.id}" aria-label="Odaberi lekciju: ${w.name}"`)}</article>`).join('')}</div></section>`;
   }
   function lessonMenu(){
     const w=P.worlds.find(w=>w.id===chosenWorld);
@@ -2197,18 +2257,82 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
       return button(`<span class="world-icon" aria-hidden="true">${l.icon}</span><span><strong>${l.name}</strong><small>${info}</small></span><b aria-hidden="true">→</b>`,'lesson','world-card',`data-lesson="${l.id}"`);
     }).join('')}</div>${button('Vježbaj cijelu temu →','start','button secondary',`data-world="${w.id}"`)}</section>`;
   }
+  const pageRange=unit=>unit.from===unit.to?String(unit.from):unit.from+'–'+unit.to;
+  const publicApp='https://aplikacije-za-ucenje.onrender.com/istrazivaci-naseg-svijeta/index.html';
+  const hosted=location.protocol==='http:'||location.protocol==='https:';
+  function shareableURL(hash){
+    const url=new URL(hosted?location.origin:publicApp);
+    if(hosted)url.pathname=location.pathname;
+    url.hash=hash;return url.href;
+  }
+  function pageLookupForm(){
+    const options=P.levels.map(item=>`<option value="${item.id}" ${item.id===level?'selected':''}>${item.name}</option>`).join('');
+    return `<section class="page-finder"><form id="page-lookup" role="search" aria-label="Traženje vježbe po stranici">
+      <div class="lookup-fields">
+        <label for="book-page">Broj stranice<input id="book-page" type="text" inputmode="numeric" enterkeyhint="search" autocomplete="off" placeholder="npr. 59" value="${esc(page.lookup||'')}"></label>
+        <label for="book-level">Razina<select id="book-level">${options}</select></label>
+      </div>
+      </form>
+      <p id="page-lookup-status" role="status" aria-atomic="true"></p>
+      <div id="page-match" hidden>
+        <div class="lookup-actions"><a id="found-unit" class="button" aria-describedby="page-lookup-status">Vježbaj</a>${button('Kopiraj poveznicu','share-unit','button secondary','id="share-unit"')}</div>
+        <p id="share-feedback" role="status" aria-atomic="true"></p>
+        <label id="share-manual" for="share-url" hidden>Poveznica za ovu vježbu<input id="share-url" type="text" readonly></label>
+      </div>
+    </section>`;
+  }
+  function updatePageLookup(){
+    const query=app.querySelector('#book-page').value.trim();
+    const number=/^\d+$/.test(query)?Number(query):0;
+    const unit=P.units.find(item=>item.from<=number&&number<=item.to);
+    const status=app.querySelector('#page-lookup-status'),link=app.querySelector('#found-unit');
+    app.querySelector('#page-match').hidden=!unit;
+    app.querySelector('#share-manual').hidden=true;
+    app.querySelector('#share-feedback').textContent='';
+    let message='';
+    if(unit){
+      message=unit.name+' · str. '+pageRange(unit);
+      link.dataset.foundUnit=unit.id;
+      const hash=unitHash(unit.id,level);
+      link.href=hosted?shareableURL(hash):hash;
+    }else{
+      delete link.dataset.foundUnit;link.removeAttribute('href');
+      if(query)message=Number.isSafeInteger(number)&&number>0
+        ?'Za stranicu '+number+' još nema vježbe. Odaberi cjelinu ispod.'
+        :'Upiši cijeli broj stranice veći od nule.';
+      else if(page.invalidLink)message='Poveznica nije prepoznata. Pronađi vježbu po stranici ili cjelini.';
+    }
+    if(status.textContent!==message)status.textContent=message;
+  }
+  async function copyUnitLink(){
+    const link=app.querySelector('#found-unit');
+    if(!link?.dataset.foundUnit)return;
+    const hash=link.hash,url=shareableURL(hash);
+    const status=app.querySelector('#share-feedback'),manual=app.querySelector('#share-manual');
+    manual.hidden=true;
+    try{
+      await navigator.clipboard.writeText(url);
+      if(link.isConnected&&link.hash===hash)status.textContent='Poveznica je kopirana.';
+    }catch{
+      if(!link.isConnected||link.hash!==hash)return;
+      manual.hidden=false;
+      const field=app.querySelector('#share-url');
+      field.value=url;field.focus();field.select();
+      status.textContent='Kopiraj označenu poveznicu.';
+    }
+  }
   function bookMenu(){
     const groups=P.bookGroups.map(([start,name],i)=>{
       const finish=P.bookGroups[i+1]?.[0]||Infinity;
       const units=P.units.filter(u=>u.from>=start&&u.from<finish);
       const rows=units.map(u=>{
-        const pages=u.from===u.to?u.from:u.from+'–'+u.to;
+        const pages=pageRange(u);
         return button('<span>'+esc(u.name)+'</span><small>str. '+pages+'</small>','unit','unit-link','data-unit="'+u.id+'"');
       }).join('');
       return '<details class="book-group" data-group="'+start+'"><summary>'+esc(name)+'</summary><div>'+rows+'</div></details>';
     }).join('');
     const parent={worlds:['← Svjetovi','worlds'],lessons:['← Lekcije','back-lessons'],play:['← Vježba','back-play']}[page.previous?.view]||['← Početna','home'];
-    return `<section class="lesson-menu book-menu"><div class="topline">${back(...parent)}<label for="book-level">Razina <select id="book-level">${P.levels.map(l=>`<option value="${l.id}" ${l.id===level?'selected':''}>${l.name}</option>`).join('')}</select></label></div><h1>Gradivo prema udžbeniku</h1><p class="lesson-intro">Otvori cjelinu i odaberi što želiš vježbati.</p>${groups}<details class="book-source" data-group="source"><summary>Odakle su brojevi stranica?</summary><p>Uz vježbe su navedene stranice iz tjednog nastavnog plana za Istražujemo naš svijet 2 iz školske godine 2020./21. Plan povezuje gradivo sa stranicama 6–99. Brojevi se mogu razlikovati u tvojem primjerku.</p></details></section>`;
+    return `<section class="lesson-menu book-menu"><div class="topline">${back(...parent)}</div><h1>Gradivo prema udžbeniku</h1><p class="lesson-intro">Upiši broj stranice ili otvori cjelinu.</p>${pageLookupForm()}${groups}<details class="book-source" data-group="source"><summary>Odakle su brojevi stranica?</summary><p>Uz vježbe su navedene stranice iz tjednog nastavnog plana za Istražujemo naš svijet 2 iz školske godine 2020./21. Plan povezuje gradivo sa stranicama 6–99. Brojevi se mogu razlikovati u tvojem primjerku.</p></details></section>`;
   }
   function progress(){
     const total=session.questions.length,done=E.summarize(session).solved;
@@ -2329,12 +2453,19 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   }
   function edit(focus){
     if(session.phase==='incorrect'&&!E.sameResponse(current(),session.draft,session.responses[session.index]))session.phase='answer';
-    remember();render(focus);
+    rememberWork();render(focus);
   }
   const first=selector=>()=>app.querySelector(selector);
   const byValue=(selector,value)=>()=>eqAttr(selector,'value',value);
   document.addEventListener('click',event=>{
-    const t=event.target.closest('button');if(!t||t.disabled)return;
+    const t=event.target.closest('button,a[data-found-unit]');if(!t||t.disabled)return;
+    if(t.dataset.foundUnit){
+      if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0)return;
+      event.preventDefault();
+      const unit=P.unitById.get(t.dataset.foundUnit);
+      start(t,unit.world,unit.id);return;
+    }
+    if(t.id==='share-unit'){copyUnitLink();return;}
     const d=t.dataset,action=d.action;
     if(action==='book'){if(view==='play')goParent('book',t);else navigate('book',t);return;}
     if(action==='unit'){const unit=P.unitById.get(d.unit);if(unit)start(t,unit.world,unit.id);return;}
@@ -2348,17 +2479,17 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     if(action==='lesson'){start(t,chosenWorld,d.lesson);return;}
     if(action==='resume'){resume(t,d.run);return;}
     if(!session||view!=='play')return;
-    if(action==='next'){if(E.advance(session)){remember();render();}return;}
+    if(action==='next'){if(E.advance(session)){rememberWork();render();}return;}
     if(action==='new-round'){start(t,session.world,session.lesson);return;}
     if(action==='review'){const refs=session.questions.flatMap((q,i)=>session.attempts[i]>1?[q.type==='route'?{...q.ref,previousMoves:session.responses[i]?.items}:q.ref]:[]);if(refs.length)start(t,session.world,session.lesson,refs);return;}
     if(session.solved[session.index])return;
     const draft=session.draft,v=d.value;
     if(action==='check'){
       const result=E.submit(session,draft);
-      if(result==='correct'){remember();render(first('[data-action="next"]'));announce('Točno!',80);}
+      if(result==='correct'){rememberWork();render(first('[data-action="next"]'));announce('Točno!',80);}
       if(result==='incorrect'||result==='unchanged'){
         session.phase='incorrect';
-        remember();render(first('#answer-editor'));
+        rememberWork();render(first('#answer-editor'));
         const message=app.querySelector('.inline-feedback');
         message.scrollIntoView?.({block:'nearest',inline:'nearest'});
         announce(message.textContent,80);
@@ -2386,8 +2517,22 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
     }
     else if('move' in d){const i=Number(d.move),j=i+Number(d.delta);[draft.items[i],draft.items[j]]=[draft.items[j],draft.items[i]];edit(()=>app.querySelector('[data-remove-sequence="'+j+'"]'));}
   });
+  app.addEventListener('input',event=>{
+    if(event.target.id!=='book-page')return;
+    page.lookup=event.target.value;delete page.invalidLink;
+    updatePageLookup();checkpoint(event.target);
+  });
+  app.addEventListener('submit',event=>{
+    if(event.target.id!=='page-lookup')return;
+    event.preventDefault();
+    const link=app.querySelector('[data-found-unit]');
+    if(link)link.focus();
+    else app.querySelector('#book-page').focus();
+  });
   document.addEventListener('change',event=>{
-    if(event.target.id==='book-level'){level=event.target.value;page.level=level;checkpoint(event.target);}
+    if(event.target.id==='book-level'){
+      level=event.target.value;page.level=level;updatePageLookup();checkpoint(event.target);
+    }
   });
   app.addEventListener('toggle',scheduleCheckpoint,true);
   app.addEventListener('focusin',scheduleCheckpoint);
@@ -2397,8 +2542,9 @@ footer{margin-top:44px;border-top:1px solid var(--line);padding:23px 0 28px;text
   window.addEventListener('hashchange',locationChanged);
   load();
   try{browserHistory.scrollRestoration='manual';}catch{/* Optional in offline readers. */}
-  const initial=browserPage()||newPage(location.hash==='#gradivo'?'book':'home',null);
-  storePage('replaceState',initial);show(initial);
+  const savedPage=browserPage();
+  const initial=linkedPage(savedPage,null)||savedPage||newPage(location.hash==='#gradivo'?'book':'home',null);
+  storePage('replaceState',initial,!!initial.invalidLink);show(initial);
 })();
 </script>
 </body>
