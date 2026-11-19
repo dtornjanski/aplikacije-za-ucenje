@@ -1,0 +1,50 @@
+name: Četiri aplikacije u stvarnom Chromeu
+on:
+  push:
+    branches: [qa/portal-cetiri-aplikacije]
+
+permissions:
+  contents: read
+
+jobs:
+  chrome:
+    name: Chrome / ${{ matrix.width }} px
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    strategy:
+      fail-fast: false
+      matrix:
+        width: [1280, 360, 320]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - id: target
+        run: python3 qa/portal/target.py configure
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.target.outputs.commit }}
+          path: candidate
+          persist-credentials: false
+      - name: Posluži točnu verziju kandidata
+        if: steps.target.outputs.mode == 'candidate'
+        run: python3 -u -m http.server 4173 --bind 127.0.0.1 --directory candidate/javne-aplikacije >"$RUNNER_TEMP/portal-server.log" 2>&1 &
+      - name: Usporedi svih pet HTML dokumenata s izdanjem
+        run: python3 -u qa/portal/target.py verify
+      - name: Pripremi Selenium i Google Chrome
+        run: |
+          google-chrome --version
+          chromedriver --version
+          python3 -m venv "$RUNNER_TEMP/portal-env"
+          "$RUNNER_TEMP/portal-env/bin/pip" --disable-pip-version-check -q install selenium==4.38.0
+      - name: Provjeri izbornik i prelazak između aplikacija
+        env:
+          WIDTH: ${{ matrix.width }}
+        run: '"$RUNNER_TEMP/portal-env/bin/python" -u qa/portal/menu.py'
+      - name: Snimke i mjerenja
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.target.outputs.mode }}-${{ matrix.width }}px-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ishod
+          retention-days: 30
