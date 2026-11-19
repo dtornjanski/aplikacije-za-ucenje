@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const { JSDOM, VirtualConsole } = require('../../math-site/node_modules/jsdom');
+const { JSDOM, VirtualConsole } = require('jsdom');
 const E = require('../src/engine.js');
 const C = require('../src/content.js');
 

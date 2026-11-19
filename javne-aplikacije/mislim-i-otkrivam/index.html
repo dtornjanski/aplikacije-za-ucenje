@@ -82,12 +82,73 @@ body {font-size:19px;font-weight:500;color:var(--mio-ink)}
 #think-page-root .results-hero::after{content:'🦉';font-size:120px;line-height:1}
 @media(max-width:620px){#think-page-root .hero-art::after{font-size:90px}#think-page-root .brand::before{font-size:31px}#think-page-root .results-hero::after{font-size:90px}}
 </style>
+<style id="portal-navigation">
+html:has(.portal-header) { scroll-padding-top: 90px; }
+#math-page-root .app-shell { overflow: clip; }
+.portal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  padding-block: 8px;
+  background: #fff;
+}
+.portal-header .brand { justify-self: start; min-width: 0; max-width: 100%; text-align: left; }
+.portal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 7px 13px;
+  border: 1.5px solid #82769d;
+  border-radius: 12px;
+  background: #f3effa;
+  color: #372958;
+  font: 800 16px/1.25 ui-rounded, "Trebuchet MS", Arial, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.portal-link::before {
+  content: "";
+  flex: none;
+  width: 15px;
+  height: 15px;
+  background: linear-gradient(currentColor 0 0) left top,
+              linear-gradient(currentColor 0 0) right top,
+              linear-gradient(currentColor 0 0) left bottom,
+              linear-gradient(currentColor 0 0) right bottom;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+.portal-link:hover { border-color: #47336d; background: #e7dff4; }
+.portal-link:focus-visible { outline: 3px solid #7e3800; outline-offset: 3px; }
+.portal-dialog-nav { text-align: center; margin-top: 14px; }
+@media (max-width: 700px) {
+  html:has(.portal-header) { scroll-padding-top: 106px; }
+  .portal-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 8px;
+    min-height: 0;
+    padding-block: 6px;
+  }
+  .portal-header .brand { grid-column: 1; grid-row: 1; }
+  .portal-header .brand strong, .portal-header .brand span:last-child { overflow-wrap: anywhere; }
+  .portal-header .grade { grid-column: 1; grid-row: 2; justify-self: start; }
+  .portal-header .portal-link { grid-column: 2; grid-row: 1 / span 2; }
+  .portal-link { padding-inline: 10px; font-size: 15px; }
+}
+</style>
   <a class="skip" href="#main">Preskoči na sadržaj</a>
-  <header class="site-header">
+  <header class="site-header portal-header">
     <button class="brand" id="brand" aria-label="Mislim i otkrivam — početna">
       <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" width="48" height="48"><span>Mislim i otkrivam</span>
     </button>
     <span class="grade">2. razred</span>
+    <a class="portal-link" href="../index.html">Sve aplikacije</a>
   </header>
   <main id="main" tabindex="-1"></main>
   <footer><span>Za male istraživače i velika pitanja.</span><span>Bez žurbe. Korak po korak.</span></footer>
@@ -95,11 +156,26 @@ body {font-size:19px;font-weight:500;color:var(--mio-ink)}
     <h2 id="dialog-title">Započeti novu vježbu?</h2>
     <p>Ova vježba još nije dovršena. Novu možeš započeti sada ili nastaviti gdje si stala.</p>
     <div class="dialog-actions"><button class="button" id="continue-round">Nastavi ovu vježbu</button><button class="button secondary" id="confirm-new">Započni novu</button></div>
+    <div class="portal-dialog-nav"><a class="portal-link" href="../index.html">Sve aplikacije</a></div>
   </dialog>
   <noscript>Za ovu vježbu uključi JavaScript u pregledniku.</noscript>
   
   
   
+<script id="portal-navigation-path">(function selectPortalPath(app) {
+  const pathname = window.location.pathname;
+  const web = ['http:', 'https:'].includes(window.location.protocol);
+  const bundledFile = window.location.protocol === 'file:' && pathname.endsWith('/' + app + '/index.html');
+  let href;
+  if (pathname.endsWith('/' + app)) href = 'index.html';
+  else if (pathname.endsWith('/' + app + '/dist/index.html')) href = '../../javne-aplikacije/index.html';
+  else if (pathname.endsWith('/page-apps/' + app + '.html')) href = '../javne-aplikacije/index.html';
+  else if (!web && !bundledFile) href = 'https://aplikacije-za-ucenje.onrender.com/';
+  else if (/\/[^/]+\.html$/i.test(pathname) && !pathname.endsWith('/index.html')) href = 'index.html';
+  if (href) {
+    for (const link of document.querySelectorAll('a.portal-link')) link.setAttribute('href', href);
+  }
+})("mislim-i-otkrivam");</script>
 <script>(function(root){
   'use strict';
   function q(id,level,cat,title,story,prompt,answers,reasons,validPairs=[[0,0]]){
@@ -353,6 +429,56 @@ body {font-size:19px;font-weight:500;color:var(--mio-ink)}
   const levels=[{id:1,name:'Lagani zadaci',desc:'Uoči jednu važnu stvar.',icon:'leaf'},{id:2,name:'Teži zadaci',desc:'Poveži dvije informacije.',icon:'puzzle'},{id:3,name:'Teški zadaci',desc:'Provjeri svoj zaključak.',icon:'mountain'}];
   const categories=[{id:'error',name:'Pronađi pogrešku',icon:'search'},{id:'missing',name:'Što nedostaje?',icon:'puzzle'},{id:'claim',name:'Provjeri tvrdnju',icon:'check'},{id:'fact',name:'Činjenica ili mišljenje?',icon:'chat'},{id:'alternative',name:'Drugo objašnjenje',icon:'bulb'},{id:'decision',name:'Odluči prema uvjetima',icon:'sign'}];
   let level=1,view='home',round=null,pendingCategory=null,lastMixed=[];
+  const storageKey = 'mislim-i-otkrivam-round-v1';
+
+  function saveRound() {
+    if (!round) return;
+    const { questions, ...state } = round;
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify({ ...state, ids: questions.map(q => q.id), lastMixed }));
+    } catch { /* Practice still works when this tab cannot store a round. */ }
+  }
+
+  function validOrder(order, count) {
+    return Array.isArray(order) && order.length === count && new Set(order).size === count &&
+      order.every(value => Number.isInteger(value) && value >= 0 && value < count);
+  }
+
+  function restoreRound() {
+    try {
+      const record = JSON.parse(sessionStorage.getItem(storageKey));
+      if (!record) return;
+      const { ids, lastMixed: previousMixed, ...state } = record;
+      const { level, category, index, phase, attempts, solved, answerOrder, reasonOrder, answer, reason } = state;
+      if (!levels.some(item => item.id === level) || !Array.isArray(ids) || new Set(ids).size !== ids.length) return;
+
+      const pool = bank.filter(q => q.level === level && (category === 'mix' || q.cat === category));
+      const count = category === 'mix' ? categories.length : pool.length;
+      if (!count || ids.length !== count || !Number.isInteger(index) || index < 0 || index >= count) return;
+      const questions = ids.map(id => pool.find(q => q.id === id));
+      if (questions.some(q => !q)) return;
+      if (category === 'mix' && new Set(questions.map(q => q.cat)).size !== count) return;
+      if (![attempts, solved, answerOrder, reasonOrder].every(list => Array.isArray(list) && list.length === count)) return;
+      if (!attempts.every(n => Number.isSafeInteger(n) && n >= 0)) return;
+      if (!questions.every((q, i) => validOrder(answerOrder[i], q.answers.length) && validOrder(reasonOrder[i], q.reasons.length))) return;
+
+      if (!['answer', 'reason', 'incorrect', 'correct', 'complete'].includes(phase)) return;
+      const feedback = ['incorrect', 'correct', 'complete'].includes(phase);
+      const correct = phase === 'correct' || phase === 'complete';
+      if ((answer !== null && !answerOrder[index].includes(answer)) || (reason !== null && !reasonOrder[index].includes(reason))) return;
+      if ((phase !== 'answer' && answer === null) || (feedback && reason === null)) return;
+      const validPair = questions[index].validPairs.some(pair => pair[0] === answer && pair[1] === reason);
+      if (feedback && (attempts[index] === 0 || validPair !== correct)) return;
+      if (solved.some((done, i) => done !== (i < index || (i === index && correct)))) return;
+      if (phase === 'complete' && index !== count - 1) return;
+
+      round = { ...state, questions };
+      const mixed = Array.isArray(previousMixed) ? bank.filter(q => previousMixed.includes(q.id)) : [];
+      if (mixed.length === categories.length && new Set(mixed.map(q => q.cat)).size === categories.length) {
+        lastMixed = mixed.map(q => q.id);
+      }
+    } catch { /* Ignore inaccessible, incomplete, or outdated round data. */ }
+  }
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const label=()=>levels.find(l=>l.id===level).name;
   const pill=()=>`<span class="pill level-pill l${level}">${label()}</span>`;
@@ -379,7 +505,7 @@ body {font-size:19px;font-weight:500;color:var(--mio-ink)}
     return `<section class="exercise view">${progress()}<div class="question-card">${body}</div></section>`;
   }
   function results(){const s=E.stats(round);return `<section class="results view"><div class="topline">${action('areas',icon('back')+'Područja','text-button')}${pill()}</div><div class="results-hero"><img src="${owl}" alt="" width="160" height="160"><div><p class="eyebrow">Vježba je dovršena</p><h1>Bravo, istraživačice!</h1><p>Dovršila si ${round.questions.length===6?'svih 6 zadataka':'oba zadatka'}.</p></div></div><div class="stats"><div class="stat"><strong>${s.firstTry}</strong><span>Iz prvog pokušaja</span></div><div class="stat"><strong>${s.retried}</strong><span>Uz ponovni pokušaj</span></div></div><p class="encouragement">Dobri istraživači provjeravaju svoje zaključke.</p><div class="actions">${action('again','Nova vježba '+icon('arrow'))}${action('home','Promijeni težinu','button secondary')}</div><div class="completed-topics">${[...new Set(round.questions.map(q=>q.cat))].map(cat=>`<span>${icon('tick')}${categories.find(c=>c.id===cat).name}</span>`).join('')}</div></section>`;}
-  function render(focus=true){main.innerHTML=view==='home'?home():view==='areas'?areas():round?exercise():home();if(focus){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}}
+  function render(focus=true){saveRound();main.innerHTML=view==='home'?home():view==='areas'?areas():round?exercise():home();if(focus){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}}
   function navigate(next){view=next;render();}
   function start(category){
     let source=bank;
@@ -392,7 +518,7 @@ body {font-size:19px;font-weight:500;color:var(--mio-ink)}
   main.addEventListener('change',event=>{
     const input=event.target;if(!input.matches('input[type="radio"]')||!round)return;
     const type=input.name;if(type!==round.phase)return;
-    round[type]=Number(input.value);
+    round[type]=Number(input.value);saveRound();
     const button=main.querySelector(`[data-action="${type==='answer'?'reason':'submit'}"]`);if(button)button.disabled=false;
   });
   main.addEventListener('click',event=>{
@@ -414,8 +540,7 @@ body {font-size:19px;font-weight:500;color:var(--mio-ink)}
   document.getElementById('brand').addEventListener('click',()=>navigate('home'));
   document.getElementById('continue-round').addEventListener('click',()=>{document.getElementById('new-round-dialog').close();level=round.level;navigate('play');});
   document.getElementById('confirm-new').addEventListener('click',()=>{document.getElementById('new-round-dialog').close();start(pendingCategory);});
-  render(false);
-})();
-</script></div>
+  restoreRound();render(false);
+})();</script></div>
 </body>
 </html>

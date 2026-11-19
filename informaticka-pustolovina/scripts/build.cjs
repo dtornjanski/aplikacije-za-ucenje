@@ -1,5 +1,6 @@
 const fs=require('node:fs');
 const path=require('node:path');
+const {withPortalNavigation}=require('../../shared/portal-navigation.cjs');
 
 const project=path.join(__dirname,'..');
 const src=path.join(project,'src');
@@ -18,8 +19,17 @@ let html=read('index.html')
   .replace(/\s*<script src="content\.js"><\/script>/,'\n  <script>'+safeScript(content)+'</script>')
   .replace(/\s*<script src="app\.js"><\/script>/,'\n  <script>'+safeScript(app)+'</script>');
 
+const appName=path.basename(project);
+html=withPortalNavigation(html,appName);
 if(/<script\s+src=|<link\s+rel="stylesheet"/i.test(html)) throw new Error('Build still contains external source references.');
 if(Buffer.byteLength(html)>256*1024) throw new Error('Standalone HTML exceeds 256 KiB.');
 fs.mkdirSync(dist,{recursive:true});
 fs.writeFileSync(path.join(dist,'index.html'),html,'utf8');
+if(process.argv.includes('--portal')){
+  const root=path.dirname(project);
+  for(const output of [path.join(root,'page-apps',appName+'.html'),path.join(root,'javne-aplikacije',appName,'index.html')]){
+    fs.mkdirSync(path.dirname(output),{recursive:true});
+    fs.writeFileSync(output,html,'utf8');
+  }
+}
 console.log(`informaticka-pustolovina/dist/index.html: ${Buffer.byteLength(html)} bytes`);

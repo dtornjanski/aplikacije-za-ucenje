@@ -31,18 +31,93 @@
 #math-page-root .story-art-emoji{float:right;font-size:54px;margin:-4px 0 10px 18px}
 @media(max-width:620px){#math-page-root .level-emoji{font-size:45px;grid-row:1/3;margin:0}#math-page-root .mascot-emoji{font-size:92px}}
 </style>
+<style id="portal-navigation">
+html:has(.portal-header) { scroll-padding-top: 90px; }
+#math-page-root .app-shell { overflow: clip; }
+.portal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 14px;
+  align-items: center;
+  padding-block: 8px;
+  background: #fff;
+}
+.portal-header .brand { justify-self: start; min-width: 0; max-width: 100%; text-align: left; }
+.portal-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 7px 13px;
+  border: 1.5px solid #82769d;
+  border-radius: 12px;
+  background: #f3effa;
+  color: #372958;
+  font: 800 16px/1.25 ui-rounded, "Trebuchet MS", Arial, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.portal-link::before {
+  content: "";
+  flex: none;
+  width: 15px;
+  height: 15px;
+  background: linear-gradient(currentColor 0 0) left top,
+              linear-gradient(currentColor 0 0) right top,
+              linear-gradient(currentColor 0 0) left bottom,
+              linear-gradient(currentColor 0 0) right bottom;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+}
+.portal-link:hover { border-color: #47336d; background: #e7dff4; }
+.portal-link:focus-visible { outline: 3px solid #7e3800; outline-offset: 3px; }
+.portal-dialog-nav { text-align: center; margin-top: 14px; }
+@media (max-width: 700px) {
+  html:has(.portal-header) { scroll-padding-top: 106px; }
+  .portal-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0 8px;
+    min-height: 0;
+    padding-block: 6px;
+  }
+  .portal-header .brand { grid-column: 1; grid-row: 1; }
+  .portal-header .brand strong, .portal-header .brand span:last-child { overflow-wrap: anywhere; }
+  .portal-header .grade { grid-column: 1; grid-row: 2; justify-self: start; }
+  .portal-header .portal-link { grid-column: 2; grid-row: 1 / span 2; }
+  .portal-link { padding-inline: 10px; font-size: 15px; }
+}
+</style>
 
 <div id="math-page-root" lang="hr">
   <a class="skip-link" href="#main">Preskoči na zadatak</a>
   <div id="app" class="app-shell">
-    <header class="app-header">
+    <header class="app-header portal-header">
       <a class="brand" href="#" data-action="home" aria-label="Matematička pustolovina – početna"><span class="mascot-emoji" aria-hidden="true">🦉</span><span>Matematička pustolovina</span></a>
       <span class="grade">2. razred</span>
-    </header>
+    <a class="portal-link" href="../index.html">Sve aplikacije</a>
+  </header>
     <main id="main" tabindex="-1"></main>
     <footer class="app-footer">Vježbaj svojim tempom.</footer>
   </div>
 </div>
+<script id="portal-navigation-path">(function selectPortalPath(app) {
+  const pathname = window.location.pathname;
+  const web = ['http:', 'https:'].includes(window.location.protocol);
+  const bundledFile = window.location.protocol === 'file:' && pathname.endsWith('/' + app + '/index.html');
+  let href;
+  if (pathname.endsWith('/' + app)) href = 'index.html';
+  else if (pathname.endsWith('/' + app + '/dist/index.html')) href = '../../javne-aplikacije/index.html';
+  else if (pathname.endsWith('/page-apps/' + app + '.html')) href = '../javne-aplikacije/index.html';
+  else if (!web && !bundledFile) href = 'https://aplikacije-za-ucenje.onrender.com/';
+  else if (/\/[^/]+\.html$/i.test(pathname) && !pathname.endsWith('/index.html')) href = 'index.html';
+  if (href) {
+    for (const link of document.querySelectorAll('a.portal-link')) link.setAttribute('href', href);
+  }
+})("matematicka-pustolovina");</script>
 <script>(function (scope) {
   'use strict';
   const levels = [
