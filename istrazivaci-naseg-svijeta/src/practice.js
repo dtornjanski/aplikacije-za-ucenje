@@ -117,11 +117,14 @@
     if(world==='place'&&key===6)return {...banks[world][key],steps:[...banks.place[key].steps.slice(0,4),'kupi odabrani predmet kada skupiš dovoljno']};
     return banks[world][key];
   }
-  function decision(base,prompt,truth,falsehood,rng){
+  function decision(base,prompt,truth,falsehood,rng,short=false){
     const right=E.shuffle(truth,rng),wrong=E.shuffle(falsehood,rng),pattern=Math.floor(rng()*4);
-    const clues=['Lara','Bitko'].map((name,i)=>name+' kaže: „'+((pattern&(1<<i))?right.pop():wrong.pop())+'”.');
-    const options=['Nijedan zapis nije točan.','Samo je Lara u pravu.','Samo je Bitko u pravu.','Oba su zapisa točna.'];
-    return {...base,prompt:prompt+' Procijeni oba odgovora.',clues,reasoning:'evidence',options:E.shuffle(options,rng),answer:options[pattern]};
+    const clues=['Lara','Bitko'].map((name,i)=>{
+      const statement=pattern&(1<<i)?right.pop():wrong.pop();
+      return short?name+': '+statement:name+' kaže: „'+statement+'”.';
+    });
+    const options=short?['Nitko.','Samo Lara.','Samo Bitko.','Oboje.']:['Nijedan zapis nije točan.','Samo je Lara u pravu.','Samo je Bitko u pravu.','Oba su zapisa točna.'];
+    return {...base,prompt:short?prompt:prompt+' Procijeni oba odgovora.',clues,reasoning:'evidence',options:E.shuffle(options,rng),answer:options[pattern]};
   }
   function spatialQuestion(base,key,level,rng,legacy){
     const id={5:'skica',7:'sat',11:'kalendar'}[key],lesson=lessonById.get(id),example=Math.floor(rng()*lesson.cases);
@@ -148,9 +151,43 @@
     const answer=task.right[review?1:0],others=E.shuffle(task.wrong,rng).slice(0,level==='easy'?2:3);
     return {...base,prompt:task.prompt,answer,options:E.shuffle([answer,...others],rng)};
   }
-  function makeBase(world,level,key,rng,review,legacy){
+  function hardSpatial(base,key,rng,review){
+    const id={5:'skica',7:'sat',11:'kalendar'}[key],lesson=lessonById.get(id);
+    // Separate examples keep the diagram new even when the review draws the same random number.
+    const half=lesson.cases/2,example=Math.floor(rng()*half)+(review?half:0);
+    const q=L.make(lesson,'hard',example,rng);
+    if(key!==5)return {...base,type:key===7?'single':'observe',title:key===7?'Čitam sat':'Čitam kalendar',
+      visual:q.visual,prompt:q.prompt.replace('Ura pokazuje sadašnje vrijeme. ',''),answer:q.answer,options:q.options};
+    const wrong=[];
+    for(const [index,move] of q.answer.entries())for(const direction of q.items){
+      if(direction===move)continue;
+      const path=q.answer.slice();path[index]=direction;
+      if(E.walk(q.visual,path)!==q.visual.end)wrong.push(path.join(', '));
+    }
+    const answer=q.answer.join(', '),options=[answer,...E.shuffle(wrong,rng).slice(0,3)];
+    return {...base,type:'observe',title:'Čitam skicu',prompt:'Kojim putem možeš od škole do parka zaobići radove?',
+      visual:q.visual,answer,options:E.shuffle(options,rng)};
+  }
+  function hardReading(base,card,rng){
+    if(card.visual)base.visual=card.visual;
+    if(card.truth)return decision(base,card.prompt,card.truth,card.wrong,rng,true);
+    return {...base,prompt:card.prompt,answer:card.answer,options:E.shuffle([card.answer,...card.wrong],rng)};
+  }
+  // Neutral headings leave the conclusion to the pupil and fit both examples.
+  const hardTitles={
+    autumn:{4:'Zalasci Sunca'},winter:{10:'Led i snijeg'},spring:{4:'Pokus s biljkama'},summer:{10:'Dvije posude s vodom'},
+    energy:{4:'Pokus s toplinom'},health:{tijelo:'Moje tijelo'},nature:{4:'Pokus s biljkama',7:'Moja osjetila'},
+    place:{neovisnost:'Lipanj u kalendaru'},spacetime:{trajanje:'Trajanje aktivnosti'}
+  };
+  function makeBase(world,level,key,rng,review,legacy,revision){
     const extra=B.extraNames[key],def=extra?null:definition(world,key);
     const base={id:world+'-'+level+'-'+key,world,level,title:extra||def.title};
+    if(revision>=4&&!legacy&&level==='hard'){
+      base.title=hardTitles[world]?.[key]||base.title;
+      if(extra)return hardReading({...base,type:'single'},B.hardExtra(key,rng,review),rng);
+      if(world==='spacetime'&&[5,7,11].includes(key))return hardSpatial(base,key,rng,review);
+      if(A.hardCases[world][key])return hardReading({...base,type:def.type},A.hardCases[world][key][review?1:0],rng);
+    }
     if(extra)return reading({...base,type:'single'},B.extra(key,level,rng),level,rng,review);
     if(world==='spacetime'&&[5,7,11].includes(key))return spatialQuestion(base,key,level,rng,legacy);
     if(!legacy&&world==='autumn'&&key===4)return reading({...base,type:'cause',title:'Dva jesenska zalaska Sunca'},A.sunset(level,rng),level,rng,review);
@@ -250,8 +287,13 @@
     else for(let i=0;i<5;i++)add(world,lesson||pick(keys[world],local[bucket(level,world)]||[],rng));
     return plan;
   }
-  function buildRound(level,world,seed,plan){
+  function buildRound(level,world,seed,plan,revision=E.CONTENT_REVISION){
     if(!levels.some(l=>l.id===level)||world!=='mix'&&!Object.hasOwn(keys,world))throw new Error('Nepoznata vježba.');
+    if(revision===1){
+      const questions=C.buildRound(level,world,seed),refs=migrateRefs({questions,seed});
+      if(plan&&(!Array.isArray(plan)||plan.length!==refs.length||refs.some((r,i)=>r.world!==plan[i]?.world||r.key!==plan[i]?.key||r.seed!==plan[i]?.seed)))throw new Error('Neispravna spremljena runda.');
+      return questions.map((q,i)=>({...q,ref:refs[i]}));
+    }
     const refs=plan||makePlan(level,world,seed);
     if(!Array.isArray(refs)||!refs.length||refs.length>11)throw new Error('Neispravan broj zadataka.');
     return refs.map(ref=>{
@@ -262,7 +304,8 @@
         const unit=B.unitById.get(ref.unit);
         if(!unit||unit.world!==ref.world||!unit.keys.includes(ref.key))throw new Error('Zadatak ne pripada ovoj temi.');
       }
-      const q=lesson?L.make(lesson,level,ref.example,rng,ref.legacy):makeBase(ref.world,level,ref.key,rng,ref.review===true,ref.legacy);
+      const legacy=revision===2||ref.legacy;
+      const q=lesson?L.make(lesson,level,ref.example,rng,legacy):makeBase(ref.world,level,ref.key,rng,ref.review===true,legacy,revision);
       return {...q,...(ref.unit?{lesson:ref.unit}:{}),ref:{...ref}};
     });
   }
@@ -271,10 +314,12 @@
     return old.questions.map(q=>({world:q.world,key:Number(q.id.split('-').pop()),seed:Math.floor(rng()*0x100000000)}));
   }
   function routeKey(card){return [card.start,card.end,...card.blocked].join('/');}
-  function restore(saved){
-    if(!saved||saved.contentRevision||!Array.isArray(saved.plan))return E.restore(saved,buildRound);
+  function restore(raw){
     try{
-      const seen=new Set(),old=E.restore({...saved,plan:saved.plan.map(r=>({...r,legacy:true}))},buildRound);
+      const saved=typeof raw==='string'?JSON.parse(raw):raw;
+      if(!saved||saved.version===1||saved.contentRevision!=null||!Array.isArray(saved.plan))return E.restore(saved,buildRound);
+      // Finish the existing v2 migration once, exactly as the published revision three did.
+      const seen=new Set(),old=E.restore({...saved,contentRevision:3,plan:saved.plan.map(r=>({...r,legacy:true}))},buildRound);
       if(!old)return null;
       const currentStarted=old.attempts[old.index]>0||old.pending!==null||
         !E.sameResponse(old.questions[old.index],old.draft,E.emptyDraft(old.questions[old.index]));
@@ -290,7 +335,7 @@
         }
         return ref;
       });
-      return E.restore({...saved,plan},buildRound);
+      return E.restore({...saved,contentRevision:3,plan},buildRound);
     }catch{return null;}
   }
   return {levels,worlds,lessons,lessonById,units:B.units,unitById:B.unitById,bookGroups:B.groups,keys,makePlan,record,buildRound,migrateRefs,restore};
