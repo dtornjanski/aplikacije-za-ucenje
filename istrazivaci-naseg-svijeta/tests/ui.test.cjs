@@ -172,6 +172,64 @@ test('draft, pending selection and progress survive a reload and switching world
   again.click(again.value('[data-match-right]',q.answer[1][1]));assert.equal(again.all('[data-remove-pair]').length,2);
   again.action('worlds');again.click('[data-world="school"]');assert.equal(again.all('[data-remove-pair]').length,2);again.close();
 });
+test('Nastavi follows the last answer interaction across textbook visits and reloads',()=>{
+  let f=fixture();
+  const visit=id=>{
+    f.action('book');const link=f.one('[data-unit="'+id+'"]');link.closest('details').open=true;f.click(link);
+  };
+  const run=id=>'easy/health/'+id+'/vjezba';
+  const resume=id=>{
+    const link=f.one('[data-run="'+run(id)+'"]'),group=link.closest('details');if(group)group.open=true;f.click(link);
+  };
+  const expectFirst=id=>assert.equal(f.one('.resume-list > .resume [data-run]').dataset.run,run(id));
+  // Interactions in one clock tick still have a definite order, including after reload.
+  f.w.Date.now=()=>1700000000000;
+  visit('str-58');const q=f.snapshot(prefix+run('str-58')).questions[0];enter(f,q,right(q));f.click('.brand');
+  visit('str-60');f.click('.brand');expectFirst('str-58');
+  assert.ok(f.one('[data-run="'+run('str-60')+'"]').closest('details'));
+  const entries=f.dump();f.close();f=fixture({entries});f.w.Date.now=()=>1700000000000;
+  expectFirst('str-58');resume('str-60');
+  f.click('[data-choice], [data-match-left], [data-sort-item], [data-sequence-item], [data-route]');
+  f.click('.brand');expectFirst('str-60');
+  resume('str-58');f.click('.brand');expectFirst('str-60');
+  visit('str-58');f.click('.brand');expectFirst('str-60');
+  resume('str-58');f.click('#check-button');f.click('.brand');expectFirst('str-58');
+  resume('str-60');f.click('#answer-editor button:not([aria-pressed="true"]):not(:disabled)');f.click('.brand');expectFirst('str-60');
+  resume('str-58');f.action('next');f.click('.brand');expectFirst('str-58');f.close();
+});
+test('legacy drafts, pending tiles and submitted work rank above browsing, even after the last move is removed',()=>{
+  const entries={},ordered=[];
+  function add(s,updated){
+    const key=runKey(s);entries[key]=JSON.stringify({updated,state:JSON.parse(E.serialize(s))});
+    ordered.unshift(key.slice(prefix.length));return key;
+  }
+  const pristine=make('easy','winter',[2]);add(pristine,100);
+  const choice=make('easy','school',[0]);choice.draft.selected=choice.questions[0].answer;add(choice,1);
+  const match=make('easy','home',[1]);match.draft.pairs=[match.questions[0].answer[0]];add(match,2);
+  const pendingMatch=make('easy','spring',[1]);pendingMatch.pending=pendingMatch.questions[0].left[0];add(pendingMatch,3);
+  const route=make('hard','spacetime',['skica']);route.draft.items=['gore'];const routeKey=add(route,4);
+  const sort=make('medium','home',[2]),q=sort.questions[0];sort.draft.zones[q.zones[0]].push(q.items[0]);add(sort,5);
+  const pendingSort=make('medium','school',[2]);pendingSort.pending=pendingSort.questions[0].items[0];add(pendingSort,6);
+  const order=make('hard','home',[3]);order.draft.items=[order.questions[0].items[0]];add(order,7);
+  const tried=make('hard','winter',[0]);E.submit(tried,{selected:tried.questions[0].options.find(o=>o!==tried.questions[0].answer)});add(tried,8);
+  const solved=make('hard','autumn',[0,1]);E.submit(solved,right(solved.questions[0]));E.advance(solved);add(solved,9);
+  const f=fixture({entries});assert.deepEqual(f.all('[data-run]').map(b=>b.dataset.run),ordered);
+  const link=f.one('[data-run="'+routeKey.slice(prefix.length)+'"]');link.closest('details').open=true;f.click(link);f.action('undo-route');
+  assert.deepEqual(f.snapshot(routeKey).draft.items,[]);
+  f.click('.brand');assert.equal(f.one('[data-run]').dataset.run,routeKey.slice(prefix.length));
+  const saved=f.dump();f.close();const g=fixture({entries:saved});
+  assert.equal(g.one('[data-run]').dataset.run,routeKey.slice(prefix.length));g.close();
+});
+test('opening decides the fallback among untouched runs and returning home picks up work from another tab',()=>{
+  const a=make('easy','school',[0]),b=make('easy','home',[0]),aKey=runKey(a),bKey=runKey(b);
+  const f=fixture({session:a,entries:{[bKey]:JSON.stringify({updated:2,state:JSON.parse(E.serialize(b))})}});
+  assert.equal(f.one('[data-run]').dataset.run,bKey.slice(prefix.length));
+  const link=f.one('[data-run="'+aKey.slice(prefix.length)+'"]');link.closest('details').open=true;f.click(link);f.click('.brand');
+  assert.equal(f.one('[data-run]').dataset.run,aKey.slice(prefix.length));f.action('resume');
+  const peer=fixture({entries:f.dump()});peer.click('[data-run="'+bKey.slice(prefix.length)+'"]');peer.click('[data-choice]');
+  f.w.localStorage.setItem(bKey,peer.w.localStorage.getItem(bKey));peer.close();
+  f.click('.brand');assert.equal(f.one('[data-run]').dataset.run,bKey.slice(prefix.length));f.close();
+});
 test('all 13 named lessons open from their own topic, the result offers fresh targeted work only for misses',()=>{
   for(const lesson of P.lessons){
     const f=fixture();f.click('[data-level="easy"]');f.click('[data-lessons="'+lesson.world+'"]');f.click('[data-lesson="'+lesson.id+'"]');

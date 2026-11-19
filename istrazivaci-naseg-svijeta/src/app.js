@@ -20,28 +20,46 @@
     try{return JSON.parse(raw);}catch{return null;}
   }
   function write(key,data){try{localStorage.setItem(key,JSON.stringify(data));return true;}catch{return false;}}
-  function remember(newRound=false){
-    const key=scopeOf(session),disk=read(runPrefix+key),previous=runs.get(key);
+  function hasWork(s){
+    const q=s.questions[s.index];
+    return s.attempts.some(Boolean)||s.solved.some(Boolean)||s.pending!==null||!E.sameResponse(q,s.draft,E.emptyDraft(q));
+  }
+  function restoreEntry(key,entry){
+    const restored=entry&&P.restore(entry.state);
+    if(!restored||scopeOf(restored)!==key)return null;
+    if(!Number.isFinite(entry.workedAt))entry.workedAt=hasWork(restored)?entry.updated||1:0;
+    return restored;
+  }
+  function remember(newRound=false,worked=false){
+    const key=scopeOf(session),disk=read(runPrefix+key);
+    let previous=runs.get(key);
     if(!newRound&&disk?.state&&previous&&disk.updated>previous.updated){
-      const concurrent=P.restore(disk.state);
-      if(concurrent&&scopeOf(concurrent)===key){
+      const concurrent=restoreEntry(key,disk);
+      if(concurrent){
+        previous=disk;
         const ahead=concurrent.index>session.index||concurrent.index===session.index&&concurrent.solved[session.index]&&!session.solved[session.index];
-        if(concurrent.seed!==session.seed||ahead||concurrent.phase==='complete')session=concurrent;
+        if(!worked||concurrent.seed!==session.seed||ahead||concurrent.phase==='complete'){session=concurrent;worked=false;}
       }
     }
-    const entry={updated:Math.max(Date.now(),(previous?.updated||0)+1,(disk?.updated||0)+1),state:JSON.parse(E.serialize(session))};
+    let updated=Math.max(Date.now(),(disk?.updated||0)+1);
+    for(const other of runs.values())updated=Math.max(updated,(other.updated||0)+1);
+    let workedAt=0;
+    if(worked)workedAt=updated;
+    else if(!newRound)workedAt=previous?.workedAt??(hasWork(session)?updated:0);
+    const entry={updated,workedAt,state:JSON.parse(E.serialize(session))};
     runs.set(key,entry);
     if(write(runPrefix+key,entry))memoryOnly.delete(key);else memoryOnly.add(key);
   }
-  function loadEntry(key){
-    const disk=read(runPrefix+key,unavailable),local=runs.get(key);
+  const rememberWork=()=>remember(false,true);
+  function loadEntry(key,disk=read(runPrefix+key,unavailable)){
+    const local=runs.get(key);
     let entry=local;
     if(disk!==unavailable){
       if(!disk&&!memoryOnly.has(key))entry=null;
       if(disk&&(!local||disk.updated>local.updated))entry=disk;
     }
-    const restored=entry&&P.restore(entry.state);
-    if(!restored||scopeOf(restored)!==key){runs.delete(key);return null;}
+    const restored=restoreEntry(key,entry);
+    if(!restored){runs.delete(key);return null;}
     runs.set(key,entry);return restored;
   }
   function record(refs){
@@ -49,14 +67,20 @@
     for(const key of Object.keys(stored))if(Array.isArray(stored[key]))history[key]=stored[key];
     P.record(history,session.level,refs);write(prefix+'history',history);
   }
-  function load(){
+  function refreshRuns(){
     try{
+      const keys=new Set(runs.keys());
       for(let i=0;i<localStorage.length;i++){
-        const key=localStorage.key(i);if(!key?.startsWith(runPrefix))continue;
-        const entry=read(key),id=key.slice(runPrefix.length),restored=entry&&P.restore(entry.state);
-        if(restored&&scopeOf(restored)===id)runs.set(id,entry);
+        const key=localStorage.key(i);if(key?.startsWith(runPrefix))keys.add(key.slice(runPrefix.length));
+      }
+      for(const key of keys){
+        const disk=read(runPrefix+key,unavailable),local=runs.get(key);
+        if(disk!==unavailable&&(!disk||!local||disk.updated>local.updated))loadEntry(key,disk);
       }
     }catch{/* Storage is optional. */}
+  }
+  function load(){
+    refreshRuns();
     const stored=read(prefix+'history');
     if(stored&&typeof stored==='object')for(const [key,value] of Object.entries(stored))if(Array.isArray(value))history[key]=value;
     if(!runs.size){
@@ -237,7 +261,9 @@
     selectPractice(world,lesson,repeat);navigate('play',button);
   }
   function active(){
-    return [...runs.entries()].filter(([,entry])=>entry.state.phase!=='complete').sort((a,b)=>b[1].updated-a[1].updated);
+    refreshRuns();
+    return [...runs.entries()].filter(([,entry])=>entry.state.phase!=='complete')
+      .sort(([,a],[,b])=>a.workedAt||b.workedAt?b.workedAt-a.workedAt:b.updated-a.updated);
   }
   function resumeCard([id,entry]){
     const s=entry.state,total=s.attempts.length;
@@ -451,7 +477,7 @@
   }
   function edit(focus){
     if(session.phase==='incorrect'&&!E.sameResponse(current(),session.draft,session.responses[session.index]))session.phase='answer';
-    remember();render(focus);
+    rememberWork();render(focus);
   }
   const first=selector=>()=>app.querySelector(selector);
   const byValue=(selector,value)=>()=>eqAttr(selector,'value',value);
@@ -477,17 +503,17 @@
     if(action==='lesson'){start(t,chosenWorld,d.lesson);return;}
     if(action==='resume'){resume(t,d.run);return;}
     if(!session||view!=='play')return;
-    if(action==='next'){if(E.advance(session)){remember();render();}return;}
+    if(action==='next'){if(E.advance(session)){rememberWork();render();}return;}
     if(action==='new-round'){start(t,session.world,session.lesson);return;}
     if(action==='review'){const refs=session.questions.flatMap((q,i)=>session.attempts[i]>1?[q.type==='route'?{...q.ref,previousMoves:session.responses[i]?.items}:q.ref]:[]);if(refs.length)start(t,session.world,session.lesson,refs);return;}
     if(session.solved[session.index])return;
     const draft=session.draft,v=d.value;
     if(action==='check'){
       const result=E.submit(session,draft);
-      if(result==='correct'){remember();render(first('[data-action="next"]'));announce('Točno!',80);}
+      if(result==='correct'){rememberWork();render(first('[data-action="next"]'));announce('Točno!',80);}
       if(result==='incorrect'||result==='unchanged'){
         session.phase='incorrect';
-        remember();render(first('#answer-editor'));
+        rememberWork();render(first('#answer-editor'));
         const message=app.querySelector('.inline-feedback');
         message.scrollIntoView?.({block:'nearest',inline:'nearest'});
         announce(message.textContent,80);
