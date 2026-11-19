@@ -45,7 +45,11 @@ def goal(browser, correct):
     else:
         error = browser.element('.inline-feedback')
         assert error.is_displayed() and norm(error.text) == WRONG, error.text
-        assert browser.js('return arguments[0]===document.activeElement', error)
+        assert browser.js("return document.activeElement.matches('#answer-editor')")
+        assert browser.js('''const [err,selector]=arguments, choice=document.querySelector(selector), b=err.getBoundingClientRect();
+            return !!err.id && (choice.getAttribute('aria-describedby')||'').split(/\\s+/).includes(err.id)
+                && b.top>=-1 && b.bottom<=visualViewport.height+1 && b.left>=-1 && b.right<=visualViewport.width+1;''', error, CHOICE)
+        browser.wait(lambda: norm(browser.element('#announcer').get_attribute('textContent')) == WRONG)
         assert browser.js('const e=arguments[0];return e.previousElementSibling?.matches(arguments[1])', error, CHOICE)
         gap = browser.js("""
             const f=arguments[0].getBoundingClientRect(), c=arguments[0].previousElementSibling.getBoundingClientRect();
@@ -54,7 +58,7 @@ def goal(browser, correct):
         assert not browser.element('#check-button').is_enabled()
 
 
-def listen_submit(browser, mode, case, correct):
+def submit(browser, mode, correct):
     control = browser.element('#check-button')
     assert control.is_enabled()
     if mode == 'keyboard':
@@ -67,7 +71,10 @@ def listen_submit(browser, mode, case, correct):
     else:
         browser.tap(control)
     goal(browser, correct)
-    time.sleep(2)
+    return start
+
+
+def speech_after(start):
     with speech_log.open('rb') as log:
         log.seek(start)
         lines = log.read().decode(errors='replace').splitlines()
@@ -78,10 +85,29 @@ def listen_submit(browser, mode, case, correct):
         match = re.search(r"SPEECH DISPATCHER: Speaking '(<speak(?:\s[^>]*)?>.*?</speak>)'", line)
         if match:
             utterances.append(norm(html.unescape(re.sub('<[^>]+>', '', match.group(1)))))
-    spoken = norm(' '.join(utterances)).casefold()
+    return lines, utterances
+
+
+def listen_submit(browser, mode, case, correct):
+    start = submit(browser, mode, correct)
+    first = None
+    deadline = time.monotonic() + 6
+    needle = 'točno!' if correct else 'još nije točno'
+    while True:
+        lines, utterances = speech_after(start)
+        spoken = norm(' '.join(utterances)).casefold()
+        now = time.monotonic()
+        if needle in spoken and first is None:
+            first = now
+        if now >= deadline or (first is not None and now - first >= 1.5):
+            break
+        time.sleep(.15)
     counts = ({'Točno!': len(re.findall(r'(?<!nije )\btočno\b', spoken))} if correct else
               {phrase: spoken.count(phrase.casefold()) for phrase in ['Još nije točno', 'Odaberi drugi odgovor']})
     row = {'mode': mode, 'submission': case, 'correct': correct, 'counts': counts, 'utterances': utterances}
+    if not all(count == 1 for count in counts.values()):
+        row['accessibilityEvents'] = [line[:650] for line in lines if
+            re.search(r"locus of focus from|event.+live|SPEECH OUTPUT:|SPEECH DISPATCHER: Speaking", line, re.I)][-60:]
     metrics['speech'].append(row)
     record('sat-i-govor.json', metrics)
     print('Orca', case, mode, counts, flush=True)

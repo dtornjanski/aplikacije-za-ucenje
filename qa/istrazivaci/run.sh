@@ -6,7 +6,7 @@ gsettings set org.gnome.desktop.interface toolkit-accessibility true
 openbox >"$RUNNER_TEMP/wm.log" 2>&1 &
 pulseaudio --start
 speech-dispatcher -d || true
-orca --replace --debug --debug-file="$ORCA_LOG" >"$RUNNER_TEMP/orca-out.log" 2>&1 &
+/usr/bin/python3 qa/istrazivaci/orca_log.py "$ORCA_LOG" >"$RUNNER_TEMP/orca-out.log" 2>&1 &
 sleep 5
 if ! /usr/bin/python3 -u qa/istrazivaci/chrome.py; then
     cp "$RUNNER_TEMP/orca-out.log" "$QA_EVIDENCE/orca-konzola.txt"
