@@ -41,6 +41,11 @@ def main():
             browser.viewport(width, 840 if width >= 500 else 740, mobile=width < 500)
             if os.environ['QA_MODE'] == 'baseline':
                 baseline(browser, width)
+            elif os.environ['QA_MODE'] == 'design':
+                from navigation import Navigation
+                qa = Navigation(browser, width, screenshot)
+                qa.hub()
+                record('izbornik.json', qa.evidence)
             else:
                 from navigation import verify_navigation
                 verify_navigation(browser, width, screenshot)

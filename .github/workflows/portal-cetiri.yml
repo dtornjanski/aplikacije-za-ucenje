@@ -27,9 +27,9 @@ jobs:
           path: candidate
           persist-credentials: false
       - name: Posluži točnu verziju kandidata
-        if: steps.target.outputs.mode == 'candidate'
+        if: steps.target.outputs.mode == 'candidate' || steps.target.outputs.mode == 'design'
         run: python3 -u -m http.server 4173 --bind 127.0.0.1 --directory candidate/javne-aplikacije >"$RUNNER_TEMP/portal-server.log" 2>&1 &
-      - name: Usporedi svih pet HTML dokumenata s izdanjem
+      - name: Usporedi sve dokumente, stil, fontove i ilustracije s izdanjem
         run: python3 -u qa/portal/target.py verify
       - name: Pripremi Selenium i Google Chrome
         run: |

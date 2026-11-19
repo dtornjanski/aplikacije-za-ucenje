@@ -19,14 +19,14 @@ APPS = ('matematicka-pustolovina', 'mislim-i-otkrivam',
 
 
 def configure():
-    assert MODE in ('candidate', 'public', 'baseline')
+    assert MODE in ('candidate', 'design', 'public', 'baseline')
     assert re.fullmatch('[0-9a-f]{40}', COMMIT), COMMIT
     evidence = Path(os.environ['RUNNER_TEMP']) / 'ishod'
     evidence.mkdir(exist_ok=True)
     with open(os.environ['GITHUB_OUTPUT'], 'a') as outputs:
         print(f'commit={COMMIT}\nmode={MODE}', file=outputs)
     with open(os.environ['GITHUB_ENV'], 'a') as env:
-        print('QA_PORTAL=' + (LOCAL if MODE == 'candidate' else PUBLIC), file=env)
+        print('QA_PORTAL=' + (LOCAL if MODE in ('candidate', 'design') else PUBLIC), file=env)
         print(f'QA_EVIDENCE={evidence}\nQA_MODE={MODE}\nQA_COMMIT={COMMIT}', file=env)
     print(MODE, COMMIT)
 
@@ -39,13 +39,19 @@ def verify():
     portal = os.environ['QA_PORTAL']
     release = Path('candidate/javne-aplikacije')
     urls = {'': 'index.html', **{name + '/index.html': name + '/index.html' for name in APPS}}
+    for asset in (release / 'assets').rglob('*'):
+        if asset.is_file() and asset.suffix in ('.webp', '.css', '.woff2'):
+            uri = asset.relative_to(release).as_posix()
+            urls[uri] = uri
     expected = {url: digest((release / path).read_bytes()) for url, path in urls.items()}
     deadline = time.monotonic() + (300 if MODE == 'public' else 45)
 
     def check(url):
         request = Request(portal + url, headers={'Cache-Control': 'no-cache', 'User-Agent': 'QA-Portal/1'})
         with urlopen(request, timeout=15) as response:
-            assert response.status == 200 and response.headers.get_content_type() == 'text/html', response.headers
+            assert response.status == 200, response.status
+            if urls[url].endswith('.html'):
+                assert response.headers.get_content_type() == 'text/html', response.headers
             raw = response.read()
             return url, {'requested': request.full_url, 'served': response.geturl(), 'sha256': digest(raw),
                          'bytes': len(raw)}
