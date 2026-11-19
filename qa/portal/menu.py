@@ -36,6 +36,7 @@ def main():
     with tempfile.TemporaryDirectory() as profile:
         browser = Browser(profile, mobile=width < 500, headless=True)
         try:
+            browser.driver.get(PORTAL)
             browser.viewport(width, 840 if width >= 500 else 740, mobile=width < 500)
             if os.environ['QA_MODE'] == 'baseline':
                 baseline(browser, width)
