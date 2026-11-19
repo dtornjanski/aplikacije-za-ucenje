@@ -39,8 +39,8 @@ def check_math(qa):
     assert before == state(b, key)
     assert b.element('#answer-0').get_property('value') == '999'
     for index in range(12):
-        label = b.element('.count').text
-        assert f'{index + 1} od 12' in label, label
+        expected = f'{index + 1} od 12'
+        b.wait(lambda: expected in b.element('.count').text, 'Vidljivi brojač: '+expected)
         equation = b.element('.equation-line').text
         parts = re.search(r'(\d+)\s*([+−-])\s*(\d+)\s*=', equation)
         assert parts, equation
@@ -52,7 +52,7 @@ def check_math(qa):
         qa.click('#check-button')
         assert 'Točno' in b.element('#feedback').text
         qa.click('#next-button')
-    assert 'završila' in b.element('.summary-hero h1').text
+    b.wait(lambda: 'završila' in b.element('.summary-hero h1').text, 'Vidljivi rezultat matematike')
     saved = state(b, key)
     assert all(saved['solved']) and saved['attempts'] == [2] + [1] * 11
     report(qa, MATH, '999 i broj pokušaja nakon prelaska u drugi predmet', 12)

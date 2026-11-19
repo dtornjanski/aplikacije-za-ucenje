@@ -49,6 +49,8 @@ class Navigation:
     def click(self, target):
         element = self.b.element(target) if isinstance(target, str) else target
         self.b.wait(lambda: element.is_displayed() and element.is_enabled(), 'Visible enabled control: '+str(target))
+        if self.input == 'mouse':
+            self.b.js("arguments[0].scrollIntoView({block:'center',behavior:'instant'})", element)
         self.b.press(element, self.input)
 
     def document(self, expected):
@@ -167,6 +169,26 @@ class Navigation:
             self.b.driver.current_url, modal, geometry)
         return geometry['area']
 
+    def brand_words(self, app):
+        words = self.b.js(r'''
+            const brand=document.querySelector('header .brand'), walker=document.createTreeWalker(brand,NodeFilter.SHOW_TEXT);
+            const layout=[];
+            for(let n=walker.nextNode();n;n=walker.nextNode()){
+                if(n.parentElement.closest('[aria-hidden="true"]'))continue;
+                for(const m of n.textContent.matchAll(/[\p{L}\p{M}]+/gu)){
+                    const range=new Range();
+                    range.setStart(n,m.index);range.setEnd(n,m.index+m[0].length);
+                    const boxes=[...range.getClientRects()].filter(r=>r.width>0 && r.height>0);
+                    const lines=[...new Set(boxes.map(r=>Math.round(r.top)))];
+                    layout.push({word:m[0],lines,visible:boxes.length>0 && boxes.every(r=>r.left>=-1 && r.right<=innerWidth+1)});
+                }
+            }
+            return layout;
+        ''')
+        assert [word['word'] for word in words] == NAMES[app].split(), (app, words)
+        assert all(word['visible'] and len(word['lines']) == 1 for word in words), (app, words)
+        return words
+
     def leave(self, app, stage, mode=None, picture=False):
         self.document(app)
         self.no_overflow()
@@ -176,6 +198,8 @@ class Navigation:
         top = self.hit_check(anchor, modal)
         entry = {'app': app, 'stage': stage, 'from': self.b.driver.current_url,
                  'rawHref': anchor.get_dom_attribute('href'), 'linkBoundsAtTop': top}
+        if not modal and self.width == 320:
+            entry['brandWords'] = self.brand_words(app)
         if picture:
             self.shot(app + '-' + stage)
         if not modal:
