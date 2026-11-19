@@ -238,6 +238,17 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
   .portal-header .portal-link { grid-column: 2; grid-row: 1 / span 2; }
   .portal-link { padding-inline: 10px; font-size: 15px; }
 }
+
+@media (max-width: 359px) {
+  .portal-header { column-gap: 6px; }
+  .portal-header .brand { gap: 0; padding-inline: 0; }
+  .portal-header .brand > [aria-hidden="true"],
+  #math-page-root .portal-header .brand .mascot-emoji,
+  #think-page-root .portal-header .brand::before { display: none; }
+  .portal-header .brand strong,
+  .portal-header .brand span:last-child { overflow-wrap: normal; }
+  .portal-header .portal-link { padding-inline: 8px; gap: 6px; }
+}
 </style>
 </head>
 <body>
