@@ -419,7 +419,617 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
   const api={shuffle,createRound,submit,retry,advance,stats};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.ThinkEngine=api;
 })(globalThis);
-</script><script>(function(){
+</script><!--mio-investigation:start--><style>.inv-launch {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;
+  margin: 0 0 24px; padding: 22px 24px; border-radius: 22px;
+  background: #e6f2ef; color: #163d36; border: 1px solid #9bbeb2;
+}
+.inv-launch-copy, .inv-launch-actions { display: flex; align-items: center; gap: 14px; }
+.inv-launch-copy { flex: 1 1 260px; }
+.inv-seal {
+  display: inline-grid; flex: none; place-items: center; width: 56px; height: 56px;
+  background: #fff; border-radius: 18px; font-size: 30px; line-height: 1;
+}
+.inv-launch h2 { color: #153e34; font-size: 26px; }
+.inv-launch p { margin-top: 3px; color: #27483f; font-size: 16px; line-height: 1.4; }
+.inv-launch-actions { align-items: flex-end; flex-wrap: wrap; }
+.inv-level { display: grid; gap: 3px; color: #27483f; font-size: 14px; font-weight: 800; }
+.inv-level select {
+  max-width: 100%; min-height: 48px; padding: 7px 10px; border: 1px solid #72988b;
+  border-radius: 11px; background: #fff; color: #19392f; font: inherit; font-size: 16px;
+}
+.inv-level select:focus-visible { outline: 3px solid #35206f; outline-offset: 3px; }
+.inv-launch .button { min-height: 48px; background: #225843; }
+.inv-launch .button:hover:not(:disabled) { background: #183e30; }
+.inv-exercise .story { margin-bottom: 14px; }
+.inv-step { margin: 0 0 12px; color: #493377; font-size: 15px; font-weight: 800; }
+.inv-notes { display: grid; gap: 6px; list-style: none; padding: 0; margin: 0 0 18px; }
+.inv-notes li, .inv-note {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 12px;
+  border-radius: 12px; padding: 10px 14px; background: #eaf4ef; color: #183e32;
+}
+.inv-notes li strong, .inv-note small { font-size: 15px; font-weight: 800; color: #20543f; }
+.inv-note { margin-bottom: 18px; }
+.inv-note p { margin: 0; }
+.inv-field { min-width: 0; padding: 0; margin: 0; border: 0; }
+.inv-field + .inv-field, .inv-grid + .inv-field { margin-top: 20px; }
+.inv-field legend { width: 100%; margin: 0 0 12px; padding: 0; color: #17253a; font-weight: 800; font-size: 20px; line-height: 1.35; }
+.inv-options { display: grid; gap: 9px; }
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 143px), 1fr)); gap: 10px; }
+@media (min-width: 621px) {
+  .inv-grid[data-count="5"], .inv-grid[data-count="6"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.inv-choice { display: flex; position: relative; min-width: 0; cursor: pointer; }
+.inv-static { display: flex; min-width: 0; }
+.inv-choice input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; }
+.inv-tile, .inv-run {
+  display: flex; flex: 1; position: relative; align-items: center; flex-direction: column; gap: 6px;
+  min-width: 0; border: 2px solid #ad9fbf; border-radius: 16px; padding: 13px 10px 12px;
+  background: #fff; text-align: center; color: #17253a; transition: background .14s, border-color .14s;
+}
+.inv-static > span { border-color: #d8d0df; }
+.inv-choice .inv-tile, .inv-choice .inv-run { padding-top: 22px; }
+.inv-tile strong { font-size: 17px; line-height: 1.35; overflow-wrap: break-word; }
+.inv-choice input + span::before {
+  content: ''; display: grid; place-content: center; position: absolute; top: 7px; right: 7px;
+  width: 17px; height: 17px; border: 2px solid #796b90; background: #fff; border-radius: 4px;
+  color: #fff; font: bold 14px/1 Arial, sans-serif;
+}
+.inv-choice input[type="radio"] + span::before { border-radius: 50%; }
+.inv-choice:hover input:not(:disabled) + span { border-color: #715694; }
+.inv-choice input:checked + span { border-color: #53378e; background: #f0eafa; }
+.inv-choice input:checked + span::before { content: '✓'; background: #53378e; border-color: #53378e; }
+.inv-choice input:focus-visible + span { outline: 3px solid #35206f; outline-offset: 3px; }
+.inv-art { display: grid; place-items: center; height: 54px; min-width: 60px; }
+.inv-object {
+  --paint: #f5ede0; position: relative; isolation: isolate; display: grid; place-items: center;
+  width: 55px; height: 38px; border: 2px solid #263749; border-radius: 6px; background-color: var(--paint);
+  color: #192d43; font: 800 20px/1 "Trebuchet MS", Arial, sans-serif; letter-spacing: 0;
+}
+.inv-color-green { --paint: #64b798; } .inv-color-blue { --paint: #79b7ef; }
+.inv-color-yellow { --paint: #f5cc63; } .inv-color-pink { --paint: #ec9db8; }
+.inv-color-red { --paint: #e87c78; } .inv-color-purple { --paint: #ba9fe5; }
+.inv-object.inv-stripes { background-image: repeating-linear-gradient(125deg, transparent 0 7px, #273958 7px 10px); }
+.inv-object.inv-dots { background-image: radial-gradient(#273958 24%, transparent 27%); background-size: 11px 11px; }
+.inv-case { width: 66px; height: 32px; border-radius: 10px 13px 8px 8px; border-top-width: 5px; }
+.inv-balloon { width: 37px; height: 43px; border-radius: 50% 50% 45% 45%; }
+.inv-balloon::after { content: ''; position: absolute; top: 100%; height: 7px; border-left: 2px solid #37465b; transform: rotate(12deg); }
+.inv-cap { width: 51px; height: 34px; border-radius: 35px 35px 6px 6px; }
+.inv-cap::after { content: ''; position: absolute; bottom: -4px; left: -3px; width: 56px; height: 5px; border-radius: 5px; background: #293950; }
+.inv-disc, .inv-square { width: 43px; height: 43px; }
+.inv-disc { border-radius: 50%; }
+.inv-triangle { width: 48px; height: 43px; border: 0; border-radius: 0; background: #263749; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.inv-triangle::before { content: ''; position: absolute; inset: 4px 3px 2px; background: var(--paint); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.inv-box { width: 44px; height: 40px; border-top-width: 5px; border-radius: 4px; }
+.inv-flag { border-radius: 0 10px 9px 0; border-left-width: 4px; height: 32px; }
+.inv-flag::after { content: ''; position: absolute; left: -4px; top: 100%; height: 10px; border-left: 4px solid #263749; }
+.inv-book { width: 36px; height: 45px; border-left-width: 5px; border-radius: 4px 6px 6px 4px; }
+.inv-ticket { width: 60px; height: 34px; border-left-style: dashed; border-right-style: dashed; }
+.inv-boat { width: 56px; height: 24px; border-radius: 5px 5px 24px 24px; margin-top: 12px; font-size: 16px; }
+.inv-boat::before { content: ''; position: absolute; bottom: 100%; left: 12px; border: solid transparent; border-width: 0 0 15px 12px; border-bottom-color: #4d6276; }
+.inv-boat[data-sails="2"]::after { content:''; position:absolute; bottom:100%; left:28px; border:solid transparent; border-width:0 0 12px 10px; border-bottom-color:#4d6276; }
+.inv-leaf { width: 54px; height: 32px; border-radius: 75% 8%; }
+.inv-picture { width: auto; min-width: 50px; border: 0; background: transparent; font-family: system-ui, sans-serif; font-size: 30px; white-space: nowrap; }
+.inv-run { align-items: stretch; text-align: left; gap: 5px; }
+.inv-run > strong { color: #3e2968; font-size: 18px; }
+.inv-data, .inv-measure { display: grid; gap: 1px; border-top: 1px solid #e4deeb; padding-top: 4px; }
+.inv-data small, .inv-measure small { color: #425067; font-size: 14px; line-height: 1.25; }
+.inv-data b, .inv-measure b { font-size: 16px; line-height: 1.3; }
+.inv-measure { background: #e8f4ed; color: #173e2e; border: 0; padding: 7px 8px; border-radius: 8px; }
+.inv-measure b { font-size: 23px; }
+.inv-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.inv-feedback { min-width: 0; border-radius: 10px; color: #173e2e; font-size: 18px; font-weight: 800; }
+.inv-feedback:empty { display: none; }
+.inv-feedback:focus { outline: none; }
+.inv-feedback[data-feedback="right"] { background: #dcf3e4; padding: 8px 14px; animation: inv-arrive .22s ease-out; }
+.inv-feedback[data-feedback="wrong"] { background: #ffedd8; color: #6a350d; padding: 8px 14px; }
+.inv-controls { margin-left: auto; }
+.inv-controls [hidden] { display: none; }
+.inv-finish { margin: 18px auto 24px; }
+.inv-finish .inv-seal { background: #def0e6; margin-bottom: 12px; }
+.inv-finish p { margin-top: 10px; }
+@keyframes inv-arrive { from { transform: translateY(3px); } to { transform: translateY(0); } }
+@media (max-width: 620px) {
+  .inv-launch { padding: 17px; border-radius: 17px; gap: 13px; }
+  .inv-launch h2 { font-size: 23px; }
+  .inv-launch-actions { width: 100%; gap: 9px; }
+  .inv-launch-actions .button { flex: 1 1 165px; }
+  .inv-launch-copy .inv-seal { width: 43px; height: 43px; font-size: 25px; }
+  .inv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .inv-tile strong { font-size: 16px; }
+  .inv-controls, .inv-controls .button { width: 100%; }
+  .inv-step { margin-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .inv-feedback { animation: none !important; } }
+</style><script>(function (root) {
+  'use strict';
+
+  const card = (label, shape, color, mark = '') => ({ label, shape, color, mark });
+  const picture = (label, mark) => card(label, 'picture', 'paper', mark);
+  const clue = (id, level, title, scene, cards, clues, why, reasons) =>
+    ({ id, level, kind: 'clue', title, scene, cards, clues, why, reasons });
+  const ask = (id, level, title, scene, cards, questions, yes) =>
+    ({ id, level, kind: 'ask', title, scene, cards, questions, yes });
+  const trial = (id, level, title, scene, columns, runs, resultLabel, unit, conclusions) =>
+    ({ id, level, kind: 'trial', title, scene, columns, runs, resultLabel, unit, conclusions });
+  const sort = (id, level, title, scene, cards, reasons) =>
+    ({ id, level, kind: 'sort', title, scene, cards, reasons });
+
+  // Clues list the cards that fit that clue on its own. Later clues intersect earlier ones.
+  const tasks = [
+    clue('clue-pernica', 1, 'Čija je pernica?', 'Ema traži svoju pernicu.',
+      [card('Zelena s prugama', 'case', 'green', 'stripes'), card('Plava s prugama', 'case', 'blue', 'stripes'), card('Plava s točkama', 'case', 'blue', 'dots')],
+      [['„Moja ima pruge.”', [0, 1]], ['„Moja je plava.”', [1, 2]]],
+      'Zašto prvi trag nije bio dovoljan?', ['Dvije pernice imaju pruge.', 'Sve su pernice plave.', 'Samo jedna pernica ima pruge.']),
+    clue('clue-baloni', 1, 'Balon za prijateljicu', 'Una opisuje balon koji je odabrala.',
+      [card('Žuti sa srcem', 'balloon', 'yellow', '♥'), card('Žuti sa zvijezdom', 'balloon', 'yellow', '★'), card('Ružičasti sa srcem', 'balloon', 'pink', '♥')],
+      [['„Moj je žut.”', [0, 1]], ['„Na njemu je srce.”', [0, 2]]],
+      'Što je razlikovalo dva žuta balona?', ['Znak na balonu.', 'Duljina uzice.', 'Boja balona.']),
+    clue('clue-staze', 1, 'Staza do mosta', 'Na karticama su staze za šetnju.',
+      [picture('Pokraj klupe do mosta', '🪑 🌉'), picture('Pokraj stabla do mosta', '🌳 🌉'), picture('Pokraj stabla do kuće', '🌳 🏠')],
+      [['Staza završava kod mosta.', [0, 1]], ['Putem prolazimo pokraj stabla.', [1, 2]]],
+      'Zašto nam je trebao i trag o stablu?', ['Dvije staze vode do mosta.', 'Na svakoj stazi je klupa.', 'Staza do kuće nema stablo.']),
+    clue('clue-knjiga', 2, 'Knjiga s izložbe', 'Lea pamti dvije stvari s naslovnice knjige.',
+      [card('Zelena · lisica', 'book', 'green', '🦊'), card('Plava · riba', 'book', 'blue', '🐟'), card('Zelena · sova', 'book', 'green', '🦉'), card('Plava · stablo', 'book', 'blue', '🌳')],
+      [['Na naslovnici je životinja.', [0, 1, 2]], ['Korice nisu zelene.', [1, 3]]],
+      'Zašto knjiga sa stablom otpada?', ['Na njoj nema životinje.', 'Nije plava.', 'Lisica je zelena.']),
+    clue('clue-raspored', 2, 'Koja je radionica?', 'Luka pamti gdje i kada je bio na radionici.',
+      [picture('Utorak · vrt', '🌻'), picture('Četvrtak · vrt', '🌿'), picture('Četvrtak · dvorana', '🏀'), picture('Petak · dvorana', '🏐')],
+      [['„Radionica je bila u četvrtak.”', [1, 2]], ['„Bili smo na otvorenom.”', [0, 1]]],
+      'Bi li samo mjesto bilo dovoljno za izbor?', ['Ne. Dvije su radionice bile u vrtu.', 'Da. Samo je jedna bila u vrtu.', 'Da. Sve su bile u dvorani.']),
+    clue('clue-uzina', 2, 'Vrećica s užinom', 'Na vrećicama piše što se u njima nalazi.',
+      [picture('Kruška i voda', '🍐 💧'), picture('Kruška i sok', '🍐 🧃'), picture('Jabuka i voda', '🍎 💧'), picture('Banana i sok', '🍌 🧃')],
+      [['U traženoj vrećici nije sok.', [0, 2]], ['Voće u njoj raste na stablu kruške.', [0, 1]]],
+      'Koji je trag razlikovao dvije vrećice s vodom?', ['Vrsta voća.', 'Boja vrećice.', 'Vrsta pića.']),
+    clue('clue-vlak', 3, 'Karta za pravi vlak', 'Mia traži kartu za svoju vožnju.',
+      [picture('Jutro · more · sjedalo 2', '🌊'), picture('Jutro · šuma · sjedalo 4', '🌲'), picture('Jutro · more · sjedalo 4', '🌊'), picture('Večer · more · sjedalo 4', '🌙'), picture('Jutro · šuma · sjedalo 2', '🌲')],
+      [['Vožnja počinje ujutro.', [0, 1, 2, 4]], ['Vlak ide na more.', [0, 2, 3]], ['Na karti je sjedalo 4.', [1, 2, 3]]],
+      'Zašto karta za večernji vlak ne odgovara?', ['Odredište i sjedalo odgovaraju, ali vrijeme ne.', 'Na njoj piše šuma.', 'Na njoj piše sjedalo 2.']),
+    clue('clue-paket', 3, 'Paket za školsku priredbu', 'Nekoliko paketa čeka na polici.',
+      [card('Plav · mjesec · za Ivu', 'box', 'blue', '☾'), card('Zelen · mjesec · za Ivu', 'box', 'green', '☾'), card('Plav · sunce · za Ivu', 'box', 'blue', '☀'), card('Plav · mjesec · za Tina', 'box', 'blue', '☾'), card('Zelen · sunce · za Tina', 'box', 'green', '☀')],
+      [['Paket nije zelen.', [0, 2, 3]], ['Na njemu je mjesec.', [0, 1, 3]], ['Poslan je Ivi.', [0, 1, 2]]],
+      'Zašto smo morali pročitati i ime?', ['Dva plava paketa imaju mjesec.', 'Svi zeleni paketi imaju mjesec.', 'Samo jedan paket ima ime.']),
+    clue('clue-kuca', 3, 'Gdje stanuje lutka?', 'U kazalištu lutaka svaka kuća ima svoju adresu.',
+      [picture('Uz park · crveni krov · br. 2', '🌳 🔺'), picture('Uz park · plavi krov · br. 2', '🌳 🔷'), picture('Uz trg · plavi krov · br. 2', '⛲ 🔷'), picture('Uz park · plavi krov · br. 5', '🌳 🔷'), picture('Uz trg · crveni krov · br. 5', '⛲ 🔺')],
+      [['Iz kuće se vidi park, a ne trg.', [0, 1, 3]], ['Krov nije crven.', [1, 2, 3]], ['Broj kuće veći je od 3.', [3, 4]]],
+      'Koji je trag razlikovao dvije preostale kuće uz park?', ['Broj kuće.', 'Pogled na park.', 'Boja krova.']),
+
+    // Each question lists its YES group. The most useful question splits the whole set in half.
+    ask('ask-kape', 1, 'Tajna kapa', 'Ema je odabrala jednu od ovih kapa.',
+      [card('Žuta s prugama', 'cap', 'yellow', 'stripes'), card('Plava s prugama', 'cap', 'blue', 'stripes'), card('Zelena s gumbom', 'cap', 'green', '●'), card('Plava bez ukrasa', 'cap', 'blue')],
+      [['Ima li pruge?', [0, 1]], ['Ima li gumb?', [2]]], true),
+    ask('ask-pokloni', 1, 'Skriveni poklon', 'Tin je sakrio poruku u jedan paket.',
+      [card('Zelen sa zvijezdom', 'box', 'green', '★'), card('Žut sa srcem', 'box', 'yellow', '♥'), card('Plav sa srcem', 'box', 'blue', '♥'), card('Ružičast s mjesecom', 'box', 'pink', '☾')],
+      [['Ima li zvijezdu?', [0]], ['Ima li srce?', [1, 2]]], false),
+    ask('ask-zastave', 1, 'Zastava za toranj', 'Graditeljica je već izabrala zastavu.',
+      [card('Plava sa suncem', 'flag', 'blue', '☀'), card('Žuta sa suncem', 'flag', 'yellow', '☀'), card('Plava s mjesecom', 'flag', 'blue', '☾'), card('Zelena sa srcem', 'flag', 'green', '♥')],
+      [['Je li zelena?', [3]], ['Je li plava?', [0, 2]]], true),
+    ask('ask-kljucevi', 2, 'Ključ od ormarića', 'Na svakom ključu visi privjesak.',
+      [card('Krug · list', 'disc', 'green', '🍃'), card('Kockast · sunce', 'square', 'yellow', '☀'), card('Krug · sunce', 'disc', 'yellow', '☀'), card('Kockast · srce', 'square', 'pink', '♥')],
+      [['Ima li list?', [0]], ['Je li privjesak okrugao?', [0, 2]], ['Ima li srce?', [3]]], false),
+    ask('ask-ulaznice', 2, 'Ulaznica za predstavu', 'Lana drži jednu od četiri ulaznice.',
+      [card('Jutro · sova', 'ticket', 'purple', '🦉'), card('Večer · lisica', 'ticket', 'pink', '🦊'), card('Večer · sova', 'ticket', 'purple', '🦉'), card('Večer · žaba', 'ticket', 'green', '🐸')],
+      [['Je li predstava ujutro?', [0]], ['Je li na karti lisica?', [1]], ['Je li na karti sova?', [0, 2]]], true),
+    ask('ask-zivotinje', 2, 'Životinja iza zastora', 'Lutkar je iza zastora sakrio jednu od ovih lutaka.',
+      [picture('Patka', '🦆'), picture('Mačka', '🐈'), picture('Sova', '🦉'), picture('Riba', '🐟')],
+      [['Ima li perje?', [0, 2]], ['Ima li krzno?', [1]], ['Ima li peraje?', [3]]], false),
+    ask('ask-brodovi', 3, 'Brod u luci', 'Kapetan je izabrao jedan od šest brodova. Smiješ postaviti jedno pitanje.',
+      [card('Plav · jedno jedro', 'boat', 'blue', '1'), card('Žut · dva jedra', 'boat', 'yellow', '2'), card('Zelen · jedno jedro', 'boat', 'green', '1'), card('Plav · dva jedra', 'boat', 'blue', '2'), card('Ružičast · jedno jedro', 'boat', 'pink', '1'), card('Ljubičast · dva jedra', 'boat', 'purple', '2')],
+      [['Je li plav?', [0, 3]], ['Ima li dva jedra?', [1, 3, 5]], ['Je li žut?', [1]]], false),
+    ask('ask-razglednice', 3, 'Koju šalje Lea?', 'Lea opisuje razglednicu svoje obitelji.',
+      [picture('More · dan', '🌊 ☀️'), picture('Grad · noć', '🏙️ 🌙'), picture('More · noć', '🌊 🌙'), picture('Šuma · dan', '🌲 ☀️'), picture('Selo · noć', '🏡 🌙'), picture('Planina · dan', '⛰️ ☀️')],
+      [['Prikazuje li more?', [0, 2]], ['Prikazuje li grad?', [1]], ['Prikazuje li noć?', [1, 2, 4]]], true),
+    ask('ask-raspored', 3, 'Tajni trening', 'Na ploči je šest termina. Dora je izabrala jedan.',
+      [picture('Utorak · vrt', '🌷'), picture('Petak · dvorana', '🏀'), picture('Srijeda · park', '🌳'), picture('Utorak · dvorana', '🏀'), picture('Petak · vrt', '🌷'), picture('Četvrtak · dvorana', '🏀')],
+      [['Je li u utorak?', [0, 3]], ['Je li u vrtu?', [0, 4]], ['Je li u dvorani?', [1, 3, 5]]], false),
+
+    // Column zero is what we want to change. All other columns must match.
+    // The last number in each run is the measured result, revealed after the comparison.
+    trial('trial-autic', 1, 'Autić na dvije podloge', 'Želiš ispitati kako podloga utječe na to koliko daleko dođe autić.',
+      ['Podloga', 'Autić', 'Rampa'], [['Tepih', 'Crveni', 'Niska', 2], ['Pločice', 'Crveni', 'Niska', 5], ['Pločice', 'Plavi', 'Visoka', 7]],
+      'Prijeđeni put', 'polja', ['U ovim je vožnjama autić dalje stigao na pločicama.', 'Crveni je autić uvijek najbrži.', 'Autić je oba puta stigao jednako daleko.']),
+    trial('trial-rucnik', 1, 'Kap po kap', 'Želiš ispitati koji papir primi više jednakih kapi prije nego što propusti vodu.',
+      ['Papir', 'Veličina', 'Slojevi'], [['Maramica', 'Mali list', 'Jedan', 3], ['Papirnati ručnik', 'Veliki list', 'Dva', 9], ['Papirnati ručnik', 'Mali list', 'Jedan', 6]],
+      'Broj kapi', 'kapi', ['Ovaj je list papirnatog ručnika primio više kapi.', 'Svaka maramica prima točno tri kapi.', 'Oba su lista primila jednako kapi.']),
+    trial('trial-sjena', 1, 'Igra sjena', 'Svjetiljka i zid miruju. Ispitaj kako mjesto igračke utječe na visinu sjene.',
+      ['Igračka stoji', 'Igračka', 'Svjetiljka'], [['Bliže svjetiljci', 'Mali medvjed', 'Bijela', 6], ['Bliže zidu', 'Veliki pas', 'Žuta', 4], ['Bliže zidu', 'Mali medvjed', 'Bijela', 3]],
+      'Visina sjene', 'polja', ['Sjena istog medvjeda bila je veća bliže svjetiljci.', 'Medvjed je narastao.', 'Sve igračke imaju sjene jednake visine.']),
+    trial('trial-most', 2, 'Most od papira', 'Kako savijanje papira utječe na broj kocaka koje most može nositi? Kocke su jednake.',
+      ['Oblik papira', 'Papir', 'Razmak oslonaca'], [['Ravan', 'Tanak', '4 polja', 2], ['Savijen', 'Debeo', '4 polja', 9], ['Savijen', 'Tanak', '4 polja', 5]],
+      'Kocke na mostu', 'kocaka', ['U našem je pokusu savijen papir nosio više kocaka.', 'Svi mostovi nose pet kocaka.', 'Debljina papira sigurno ništa ne mijenja.']),
+    trial('trial-led', 2, 'Kamo s kockicom leda?', 'Ispitaj mijenja li mjesto vrijeme topljenja kockice leda.',
+      ['Mjesto', 'Kockica', 'Posuda'], [['Sunce', 'Mala', 'Tanjur', 3], ['Hlad', 'Velika', 'Čaša', 12], ['Hlad', 'Mala', 'Tanjur', 8]],
+      'Vrijeme topljenja', 'min', ['U ovom se pokusu mala kockica prije otopila na suncu.', 'Led se na svakom mjestu topi tri minute.', 'U hladu se led nikada ne otopi.']),
+    trial('trial-avion', 2, 'Avion iz radionice', 'Isti bacač izbacuje papirnate avione. Želiš provjeriti kako širina krila utječe na let.',
+      ['Krila', 'Papir', 'Mjesto bacanja'], [['Uska', 'Plavi', 'Crta A', 4], ['Široka', 'Plavi', 'Crta A', 6], ['Uska', 'Žuti', 'Crta B', 7]],
+      'Duljina leta', 'polja', ['U ovoj je usporedbi avion širokih krila odletio dalje.', 'Žuta boja uvijek produljuje let.', 'Širina krila nije se mijenjala.']),
+    trial('trial-camac', 3, 'Čamac za klikere', 'Mijenja li oblik dna broj jednakih klikera koje čamac može nositi? U svakom je pokusu voda mirna.',
+      ['Dno čamca', 'Veličina folije', 'Slojevi'], [['Usko', 'Mala', 'Jedan', 2], ['Široko', 'Velika', 'Jedan', 8], ['Široko', 'Mala', 'Jedan', 5], ['Usko', 'Velika', 'Dva', 9]],
+      'Klikeri prije potonuća', 'klikera', ['Široko dno u naša je dva pokusa nosilo više klikera.', 'Dva sloja uvijek su najbolja.', 'Svaki čamac širokog dna nosi osam klikera.']),
+    trial('trial-vrtuljak', 3, 'Papirnati vrtuljci', 'Puštamo vrtuljke da padnu. Provjeri mijenja li duljina krila vrijeme pada.',
+      ['Krila', 'Visina puštanja', 'Papir'], [['Kratka', 'Visoka polica', 'Tanak', 2], ['Duga', 'Niska polica', 'Tanak', 2], ['Kratka', 'Niska polica', 'Debeo', 1], ['Duga', 'Visoka polica', 'Tanak', 4]],
+      'Vrijeme pada', 's', ['S iste je police vrtuljak dugih krila padao dulje.', 'Duga krila uvijek padaju četiri sekunde.', 'Niska polica i visoka polica jednako su visoke.']),
+    trial('trial-otisak', 3, 'Trag u pijesku', 'Spuštamo istu kocku u pijesak. Utječe li visina puštanja na dubinu traga?',
+      ['Visina', 'Pijesak', 'Površina'], [['Niska', 'Vlažan', 'Ravna', 1], ['Visoka', 'Suh', 'Ravna', 4], ['Visoka', 'Vlažan', 'Ravna', 3], ['Niska', 'Suh', 'Neravna', 2]],
+      'Dubina traga', 'cm', ['U ravnom, vlažnom pijesku trag je bio dublji nakon pada s veće visine.', 'Svaki trag dubok je tri centimetra.', 'Ispitali smo sve vrste pijeska.']),
+
+    // A reason is valid only when exactly one card fits it.
+    sort('sort-likovi', 1, 'Koji se lik izdvaja?', 'Isti skup likova možeš promatrati na dva načina.',
+      [card('Crveni krug', 'disc', 'red'), card('Plavi krug', 'disc', 'blue'), card('Crveni trokut', 'triangle', 'red')],
+      [['Jedini je plav.', [1]], ['Jedini je trokut.', [2]], ['Crven je.', [0, 2]]]),
+    sort('sort-gumbi', 1, 'Gumbi iz kutijice', 'Promotri boje gumba i broj rupica.',
+      [card('Žut · dvije rupice', 'disc', 'yellow', '••'), card('Zelen · dvije rupice', 'disc', 'green', '••'), card('Žut · četiri rupice', 'disc', 'yellow', '⠛')],
+      [['Ima četiri rupice.', [2]], ['Zelen je.', [1]], ['Ima dvije rupice.', [0, 1]]]),
+    sort('sort-znacke', 1, 'Značke za ekipu', 'Tri značke čekaju nove vlasnike.',
+      [card('Krug sa zvijezdom', 'disc', 'purple', '★'), card('Kvadrat sa zvijezdom', 'square', 'purple', '★'), card('Krug sa srcem', 'disc', 'purple', '♥')],
+      [['Ima srce.', [2]], ['Ima četiri kuta.', [1]], ['Ima zvijezdu.', [0, 1]]]),
+    sort('sort-vozila', 2, 'Vozila na plakatu', 'Promotri gdje se vozila kreću i pokreće li ih motor.',
+      [picture('Bicikl', '🚲'), picture('Autobus', '🚌'), picture('Automobil', '🚗'), picture('Motorni čamac', '🚤')],
+      [['Plovi po vodi.', [3]], ['Vozi se okretanjem pedala.', [0]], ['Ima motor.', [1, 2, 3]]]),
+    sort('sort-poruke', 2, 'Poruke za razglednicu', 'Promotri završni znak i ono što poruka kaže.',
+      [picture('Sutra igramo.', '✉️'), picture('Igramo li danas?', '✉️'), picture('Danas igramo.', '✉️'), picture('Danas čitamo.', '✉️')],
+      [['Završava upitnikom.', [1]], ['Govori o sutrašnjem danu.', [0]], ['Spominje danas.', [1, 2, 3]]]),
+    sort('sort-lisce', 2, 'Listovi u zbirci', 'Una je zapisala koliko svaki list ima točaka.',
+      [card('Žut · jedna točka', 'leaf', 'yellow', '●'), card('Zelen · dvije točke', 'leaf', 'green', '••'), card('Zelen · jedna točka', 'leaf', 'green', '●'), card('Zelen · tri točke', 'leaf', 'green', '•••')],
+      [['Ima tri točke.', [3]], ['Žut je.', [0]], ['Ima dvije točke.', [1]], ['Ima jednu točku.', [0, 2]]]),
+    sort('sort-ormarici', 3, 'Oznake na ormarićima', 'Na oznakama se ponavljaju i boje i znakovi. Potraži posebne parove.',
+      [card('Plav sa zvijezdom', 'square', 'blue', '★'), card('Zelen sa zvijezdom', 'square', 'green', '★'), card('Plav sa srcem', 'square', 'blue', '♥'), card('Zelen sa srcem', 'square', 'green', '♥')],
+      [['Ima zvijezdu i plav je.', [0]], ['Ima srce i zelen je.', [3]], ['Ima zvijezdu.', [0, 1]], ['Zelen je.', [1, 3]]]),
+    sort('sort-parovi', 3, 'Parovi kocaka', 'Svaka kartica prikazuje dvije kocke. Brojevi su njihovi bodovi.',
+      [picture('1 i 1', '⚀ ⚀'), picture('1 i 3', '⚀ ⚂'), picture('2 i 3', '⚁ ⚂'), picture('2 i 2', '⚁ ⚁')],
+      [['Obje kocke imaju po jedan bod.', [0]], ['Ima i dvojku i trojku.', [2]], ['Obje kocke pokazuju isti broj.', [0, 3]], ['Zbroj je četiri.', [1, 3]]]),
+    sort('sort-izlet', 3, 'Planovi za izlet', 'Skupine su zapisale kamo idu i kako putuju.',
+      [picture('U šumu pješice', '🌲 🚶'), picture('Do jezera biciklom', '💧 🚲'), picture('U šumu biciklom', '🌲 🚲'), picture('Do jezera pješice', '💧 🚶')],
+      [['Ide u šumu i putuje pješice.', [0]], ['Ide do jezera i putuje biciklom.', [1]], ['Ide u šumu.', [0, 2]], ['Putuje pješice.', [0, 3]]])
+  ];
+  root.ThinkInvestigations = tasks;
+})(globalThis);</script><script>(function (root) {
+  'use strict';
+
+  const bank = root.ThinkInvestigations;
+  const byId = new Map(bank.map(task => [task.id, task]));
+  const kinds = ['clue', 'ask', 'trial', 'sort'];
+  const steps = task => task.kind === 'clue' ? task.clues.length + 1 : 2;
+  const current = run => byId.get(run.ids[run.index]);
+  const finalStep = run => run.step + 1 === steps(current(run));
+  const equalSet = (a, b) => a.length === b.length && b.every(id => a.includes(id));
+  const different = (a, b) => a.slice(1, -1).every((value, index) => value === b[index + 1]) && a[0] !== b[0];
+
+  function stageType(task, step) {
+    switch (task.kind) {
+      case 'clue': return step === task.clues.length ? 'reason' : 'cards';
+      case 'ask': return step === 0 ? 'question' : 'cards';
+      case 'trial': return step === 0 ? 'runs' : 'conclusion';
+      case 'sort': return 'pair';
+    }
+  }
+
+  function sizeOf(task, step) {
+    switch (stageType(task, step)) {
+      case 'reason': return task.reasons.length;
+      case 'question': return task.questions.length;
+      case 'runs': return task.runs.length;
+      case 'conclusion': return task.conclusions.length;
+      default: return task.cards.length;
+    }
+  }
+
+  function selectionFits(values, max) {
+    return Array.isArray(values) && values.length <= max && new Set(values).size === values.length &&
+      values.every(value => Number.isInteger(value) && value >= 0 && value < max);
+  }
+
+  function ready(run) {
+    const task = current(run);
+    switch (stageType(task, run.step)) {
+      case 'runs': return run.pick.length === 2;
+      case 'pair': return run.pick.length === 1 && run.reason !== null;
+      default: return run.pick.length > 0;
+    }
+  }
+
+  function correct(task, step, pick, reason, prior) {
+    switch (stageType(task, step)) {
+      case 'cards': {
+        if (task.kind === 'clue') {
+          const fits = task.clues.slice(0, step + 1);
+          return equalSet(pick, task.cards.map((_, i) => i).filter(i => fits.every(([, ids]) => ids.includes(i))));
+        }
+        const yesGroup = task.questions[prior.pick[0]][1];
+        return equalSet(pick, task.cards.map((_, i) => i).filter(i => yesGroup.includes(i) === task.yes));
+      }
+      case 'question': return pick.length === 1 && task.questions[pick[0]][1].length * 2 === task.cards.length;
+      case 'runs': return pick.length === 2 && different(task.runs[pick[0]], task.runs[pick[1]]);
+      case 'pair': {
+        const matches = task.reasons[reason]?.[1];
+        return !!matches && matches.length === 1 && equalSet(pick, matches) && (!step || prior.pick[0] !== pick[0]);
+      }
+      default: return equalSet(pick, [0]);
+    }
+  }
+
+  function makeRound(level, seen, random = Math.random) {
+    const chosen = kinds.map(kind => {
+      const pool = root.ThinkEngine.shuffle(bank.filter(task => task.level === level && task.kind === kind), random);
+      pool.sort((a, b) => (seen[a.id] || 0) - (seen[b.id] || 0));
+      return pool[0].id;
+    });
+    return { ids: root.ThinkEngine.shuffle(chosen, random), seed: Math.floor(random() * 0x100000000),
+      index: 0, step: 0, feedback: 'idle', pick: [], reason: null, prior: null,
+      missed: chosen.map(() => false), done: false };
+  }
+
+  function markSeen(record) {
+    const id = current(record.run).id;
+    record.seen[id] = Math.max(0, ...Object.values(record.seen)) + 1;
+  }
+
+  // Each board and set of answers keeps its shuffled order when the pupil revisits a step.
+  function order(run, name, count) {
+    let seed = run.seed >>> 0;
+    for (const ch of current(run).id + '/' + name) seed = Math.imul(seed ^ ch.charCodeAt(0), 16777619) >>> 0;
+    const random = () => {
+      seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+      return seed / 0x100000000;
+    };
+    return root.ThinkEngine.shuffle(Array.from({ length: count }, (_, i) => i), random);
+  }
+
+  function submit(run) {
+    if (run.done || run.feedback === 'right' || !ready(run)) return false;
+    const right = correct(current(run), run.step, run.pick, run.reason, run.prior);
+    run.feedback = right ? 'right' : 'wrong';
+    if (!right) run.missed[run.index] = true;
+    return true;
+  }
+
+  function advance(record) {
+    const run = record.run;
+    if (run.done || run.feedback !== 'right') return false;
+    if (finalStep(run) && run.index === run.ids.length - 1) {
+      run.done = true;
+      return true;
+    }
+    if (finalStep(run)) {
+      run.index++;
+      run.step = 0;
+      run.prior = null;
+      markSeen(record);
+    } else {
+      if (run.step === 0) run.prior = { pick: run.pick.slice(), reason: run.reason };
+      run.step++;
+    }
+    run.pick = [];
+    run.reason = null;
+    run.feedback = 'idle';
+    return true;
+  }
+
+  function validResponse(task, step, pick, reason) {
+    const type = stageType(task, step);
+    if (!selectionFits(pick, sizeOf(task, step))) return false;
+    if (!['runs', 'cards'].includes(type) && pick.length > 1) return false;
+    return reason === null || (type === 'pair' && selectionFits([reason], task.reasons.length));
+  }
+
+  function validRun(run, level) {
+    if (!run || !Array.isArray(run.ids) || run.ids.length !== kinds.length ||
+        !run.ids.every(id => byId.get(id)?.level === level) ||
+        new Set(run.ids.map(id => byId.get(id).kind)).size !== kinds.length ||
+        !Number.isInteger(run.seed) || run.seed < 0 || run.seed > 0xffffffff ||
+        !selectionFits([run.index], kinds.length) || !Array.isArray(run.missed) ||
+        run.missed.length !== kinds.length || !run.missed.every(v => typeof v === 'boolean') ||
+        typeof run.done !== 'boolean' || !['idle', 'wrong', 'right'].includes(run.feedback)) return false;
+    const task = current(run);
+    if (!selectionFits([run.step], steps(task)) || !validResponse(task, run.step, run.pick, run.reason)) return false;
+    if (run.step === 0 && run.prior !== null) return false;
+    if (run.step > 0 && (!run.prior || !validResponse(task, 0, run.prior.pick, run.prior.reason) ||
+        !correct(task, 0, run.prior.pick, run.prior.reason, null))) return false;
+    if (run.feedback !== 'idle' && (!ready(run) || (run.feedback === 'right') !==
+        correct(task, run.step, run.pick, run.reason, run.prior))) return false;
+    return !run.done || (run.feedback === 'right' && finalStep(run) && run.index === kinds.length - 1);
+  }
+
+  function readRecord(text, level) {
+    const empty = { seen: {}, run: null };
+    if (!text) return empty;
+    try {
+      const saved = JSON.parse(text);
+      const seen = Object.fromEntries(Object.entries(saved.seen || {}).filter(([id, n]) =>
+        byId.get(id)?.level === level && Number.isSafeInteger(n) && n > 0 && n < Number.MAX_SAFE_INTEGER - 1));
+      return { seen, run: validRun(saved.run, level) ? saved.run : null };
+    } catch { return empty; }
+  }
+
+  root.InvestigationEngine = { current, stageType, steps, ready, finalStep, makeRound, markSeen, order, submit, advance, readRecord };
+})(globalThis);</script><script>(function (root) {
+  'use strict';
+  const E = root.InvestigationEngine;
+  const names = { clue: 'Stiže novi trag', ask: 'Imaš samo jedno pitanje', trial: 'Mali pokus', sort: 'Dva dobra odgovora' };
+  const icons = { clue: 'search', ask: 'chat', trial: 'bulb', sort: 'puzzle' };
+  const prefix = 'mislim-i-otkrivam-istraga-v1-';
+
+  function create({ main, levels, esc, icon, action }) {
+    const memory = new Map();
+    function get(key) { try { return localStorage.getItem(key); } catch { return null; } }
+    function put(key, value) { try { localStorage.setItem(key, value); } catch { /* Allow play in memory. */ } }
+    const knownLevel = n => levels.some(item => item.id === n);
+    let selected = Number(get(prefix + 'razina'));
+    if (!knownLevel(selected)) selected = 1;
+
+    function record(level) {
+      if (!memory.has(level)) memory.set(level, E.readRecord(get(prefix + level), level));
+      return memory.get(level);
+    }
+    function save(level) { put(prefix + level, JSON.stringify(record(level))); }
+    function select(level) {
+      if (!knownLevel(level)) return;
+      selected = level;
+      put(prefix + 'razina', String(level));
+    }
+    function start(level) {
+      select(level);
+      const state = record(level);
+      if (!state.run || state.run.done) {
+        state.run = E.makeRound(level, state.seen);
+        E.markSeen(state);
+        save(level);
+      }
+    }
+    function completed(run) { return run.index + (run.feedback === 'right' && E.finalStep(run) ? 1 : 0); }
+    function launch(level = selected, choose = false) {
+      const run = record(level).run;
+      const ongoing = run && !run.done;
+      return `<section class="inv-launch" aria-label="Mala istraga"><div class="inv-launch-copy">
+        <span class="inv-seal" aria-hidden="true">🔎</span><div><h2>Mala istraga</h2>
+        <p>${ongoing ? `Dovršeno ${completed(run)} od 4 zadatka. Nastavi gdje si stala.` : 'Četiri kratka zadatka s tragovima, pitanjima i pokusima.'}</p></div></div>
+        <div class="inv-launch-actions">${choose ? `<label class="inv-level">Težina<select name="investigation-level">${levels.map(l =>
+          `<option value="${l.id}" ${l.id === level ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select></label>` : ''}
+        ${action('investigate', (ongoing ? 'Nastavi malu istragu ' : 'Pokreni malu istragu ') + icon('arrow'), 'button', `data-investigation-level="${level}"`)}</div></section>`;
+    }
+
+    function illustration(item) {
+      const pattern = ['stripes', 'dots'].includes(item.mark);
+      const sails = item.shape === 'boat' ? ` data-sails="${esc(item.mark)}"` : '';
+      return `<span class="inv-art" aria-hidden="true"><span class="inv-object inv-${item.shape} inv-color-${item.color}${pattern ? ' inv-' + item.mark : ''}"${sails}>${pattern ? '' : esc(item.mark)}</span></span>`;
+    }
+    function board(task, run, interactive, multi) {
+      return `<div class="inv-grid" data-count="${task.cards.length}">${E.order(run, 'cards', task.cards.length).map(i => {
+        const item = task.cards[i];
+        const tile = `<span class="inv-tile">${illustration(item)}<strong>${esc(item.label)}</strong></span>`;
+        return interactive ? `<label class="inv-choice"><input type="${multi ? 'checkbox' : 'radio'}" name="inv-pick" value="${i}" ${run.pick.includes(i) ? 'checked' : ''}>${tile}</label>` :
+          `<div class="inv-static">${tile}</div>`;
+      }).join('')}</div>`;
+    }
+    function answers(run, items, group = 'inv-pick') {
+      return `<div class="inv-options">${E.order(run, group + '-' + run.step, items.length).map(i => {
+        const checked = group === 'inv-reason' ? run.reason === i : run.pick.includes(i);
+        return `<label class="option"><input type="radio" name="${group}" value="${i}" ${checked ? 'checked' : ''}><span>${esc(items[i])}</span></label>`;
+      }).join('')}</div>`;
+    }
+    function field(prompt, body) {
+      return `<fieldset class="inv-field"><legend>${esc(prompt)}</legend>${body}</fieldset>`;
+    }
+    function clueBoard(task, run) {
+      const notes = task.clues.slice(0, run.step + 1).map(([note], i) =>
+        `<li><strong>Trag ${i + 1}</strong><span>${esc(note)}</span></li>`).join('');
+      const isReason = run.step === task.clues.length;
+      return `<ol class="inv-notes">${notes}</ol>` + (isReason
+        ? field(task.why, answers(run, task.reasons))
+        : field('Označi sve kartice koje odgovaraju tragovima.', board(task, run, true, true)));
+    }
+    function questionBoard(task, run) {
+      if (run.step === 0) {
+        const words = task.cards.length === 4 ? 'dvije mogućnosti' : 'tri mogućnosti';
+        return board(task, run, false) + field(`Koje pitanje ostavlja ${words} i za „da” i za „ne”?`, answers(run, task.questions.map(q => q[0])));
+      }
+      return `<div class="inv-note"><p>${esc(task.questions[run.prior.pick[0]][0])}</p><strong>Odgovor je „${task.yes ? 'da' : 'ne'}”.</strong></div>`
+        + field('Označi sve kartice koje još dolaze u obzir.', board(task, run, true, true));
+    }
+    function trialBoard(task, run) {
+      const order = E.order(run, 'runs', task.runs.length);
+      const showResults = run.step > 0;
+      const units = { polja: 'u poljima', s: 'u sekundama', min: 'u minutama', cm: 'u centimetrima' };
+      const unit = units[task.unit];
+      const cards = order.map((id, position) => {
+        if (showResults && !run.prior.pick.includes(id)) return '';
+        const row = task.runs[id];
+        const contents = `<span class="inv-run"><strong>Pokus ${position + 1}</strong>
+          ${task.columns.map((column, index) => `<span class="inv-data"><small>${esc(column)}</small><b>${esc(row[index])}</b></span>`).join('')}
+          ${showResults ? `<span class="inv-measure"><small>${esc(task.resultLabel)}${unit ? ' (' + unit + ')' : ''}</small><b>${row[row.length - 1]}</b></span>` : ''}</span>`;
+        return showResults ? `<div class="inv-static">${contents}</div>` : `<label class="inv-choice"><input type="checkbox" name="inv-pick" value="${id}" ${run.pick.includes(id) ? 'checked' : ''}>${contents}</label>`;
+      }).join('');
+      const grid = `<div class="inv-grid inv-runs">${cards}</div>`;
+      return showResults ? grid + field('Što pokazuju tvoja dva rezultata?', answers(run, task.conclusions)) :
+        field('Odaberi dva pokusa za poštenu usporedbu.', grid);
+    }
+    function sortBoard(task, run) {
+      const prior = run.step ? `<div class="inv-note"><small>Tvoj prvi izbor</small><p><strong>${esc(task.cards[run.prior.pick[0]].label)}</strong> · ${esc(task.reasons[run.prior.reason][0])}</p></div>` : '';
+      return prior + field(run.step ? 'Sada izdvoji drugu karticu.' : 'Koju karticu možeš izdvojiti?', board(task, run, true, false)) +
+        field('Koji razlog vrijedi samo za tu karticu?', answers(run, task.reasons.map(reason => reason[0]), 'inv-reason'));
+    }
+    const boards = { clue: clueBoard, ask: questionBoard, trial: trialBoard, sort: sortBoard };
+    const levelPill = level => `<span class="pill level-pill l${level}">${esc(levels.find(l => l.id === level).name)}</span>`;
+    const top = (level, back) => `<div class="topline">${action('investigation-back', icon('back') + back, 'text-button')}${levelPill(level)}</div>`;
+    function screen(level, back) {
+      const run = record(level).run;
+      if (!run) return '';
+      if (run.done) {
+        const retried = run.missed.filter(Boolean).length;
+        return `<section class="results view">${top(level, back)}<div class="inv-finish">
+          <span class="inv-seal" aria-hidden="true">🔎</span><h1>Istraga je dovršena!</h1>
+          <p>Riješila si sva četiri zadatka.</p></div><div class="stats">
+          <div class="stat"><strong>${4 - retried}</strong><span>Iz prvog pokušaja</span></div>
+          <div class="stat"><strong>${retried}</strong><span>Uz ponovni pokušaj</span></div></div>
+          <p class="encouragement">Koji ti je trag najviše pomogao? Ispričaj to nekome.</p><div class="actions">
+          ${action('investigate', 'Pokreni novu istragu ' + icon('arrow'), 'button', `data-investigation-level="${level}"`)}
+          ${action('home', 'Početna', 'button secondary')}</div></section>`;
+      }
+      const task = E.current(run);
+      const count = completed(run);
+      return `<section class="exercise view inv-exercise">${top(level, back)}<div class="progress-wrap">
+        <div class="progress" role="progressbar" aria-label="Dovršeni zadaci u istrazi" aria-valuemin="0" aria-valuemax="4" aria-valuenow="${count}">
+        ${run.ids.map((_, i) => `<span class="${i < count ? 'filled' : i === run.index ? 'current' : ''}"></span>`).join('')}</div>
+        <span class="progress-text">Zadatak ${run.index + 1} od 4</span></div>
+        <div class="question-card"><div class="question-head"><div class="icon-well">${icon(icons[task.kind])}</div><div>
+        <p class="eyebrow">${names[task.kind]}</p><h1>${esc(task.title)}</h1></div></div>
+        <p class="story">${esc(task.scene)}</p><p class="inv-step">Korak ${run.step + 1} od ${E.steps(task)}</p>
+        ${boards[task.kind](task, run)}<div class="inv-bottom"><p class="inv-feedback" role="status" aria-live="polite" tabindex="-1"></p>
+        <div class="inv-controls">${action('investigation-check', 'Provjeri', 'button')}
+        ${action('investigation-next', (E.finalStep(run) ? (run.index === 3 ? 'Pogledaj završetak' : 'Sljedeći zadatak') :
+          task.kind === 'clue' && run.step + 1 < task.clues.length ? 'Otkrij sljedeći trag' :
+          task.kind === 'trial' ? 'Pogledaj rezultate' : 'Nastavi') + ' ' + icon('arrow'), 'button')}</div></div></div></section>`;
+    }
+
+    function sync(level) {
+      const run = record(level).run;
+      const status = main.querySelector('.inv-feedback');
+      if (!status || !run || run.done) return;
+      const correct = run.feedback === 'right';
+      const count = completed(run);
+      const progress = main.querySelector('.inv-exercise .progress');
+      progress.setAttribute('aria-valuenow', count);
+      [...progress.children].forEach((part, i) => { part.className = i < count ? 'filled' : i === run.index ? 'current' : ''; });
+      for (const input of main.querySelectorAll('.inv-exercise input')) input.disabled = correct;
+      const check = main.querySelector('[data-action="investigation-check"]');
+      check.hidden = correct;
+      check.disabled = !E.ready(run);
+      main.querySelector('[data-action="investigation-next"]').hidden = !correct;
+      status.dataset.feedback = run.feedback;
+      const message = correct ? 'Točno!' : run.feedback === 'wrong' ? 'Još nije točno. Pokušaj ponovno.' : '';
+      if (status.textContent !== message) status.textContent = message;
+    }
+    function edit(level, input) {
+      const run = record(level).run;
+      if (!run || run.done || run.feedback === 'right') return;
+      const value = Number(input.value);
+      if (input.name === 'inv-reason') run.reason = value;
+      else if (input.type === 'checkbox') run.pick = [...main.querySelectorAll('input[name="inv-pick"]:checked')].map(i => Number(i.value));
+      else run.pick = [value];
+      run.feedback = 'idle';
+      save(level);
+      sync(level);
+    }
+    function check(level) {
+      if (!E.submit(record(level).run)) return;
+      save(level);
+      sync(level);
+      main.querySelector('.inv-feedback').focus();
+    }
+    function next(level) {
+      if (E.advance(record(level))) save(level);
+    }
+    function external(key, value) {
+      if (![1, 2, 3].some(level => key === prefix + level)) return false;
+      const level = Number(key.slice(-1));
+      memory.set(level, E.readRecord(value, level));
+      return level;
+    }
+    return { launch, start, screen, sync, select, edit, check, next, external,
+      hasRun: level => !!record(level).run, selected: () => selected };
+  }
+  root.InvestigationUI = { create };
+})(globalThis);</script><!--mio-investigation:end--><script>(function(){
   'use strict';
   const E=ThinkEngine,bank=ThinkContent,main=document.getElementById('main'),owl=document.querySelector('.brand img').src;
   const paths={
@@ -494,10 +1104,14 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
   const label=()=>levels.find(l=>l.id===level).name;
   const pill=()=>`<span class="pill level-pill l${level}">${label()}</span>`;
   const action=(act,text,cls='button',extra='')=>`<button class="${cls}" data-action="${act}" ${extra}>${text}</button>`;
+  const investigations=InvestigationUI.create({main,levels,esc,icon,action});
+  let investigationReturn='home';
   const activeRound=()=>round&&round.phase!=='complete';
   function resume(){return activeRound()?`<aside class="resume"><p><strong>Vježba te čeka.</strong><br>${levels.find(l=>l.id===round.level).name} · ${E.stats(round).completed} od ${round.questions.length} dovršeno</p>${action('resume','Nastavi vježbu '+icon('arrow'),'button secondary')}</aside>`:'';}
-  function home(){return `<section class="view"><div class="hero"><div><p class="eyebrow">Mali istraživači · Velike ideje</p><h1>Svaki odgovor<br>ima svoj <span>zašto.</span></h1><p>Pogledaj, razmisli i objasni.</p></div><div class="hero-art" aria-hidden="true"><span class="spark one">✦</span><span class="spark two">✧</span><img src="${owl}" alt="" width="253" height="253"></div></div><div class="levels">${levels.map(l=>`<article class="level-card l${l.id}"><span class="level-number">0${l.id}</span><div class="icon-well">${icon(l.icon)}</div><h3>${l.name}</h3><p>${l.desc}</p>${action('level','Odaberi '+icon('arrow'),'button',`data-level="${l.id}" aria-label="Odaberi: ${l.name}"`)}</article>`).join('')}</div><div class="under-levels"><span>${icon('puzzle')}6 područja</span><span>${icon('chat')}Odgovor + razlog</span><span>${icon('heart')}Bez žurbe</span></div>${resume()}</section>`;}
-  function areas(){return `<section class="view"><div class="topline">${action('home',icon('back')+'Težina','text-button')}${pill()}</div><div class="section-heading"><p class="eyebrow">Slijedi svoju znatiželju</p><h1>Što ćemo istražiti?</h1><p>Odaberi jedno područje ili isprobaj pomalo od svega.</p></div><div class="topics">${categories.map(c=>`<button class="topic" data-action="start" data-category="${c.id}"><span class="icon-well">${icon(c.icon)}</span><span><strong>${c.name}</strong><small>2 zadatka</small></span></button>`).join('')}</div><div class="mix-wrap">${action('start',icon('shuffle')+'Pomiješaj sve · 6 zadataka','button','data-category="mix"')}</div>${resume()}</section>`;}
+  function home(){return `<section class="view"><div class="hero"><div><p class="eyebrow">Mali istraživači · Velike ideje</p><h1>Svaki odgovor<br>ima svoj <span>zašto.</span></h1><p>Pogledaj, razmisli i objasni.</p></div><div class="hero-art" aria-hidden="true"><span class="spark one">✦</span><span class="spark two">✧</span><img src="${owl}" alt="" width="253" height="253"></div></div>
+    ${investigations.launch(undefined,true)}<div class="levels">${levels.map(l=>`<article class="level-card l${l.id}"><span class="level-number">0${l.id}</span><div class="icon-well">${icon(l.icon)}</div><h3>${l.name}</h3><p>${l.desc}</p>${action('level','Odaberi '+icon('arrow'),'button',`data-level="${l.id}" aria-label="Odaberi: ${l.name}"`)}</article>`).join('')}</div><div class="under-levels"><span>${icon('puzzle')}6 područja</span><span>${icon('chat')}Odgovor + razlog</span><span>${icon('heart')}Bez žurbe</span></div>${resume()}</section>`;}
+  function areas(){return `<section class="view"><div class="topline">${action('home',icon('back')+'Težina','text-button')}${pill()}</div><div class="section-heading"><p class="eyebrow">Slijedi svoju znatiželju</p><h1>Što ćemo istražiti?</h1><p>Odaberi malu istragu ili jedno od područja.</p></div>
+    ${investigations.launch(level)}<div class="topics">${categories.map(c=>`<button class="topic" data-action="start" data-category="${c.id}"><span class="icon-well">${icon(c.icon)}</span><span><strong>${c.name}</strong><small>2 zadatka</small></span></button>`).join('')}</div><div class="mix-wrap">${action('start',icon('shuffle')+'Pomiješaj sve · 6 zadataka','button','data-category="mix"')}</div>${resume()}</section>`;}
   function progress(){return `<div class="topline">${action('areas',icon('back')+'Područja','text-button')}${pill()}</div><div class="progress-wrap"><div class="progress" role="progressbar" aria-label="Dovršeni zadaci" aria-valuemin="0" aria-valuemax="${round.questions.length}" aria-valuenow="${E.stats(round).completed}">${round.questions.map((q,i)=>`<span class="${round.solved[i]?'filled':i===round.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${round.index+1} od ${round.questions.length}</span></div>`;}
   function head(q){const cat=categories.find(c=>c.id===q.cat);return `<div class="question-head"><div class="icon-well">${icon(cat.icon)}</div><div><p class="eyebrow">${cat.name}</p><h1>${esc(q.title)}</h1></div></div>`;}
   function choices(q,type){const key=type==='answer'?'answers':'reasons',order=type==='answer'?round.answerOrder[round.index]:round.reasonOrder[round.index];return `<fieldset class="options"><legend>${type==='answer'?'Odaberi odgovor':'Odaberi razlog'}</legend>${order.map(i=>`<label class="option"><input type="radio" name="${type}" value="${i}" ${round[type]===i?'checked':''}><span>${esc(q[key][i])}</span></label>`).join('')}</fieldset>`;}
@@ -516,7 +1130,14 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
     return `<section class="exercise view">${progress()}<div class="question-card">${body}</div></section>`;
   }
   function results(){const s=E.stats(round);return `<section class="results view"><div class="topline">${action('areas',icon('back')+'Područja','text-button')}${pill()}</div><div class="results-hero"><img src="${owl}" alt="" width="160" height="160"><div><p class="eyebrow">Vježba je dovršena</p><h1>Bravo, istraživačice!</h1><p>Dovršila si ${round.questions.length===6?'svih 6 zadataka':'oba zadatka'}.</p></div></div><div class="stats"><div class="stat"><strong>${s.firstTry}</strong><span>Iz prvog pokušaja</span></div><div class="stat"><strong>${s.retried}</strong><span>Uz ponovni pokušaj</span></div></div><p class="encouragement">Dobri istraživači provjeravaju svoje zaključke.</p><div class="actions">${action('again','Nova vježba '+icon('arrow'))}${action('home','Promijeni težinu','button secondary')}</div><div class="completed-topics">${[...new Set(round.questions.map(q=>q.cat))].map(cat=>`<span>${icon('tick')}${categories.find(c=>c.id===cat).name}</span>`).join('')}</div></section>`;}
-  function render(focus=true){saveRound();main.innerHTML=view==='home'?home():view==='areas'?areas():round?exercise():home();if(focus){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}}
+  function render(focus=true){
+    saveRound();
+    if(view==='investigation'){
+      main.innerHTML=investigations.screen(level,investigationReturn==='areas'?'Područja':'Početna');
+      investigations.sync(level);
+    }else main.innerHTML=view==='home'?home():view==='areas'?areas():round?exercise():home();
+    if(focus){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+  }
   function navigate(next){view=next;render();}
   function start(category){
     let source=bank;
@@ -527,7 +1148,15 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
   }
   function requestStart(category){if(activeRound()){pendingCategory=category;document.getElementById('new-round-dialog').showModal();}else start(category);}
   main.addEventListener('change',event=>{
-    const input=event.target;if(!input.matches('input[type="radio"]')||!round)return;
+    const input=event.target;
+    if(input.name==='investigation-level'){
+      investigations.select(Number(input.value));
+      input.closest('.inv-launch').outerHTML=investigations.launch(undefined,true);
+      main.querySelector('[name="investigation-level"]').focus({preventScroll:true});
+      return;
+    }
+    if(view==='investigation'&&['inv-pick','inv-reason'].includes(input.name))return investigations.edit(level,input);
+    if(!input.matches('input[type="radio"]')||!round)return;
     const type=input.name;if(type!==round.phase)return;
     round[type]=Number(input.value);saveRound();
     const button=main.querySelector(`[data-action="${type==='answer'?'reason':'submit'}"]`);if(button)button.disabled=false;
@@ -536,6 +1165,15 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
     const button=event.target.closest('button[data-action]');if(!button||button.disabled)return;
     const act=button.dataset.action;
     if(act==='home')return navigate('home');
+    if(act==='investigate'){
+      if(view!=='investigation')investigationReturn=view;
+      level=Number(button.dataset.investigationLevel);
+      investigations.start(level);
+      return navigate('investigation');
+    }
+    if(act==='investigation-back')return navigate(investigationReturn);
+    if(act==='investigation-check'&&view==='investigation')return investigations.check(level);
+    if(act==='investigation-next'&&view==='investigation'){investigations.next(level);return render();}
     if(act==='areas')return navigate('areas');
     if(act==='level'){level=Number(button.dataset.level);return navigate('areas');}
     if(act==='start')return requestStart(button.dataset.category);
@@ -551,6 +1189,13 @@ html:has(.portal-header) { scroll-padding-top: 90px; }
   document.getElementById('brand').addEventListener('click',()=>navigate('home'));
   document.getElementById('continue-round').addEventListener('click',()=>{document.getElementById('new-round-dialog').close();level=round.level;navigate('play');});
   document.getElementById('confirm-new').addEventListener('click',()=>{document.getElementById('new-round-dialog').close();start(pendingCategory);});
+  window.addEventListener('storage',event=>{
+    const updated=investigations.external(event.key,event.newValue);
+    if(!updated)return;
+    if(view==='investigation'&&updated===level&&!investigations.hasRun(level))return navigate('home');
+    if((view==='investigation'&&updated===level)||(view==='areas'&&updated===level)||
+       (view==='home'&&updated===investigations.selected()))render(false);
+  });
   restoreRound();render(false);
 })();</script></div>
 </body>

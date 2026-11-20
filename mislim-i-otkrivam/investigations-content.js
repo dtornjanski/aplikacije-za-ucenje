@@ -1,0 +1,143 @@
+(function (root) {
+  'use strict';
+
+  const card = (label, shape, color, mark = '') => ({ label, shape, color, mark });
+  const picture = (label, mark) => card(label, 'picture', 'paper', mark);
+  const clue = (id, level, title, scene, cards, clues, why, reasons) =>
+    ({ id, level, kind: 'clue', title, scene, cards, clues, why, reasons });
+  const ask = (id, level, title, scene, cards, questions, yes) =>
+    ({ id, level, kind: 'ask', title, scene, cards, questions, yes });
+  const trial = (id, level, title, scene, columns, runs, resultLabel, unit, conclusions) =>
+    ({ id, level, kind: 'trial', title, scene, columns, runs, resultLabel, unit, conclusions });
+  const sort = (id, level, title, scene, cards, reasons) =>
+    ({ id, level, kind: 'sort', title, scene, cards, reasons });
+
+  // Clues list the cards that fit that clue on its own. Later clues intersect earlier ones.
+  const tasks = [
+    clue('clue-pernica', 1, 'Čija je pernica?', 'Ema traži svoju pernicu.',
+      [card('Zelena s prugama', 'case', 'green', 'stripes'), card('Plava s prugama', 'case', 'blue', 'stripes'), card('Plava s točkama', 'case', 'blue', 'dots')],
+      [['„Moja ima pruge.”', [0, 1]], ['„Moja je plava.”', [1, 2]]],
+      'Zašto prvi trag nije bio dovoljan?', ['Dvije pernice imaju pruge.', 'Sve su pernice plave.', 'Samo jedna pernica ima pruge.']),
+    clue('clue-baloni', 1, 'Balon za prijateljicu', 'Una opisuje balon koji je odabrala.',
+      [card('Žuti sa srcem', 'balloon', 'yellow', '♥'), card('Žuti sa zvijezdom', 'balloon', 'yellow', '★'), card('Ružičasti sa srcem', 'balloon', 'pink', '♥')],
+      [['„Moj je žut.”', [0, 1]], ['„Na njemu je srce.”', [0, 2]]],
+      'Što je razlikovalo dva žuta balona?', ['Znak na balonu.', 'Duljina uzice.', 'Boja balona.']),
+    clue('clue-staze', 1, 'Staza do mosta', 'Na karticama su staze za šetnju.',
+      [picture('Pokraj klupe do mosta', '🪑 🌉'), picture('Pokraj stabla do mosta', '🌳 🌉'), picture('Pokraj stabla do kuće', '🌳 🏠')],
+      [['Staza završava kod mosta.', [0, 1]], ['Putem prolazimo pokraj stabla.', [1, 2]]],
+      'Zašto nam je trebao i trag o stablu?', ['Dvije staze vode do mosta.', 'Na svakoj stazi je klupa.', 'Staza do kuće nema stablo.']),
+    clue('clue-knjiga', 2, 'Knjiga s izložbe', 'Lea pamti dvije stvari s naslovnice knjige.',
+      [card('Zelena · lisica', 'book', 'green', '🦊'), card('Plava · riba', 'book', 'blue', '🐟'), card('Zelena · sova', 'book', 'green', '🦉'), card('Plava · stablo', 'book', 'blue', '🌳')],
+      [['Na naslovnici je životinja.', [0, 1, 2]], ['Korice nisu zelene.', [1, 3]]],
+      'Zašto knjiga sa stablom otpada?', ['Na njoj nema životinje.', 'Nije plava.', 'Lisica je zelena.']),
+    clue('clue-raspored', 2, 'Koja je radionica?', 'Luka pamti gdje i kada je bio na radionici.',
+      [picture('Utorak · vrt', '🌻'), picture('Četvrtak · vrt', '🌿'), picture('Četvrtak · dvorana', '🏀'), picture('Petak · dvorana', '🏐')],
+      [['„Radionica je bila u četvrtak.”', [1, 2]], ['„Bili smo na otvorenom.”', [0, 1]]],
+      'Bi li samo mjesto bilo dovoljno za izbor?', ['Ne. Dvije su radionice bile u vrtu.', 'Da. Samo je jedna bila u vrtu.', 'Da. Sve su bile u dvorani.']),
+    clue('clue-uzina', 2, 'Vrećica s užinom', 'Na vrećicama piše što se u njima nalazi.',
+      [picture('Kruška i voda', '🍐 💧'), picture('Kruška i sok', '🍐 🧃'), picture('Jabuka i voda', '🍎 💧'), picture('Banana i sok', '🍌 🧃')],
+      [['U traženoj vrećici nije sok.', [0, 2]], ['Voće u njoj raste na stablu kruške.', [0, 1]]],
+      'Koji je trag razlikovao dvije vrećice s vodom?', ['Vrsta voća.', 'Boja vrećice.', 'Vrsta pića.']),
+    clue('clue-vlak', 3, 'Karta za pravi vlak', 'Mia traži kartu za svoju vožnju.',
+      [picture('Jutro · more · sjedalo 2', '🌊'), picture('Jutro · šuma · sjedalo 4', '🌲'), picture('Jutro · more · sjedalo 4', '🌊'), picture('Večer · more · sjedalo 4', '🌙'), picture('Jutro · šuma · sjedalo 2', '🌲')],
+      [['Vožnja počinje ujutro.', [0, 1, 2, 4]], ['Vlak ide na more.', [0, 2, 3]], ['Na karti je sjedalo 4.', [1, 2, 3]]],
+      'Zašto karta za večernji vlak ne odgovara?', ['Odredište i sjedalo odgovaraju, ali vrijeme ne.', 'Na njoj piše šuma.', 'Na njoj piše sjedalo 2.']),
+    clue('clue-paket', 3, 'Paket za školsku priredbu', 'Nekoliko paketa čeka na polici.',
+      [card('Plav · mjesec · za Ivu', 'box', 'blue', '☾'), card('Zelen · mjesec · za Ivu', 'box', 'green', '☾'), card('Plav · sunce · za Ivu', 'box', 'blue', '☀'), card('Plav · mjesec · za Tina', 'box', 'blue', '☾'), card('Zelen · sunce · za Tina', 'box', 'green', '☀')],
+      [['Paket nije zelen.', [0, 2, 3]], ['Na njemu je mjesec.', [0, 1, 3]], ['Poslan je Ivi.', [0, 1, 2]]],
+      'Zašto smo morali pročitati i ime?', ['Dva plava paketa imaju mjesec.', 'Svi zeleni paketi imaju mjesec.', 'Samo jedan paket ima ime.']),
+    clue('clue-kuca', 3, 'Gdje stanuje lutka?', 'U kazalištu lutaka svaka kuća ima svoju adresu.',
+      [picture('Uz park · crveni krov · br. 2', '🌳 🔺'), picture('Uz park · plavi krov · br. 2', '🌳 🔷'), picture('Uz trg · plavi krov · br. 2', '⛲ 🔷'), picture('Uz park · plavi krov · br. 5', '🌳 🔷'), picture('Uz trg · crveni krov · br. 5', '⛲ 🔺')],
+      [['Iz kuće se vidi park, a ne trg.', [0, 1, 3]], ['Krov nije crven.', [1, 2, 3]], ['Broj kuće veći je od 3.', [3, 4]]],
+      'Koji je trag razlikovao dvije preostale kuće uz park?', ['Broj kuće.', 'Pogled na park.', 'Boja krova.']),
+
+    // Each question lists its YES group. The most useful question splits the whole set in half.
+    ask('ask-kape', 1, 'Tajna kapa', 'Ema je odabrala jednu od ovih kapa.',
+      [card('Žuta s prugama', 'cap', 'yellow', 'stripes'), card('Plava s prugama', 'cap', 'blue', 'stripes'), card('Zelena s gumbom', 'cap', 'green', '●'), card('Plava bez ukrasa', 'cap', 'blue')],
+      [['Ima li pruge?', [0, 1]], ['Ima li gumb?', [2]]], true),
+    ask('ask-pokloni', 1, 'Skriveni poklon', 'Tin je sakrio poruku u jedan paket.',
+      [card('Zelen sa zvijezdom', 'box', 'green', '★'), card('Žut sa srcem', 'box', 'yellow', '♥'), card('Plav sa srcem', 'box', 'blue', '♥'), card('Ružičast s mjesecom', 'box', 'pink', '☾')],
+      [['Ima li zvijezdu?', [0]], ['Ima li srce?', [1, 2]]], false),
+    ask('ask-zastave', 1, 'Zastava za toranj', 'Graditeljica je već izabrala zastavu.',
+      [card('Plava sa suncem', 'flag', 'blue', '☀'), card('Žuta sa suncem', 'flag', 'yellow', '☀'), card('Plava s mjesecom', 'flag', 'blue', '☾'), card('Zelena sa srcem', 'flag', 'green', '♥')],
+      [['Je li zelena?', [3]], ['Je li plava?', [0, 2]]], true),
+    ask('ask-kljucevi', 2, 'Ključ od ormarića', 'Na svakom ključu visi privjesak.',
+      [card('Krug · list', 'disc', 'green', '🍃'), card('Kockast · sunce', 'square', 'yellow', '☀'), card('Krug · sunce', 'disc', 'yellow', '☀'), card('Kockast · srce', 'square', 'pink', '♥')],
+      [['Ima li list?', [0]], ['Je li privjesak okrugao?', [0, 2]], ['Ima li srce?', [3]]], false),
+    ask('ask-ulaznice', 2, 'Ulaznica za predstavu', 'Lana drži jednu od četiri ulaznice.',
+      [card('Jutro · sova', 'ticket', 'purple', '🦉'), card('Večer · lisica', 'ticket', 'pink', '🦊'), card('Večer · sova', 'ticket', 'purple', '🦉'), card('Večer · žaba', 'ticket', 'green', '🐸')],
+      [['Je li predstava ujutro?', [0]], ['Je li na karti lisica?', [1]], ['Je li na karti sova?', [0, 2]]], true),
+    ask('ask-zivotinje', 2, 'Životinja iza zastora', 'Lutkar je iza zastora sakrio jednu od ovih lutaka.',
+      [picture('Patka', '🦆'), picture('Mačka', '🐈'), picture('Sova', '🦉'), picture('Riba', '🐟')],
+      [['Ima li perje?', [0, 2]], ['Ima li krzno?', [1]], ['Ima li peraje?', [3]]], false),
+    ask('ask-brodovi', 3, 'Brod u luci', 'Kapetan je izabrao jedan od šest brodova. Smiješ postaviti jedno pitanje.',
+      [card('Plav · jedno jedro', 'boat', 'blue', '1'), card('Žut · dva jedra', 'boat', 'yellow', '2'), card('Zelen · jedno jedro', 'boat', 'green', '1'), card('Plav · dva jedra', 'boat', 'blue', '2'), card('Ružičast · jedno jedro', 'boat', 'pink', '1'), card('Ljubičast · dva jedra', 'boat', 'purple', '2')],
+      [['Je li plav?', [0, 3]], ['Ima li dva jedra?', [1, 3, 5]], ['Je li žut?', [1]]], false),
+    ask('ask-razglednice', 3, 'Koju šalje Lea?', 'Lea opisuje razglednicu svoje obitelji.',
+      [picture('More · dan', '🌊 ☀️'), picture('Grad · noć', '🏙️ 🌙'), picture('More · noć', '🌊 🌙'), picture('Šuma · dan', '🌲 ☀️'), picture('Selo · noć', '🏡 🌙'), picture('Planina · dan', '⛰️ ☀️')],
+      [['Prikazuje li more?', [0, 2]], ['Prikazuje li grad?', [1]], ['Prikazuje li noć?', [1, 2, 4]]], true),
+    ask('ask-raspored', 3, 'Tajni trening', 'Na ploči je šest termina. Dora je izabrala jedan.',
+      [picture('Utorak · vrt', '🌷'), picture('Petak · dvorana', '🏀'), picture('Srijeda · park', '🌳'), picture('Utorak · dvorana', '🏀'), picture('Petak · vrt', '🌷'), picture('Četvrtak · dvorana', '🏀')],
+      [['Je li u utorak?', [0, 3]], ['Je li u vrtu?', [0, 4]], ['Je li u dvorani?', [1, 3, 5]]], false),
+
+    // Column zero is what we want to change. All other columns must match.
+    // The last number in each run is the measured result, revealed after the comparison.
+    trial('trial-autic', 1, 'Autić na dvije podloge', 'Želiš ispitati kako podloga utječe na to koliko daleko dođe autić.',
+      ['Podloga', 'Autić', 'Rampa'], [['Tepih', 'Crveni', 'Niska', 2], ['Pločice', 'Crveni', 'Niska', 5], ['Pločice', 'Plavi', 'Visoka', 7]],
+      'Prijeđeni put', 'polja', ['U ovim je vožnjama autić dalje stigao na pločicama.', 'Crveni je autić uvijek najbrži.', 'Autić je oba puta stigao jednako daleko.']),
+    trial('trial-rucnik', 1, 'Kap po kap', 'Želiš ispitati koji papir primi više jednakih kapi prije nego što propusti vodu.',
+      ['Papir', 'Veličina', 'Slojevi'], [['Maramica', 'Mali list', 'Jedan', 3], ['Papirnati ručnik', 'Veliki list', 'Dva', 9], ['Papirnati ručnik', 'Mali list', 'Jedan', 6]],
+      'Broj kapi', 'kapi', ['Ovaj je list papirnatog ručnika primio više kapi.', 'Svaka maramica prima točno tri kapi.', 'Oba su lista primila jednako kapi.']),
+    trial('trial-sjena', 1, 'Igra sjena', 'Svjetiljka i zid miruju. Ispitaj kako mjesto igračke utječe na visinu sjene.',
+      ['Igračka stoji', 'Igračka', 'Svjetiljka'], [['Bliže svjetiljci', 'Mali medvjed', 'Bijela', 6], ['Bliže zidu', 'Veliki pas', 'Žuta', 4], ['Bliže zidu', 'Mali medvjed', 'Bijela', 3]],
+      'Visina sjene', 'polja', ['Sjena istog medvjeda bila je veća bliže svjetiljci.', 'Medvjed je narastao.', 'Sve igračke imaju sjene jednake visine.']),
+    trial('trial-most', 2, 'Most od papira', 'Kako savijanje papira utječe na broj kocaka koje most može nositi? Kocke su jednake.',
+      ['Oblik papira', 'Papir', 'Razmak oslonaca'], [['Ravan', 'Tanak', '4 polja', 2], ['Savijen', 'Debeo', '4 polja', 9], ['Savijen', 'Tanak', '4 polja', 5]],
+      'Kocke na mostu', 'kocaka', ['U našem je pokusu savijen papir nosio više kocaka.', 'Svi mostovi nose pet kocaka.', 'Debljina papira sigurno ništa ne mijenja.']),
+    trial('trial-led', 2, 'Kamo s kockicom leda?', 'Ispitaj mijenja li mjesto vrijeme topljenja kockice leda.',
+      ['Mjesto', 'Kockica', 'Posuda'], [['Sunce', 'Mala', 'Tanjur', 3], ['Hlad', 'Velika', 'Čaša', 12], ['Hlad', 'Mala', 'Tanjur', 8]],
+      'Vrijeme topljenja', 'min', ['U ovom se pokusu mala kockica prije otopila na suncu.', 'Led se na svakom mjestu topi tri minute.', 'U hladu se led nikada ne otopi.']),
+    trial('trial-avion', 2, 'Avion iz radionice', 'Isti bacač izbacuje papirnate avione. Želiš provjeriti kako širina krila utječe na let.',
+      ['Krila', 'Papir', 'Mjesto bacanja'], [['Uska', 'Plavi', 'Crta A', 4], ['Široka', 'Plavi', 'Crta A', 6], ['Uska', 'Žuti', 'Crta B', 7]],
+      'Duljina leta', 'polja', ['U ovoj je usporedbi avion širokih krila odletio dalje.', 'Žuta boja uvijek produljuje let.', 'Širina krila nije se mijenjala.']),
+    trial('trial-camac', 3, 'Čamac za klikere', 'Mijenja li oblik dna broj jednakih klikera koje čamac može nositi? U svakom je pokusu voda mirna.',
+      ['Dno čamca', 'Veličina folije', 'Slojevi'], [['Usko', 'Mala', 'Jedan', 2], ['Široko', 'Velika', 'Jedan', 8], ['Široko', 'Mala', 'Jedan', 5], ['Usko', 'Velika', 'Dva', 9]],
+      'Klikeri prije potonuća', 'klikera', ['Široko dno u naša je dva pokusa nosilo više klikera.', 'Dva sloja uvijek su najbolja.', 'Svaki čamac širokog dna nosi osam klikera.']),
+    trial('trial-vrtuljak', 3, 'Papirnati vrtuljci', 'Puštamo vrtuljke da padnu. Provjeri mijenja li duljina krila vrijeme pada.',
+      ['Krila', 'Visina puštanja', 'Papir'], [['Kratka', 'Visoka polica', 'Tanak', 2], ['Duga', 'Niska polica', 'Tanak', 2], ['Kratka', 'Niska polica', 'Debeo', 1], ['Duga', 'Visoka polica', 'Tanak', 4]],
+      'Vrijeme pada', 's', ['S iste je police vrtuljak dugih krila padao dulje.', 'Duga krila uvijek padaju četiri sekunde.', 'Niska polica i visoka polica jednako su visoke.']),
+    trial('trial-otisak', 3, 'Trag u pijesku', 'Spuštamo istu kocku u pijesak. Utječe li visina puštanja na dubinu traga?',
+      ['Visina', 'Pijesak', 'Površina'], [['Niska', 'Vlažan', 'Ravna', 1], ['Visoka', 'Suh', 'Ravna', 4], ['Visoka', 'Vlažan', 'Ravna', 3], ['Niska', 'Suh', 'Neravna', 2]],
+      'Dubina traga', 'cm', ['U ravnom, vlažnom pijesku trag je bio dublji nakon pada s veće visine.', 'Svaki trag dubok je tri centimetra.', 'Ispitali smo sve vrste pijeska.']),
+
+    // A reason is valid only when exactly one card fits it.
+    sort('sort-likovi', 1, 'Koji se lik izdvaja?', 'Isti skup likova možeš promatrati na dva načina.',
+      [card('Crveni krug', 'disc', 'red'), card('Plavi krug', 'disc', 'blue'), card('Crveni trokut', 'triangle', 'red')],
+      [['Jedini je plav.', [1]], ['Jedini je trokut.', [2]], ['Crven je.', [0, 2]]]),
+    sort('sort-gumbi', 1, 'Gumbi iz kutijice', 'Promotri boje gumba i broj rupica.',
+      [card('Žut · dvije rupice', 'disc', 'yellow', '••'), card('Zelen · dvije rupice', 'disc', 'green', '••'), card('Žut · četiri rupice', 'disc', 'yellow', '⠛')],
+      [['Ima četiri rupice.', [2]], ['Zelen je.', [1]], ['Ima dvije rupice.', [0, 1]]]),
+    sort('sort-znacke', 1, 'Značke za ekipu', 'Tri značke čekaju nove vlasnike.',
+      [card('Krug sa zvijezdom', 'disc', 'purple', '★'), card('Kvadrat sa zvijezdom', 'square', 'purple', '★'), card('Krug sa srcem', 'disc', 'purple', '♥')],
+      [['Ima srce.', [2]], ['Ima četiri kuta.', [1]], ['Ima zvijezdu.', [0, 1]]]),
+    sort('sort-vozila', 2, 'Vozila na plakatu', 'Promotri gdje se vozila kreću i pokreće li ih motor.',
+      [picture('Bicikl', '🚲'), picture('Autobus', '🚌'), picture('Automobil', '🚗'), picture('Motorni čamac', '🚤')],
+      [['Plovi po vodi.', [3]], ['Vozi se okretanjem pedala.', [0]], ['Ima motor.', [1, 2, 3]]]),
+    sort('sort-poruke', 2, 'Poruke za razglednicu', 'Promotri završni znak i ono što poruka kaže.',
+      [picture('Sutra igramo.', '✉️'), picture('Igramo li danas?', '✉️'), picture('Danas igramo.', '✉️'), picture('Danas čitamo.', '✉️')],
+      [['Završava upitnikom.', [1]], ['Govori o sutrašnjem danu.', [0]], ['Spominje danas.', [1, 2, 3]]]),
+    sort('sort-lisce', 2, 'Listovi u zbirci', 'Una je zapisala koliko svaki list ima točaka.',
+      [card('Žut · jedna točka', 'leaf', 'yellow', '●'), card('Zelen · dvije točke', 'leaf', 'green', '••'), card('Zelen · jedna točka', 'leaf', 'green', '●'), card('Zelen · tri točke', 'leaf', 'green', '•••')],
+      [['Ima tri točke.', [3]], ['Žut je.', [0]], ['Ima dvije točke.', [1]], ['Ima jednu točku.', [0, 2]]]),
+    sort('sort-ormarici', 3, 'Oznake na ormarićima', 'Na oznakama se ponavljaju i boje i znakovi. Potraži posebne parove.',
+      [card('Plav sa zvijezdom', 'square', 'blue', '★'), card('Zelen sa zvijezdom', 'square', 'green', '★'), card('Plav sa srcem', 'square', 'blue', '♥'), card('Zelen sa srcem', 'square', 'green', '♥')],
+      [['Ima zvijezdu i plav je.', [0]], ['Ima srce i zelen je.', [3]], ['Ima zvijezdu.', [0, 1]], ['Zelen je.', [1, 3]]]),
+    sort('sort-parovi', 3, 'Parovi kocaka', 'Svaka kartica prikazuje dvije kocke. Brojevi su njihovi bodovi.',
+      [picture('1 i 1', '⚀ ⚀'), picture('1 i 3', '⚀ ⚂'), picture('2 i 3', '⚁ ⚂'), picture('2 i 2', '⚁ ⚁')],
+      [['Obje kocke imaju po jedan bod.', [0]], ['Ima i dvojku i trojku.', [2]], ['Obje kocke pokazuju isti broj.', [0, 3]], ['Zbroj je četiri.', [1, 3]]]),
+    sort('sort-izlet', 3, 'Planovi za izlet', 'Skupine su zapisale kamo idu i kako putuju.',
+      [picture('U šumu pješice', '🌲 🚶'), picture('Do jezera biciklom', '💧 🚲'), picture('U šumu biciklom', '🌲 🚲'), picture('Do jezera pješice', '💧 🚶')],
+      [['Ide u šumu i putuje pješice.', [0]], ['Ide do jezera i putuje biciklom.', [1]], ['Ide u šumu.', [0, 2]], ['Putuje pješice.', [0, 3]]])
+  ];
+  root.ThinkInvestigations = tasks;
+})(globalThis);

@@ -73,10 +73,14 @@
   const label=()=>levels.find(l=>l.id===level).name;
   const pill=()=>`<span class="pill level-pill l${level}">${label()}</span>`;
   const action=(act,text,cls='button',extra='')=>`<button class="${cls}" data-action="${act}" ${extra}>${text}</button>`;
+  const investigations=InvestigationUI.create({main,levels,esc,icon,action});
+  let investigationReturn='home';
   const activeRound=()=>round&&round.phase!=='complete';
   function resume(){return activeRound()?`<aside class="resume"><p><strong>Vježba te čeka.</strong><br>${levels.find(l=>l.id===round.level).name} · ${E.stats(round).completed} od ${round.questions.length} dovršeno</p>${action('resume','Nastavi vježbu '+icon('arrow'),'button secondary')}</aside>`:'';}
-  function home(){return `<section class="view"><div class="hero"><div><p class="eyebrow">Mali istraživači · Velike ideje</p><h1>Svaki odgovor<br>ima svoj <span>zašto.</span></h1><p>Pogledaj, razmisli i objasni.</p></div><div class="hero-art" aria-hidden="true"><span class="spark one">✦</span><span class="spark two">✧</span><img src="${owl}" alt="" width="253" height="253"></div></div><div class="levels">${levels.map(l=>`<article class="level-card l${l.id}"><span class="level-number">0${l.id}</span><div class="icon-well">${icon(l.icon)}</div><h3>${l.name}</h3><p>${l.desc}</p>${action('level','Odaberi '+icon('arrow'),'button',`data-level="${l.id}" aria-label="Odaberi: ${l.name}"`)}</article>`).join('')}</div><div class="under-levels"><span>${icon('puzzle')}6 područja</span><span>${icon('chat')}Odgovor + razlog</span><span>${icon('heart')}Bez žurbe</span></div>${resume()}</section>`;}
-  function areas(){return `<section class="view"><div class="topline">${action('home',icon('back')+'Težina','text-button')}${pill()}</div><div class="section-heading"><p class="eyebrow">Slijedi svoju znatiželju</p><h1>Što ćemo istražiti?</h1><p>Odaberi jedno područje ili isprobaj pomalo od svega.</p></div><div class="topics">${categories.map(c=>`<button class="topic" data-action="start" data-category="${c.id}"><span class="icon-well">${icon(c.icon)}</span><span><strong>${c.name}</strong><small>2 zadatka</small></span></button>`).join('')}</div><div class="mix-wrap">${action('start',icon('shuffle')+'Pomiješaj sve · 6 zadataka','button','data-category="mix"')}</div>${resume()}</section>`;}
+  function home(){return `<section class="view"><div class="hero"><div><p class="eyebrow">Mali istraživači · Velike ideje</p><h1>Svaki odgovor<br>ima svoj <span>zašto.</span></h1><p>Pogledaj, razmisli i objasni.</p></div><div class="hero-art" aria-hidden="true"><span class="spark one">✦</span><span class="spark two">✧</span><img src="${owl}" alt="" width="253" height="253"></div></div>
+    ${investigations.launch(undefined,true)}<div class="levels">${levels.map(l=>`<article class="level-card l${l.id}"><span class="level-number">0${l.id}</span><div class="icon-well">${icon(l.icon)}</div><h3>${l.name}</h3><p>${l.desc}</p>${action('level','Odaberi '+icon('arrow'),'button',`data-level="${l.id}" aria-label="Odaberi: ${l.name}"`)}</article>`).join('')}</div><div class="under-levels"><span>${icon('puzzle')}6 područja</span><span>${icon('chat')}Odgovor + razlog</span><span>${icon('heart')}Bez žurbe</span></div>${resume()}</section>`;}
+  function areas(){return `<section class="view"><div class="topline">${action('home',icon('back')+'Težina','text-button')}${pill()}</div><div class="section-heading"><p class="eyebrow">Slijedi svoju znatiželju</p><h1>Što ćemo istražiti?</h1><p>Odaberi malu istragu ili jedno od područja.</p></div>
+    ${investigations.launch(level)}<div class="topics">${categories.map(c=>`<button class="topic" data-action="start" data-category="${c.id}"><span class="icon-well">${icon(c.icon)}</span><span><strong>${c.name}</strong><small>2 zadatka</small></span></button>`).join('')}</div><div class="mix-wrap">${action('start',icon('shuffle')+'Pomiješaj sve · 6 zadataka','button','data-category="mix"')}</div>${resume()}</section>`;}
   function progress(){return `<div class="topline">${action('areas',icon('back')+'Područja','text-button')}${pill()}</div><div class="progress-wrap"><div class="progress" role="progressbar" aria-label="Dovršeni zadaci" aria-valuemin="0" aria-valuemax="${round.questions.length}" aria-valuenow="${E.stats(round).completed}">${round.questions.map((q,i)=>`<span class="${round.solved[i]?'filled':i===round.index?'current':''}"></span>`).join('')}</div><span class="progress-text">Zadatak ${round.index+1} od ${round.questions.length}</span></div>`;}
   function head(q){const cat=categories.find(c=>c.id===q.cat);return `<div class="question-head"><div class="icon-well">${icon(cat.icon)}</div><div><p class="eyebrow">${cat.name}</p><h1>${esc(q.title)}</h1></div></div>`;}
   function choices(q,type){const key=type==='answer'?'answers':'reasons',order=type==='answer'?round.answerOrder[round.index]:round.reasonOrder[round.index];return `<fieldset class="options"><legend>${type==='answer'?'Odaberi odgovor':'Odaberi razlog'}</legend>${order.map(i=>`<label class="option"><input type="radio" name="${type}" value="${i}" ${round[type]===i?'checked':''}><span>${esc(q[key][i])}</span></label>`).join('')}</fieldset>`;}
@@ -95,7 +99,14 @@
     return `<section class="exercise view">${progress()}<div class="question-card">${body}</div></section>`;
   }
   function results(){const s=E.stats(round);return `<section class="results view"><div class="topline">${action('areas',icon('back')+'Područja','text-button')}${pill()}</div><div class="results-hero"><img src="${owl}" alt="" width="160" height="160"><div><p class="eyebrow">Vježba je dovršena</p><h1>Bravo, istraživačice!</h1><p>Dovršila si ${round.questions.length===6?'svih 6 zadataka':'oba zadatka'}.</p></div></div><div class="stats"><div class="stat"><strong>${s.firstTry}</strong><span>Iz prvog pokušaja</span></div><div class="stat"><strong>${s.retried}</strong><span>Uz ponovni pokušaj</span></div></div><p class="encouragement">Dobri istraživači provjeravaju svoje zaključke.</p><div class="actions">${action('again','Nova vježba '+icon('arrow'))}${action('home','Promijeni težinu','button secondary')}</div><div class="completed-topics">${[...new Set(round.questions.map(q=>q.cat))].map(cat=>`<span>${icon('tick')}${categories.find(c=>c.id===cat).name}</span>`).join('')}</div></section>`;}
-  function render(focus=true){saveRound();main.innerHTML=view==='home'?home():view==='areas'?areas():round?exercise():home();if(focus){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}}
+  function render(focus=true){
+    saveRound();
+    if(view==='investigation'){
+      main.innerHTML=investigations.screen(level,investigationReturn==='areas'?'Područja':'Početna');
+      investigations.sync(level);
+    }else main.innerHTML=view==='home'?home():view==='areas'?areas():round?exercise():home();
+    if(focus){main.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+  }
   function navigate(next){view=next;render();}
   function start(category){
     let source=bank;
@@ -106,7 +117,15 @@
   }
   function requestStart(category){if(activeRound()){pendingCategory=category;document.getElementById('new-round-dialog').showModal();}else start(category);}
   main.addEventListener('change',event=>{
-    const input=event.target;if(!input.matches('input[type="radio"]')||!round)return;
+    const input=event.target;
+    if(input.name==='investigation-level'){
+      investigations.select(Number(input.value));
+      input.closest('.inv-launch').outerHTML=investigations.launch(undefined,true);
+      main.querySelector('[name="investigation-level"]').focus({preventScroll:true});
+      return;
+    }
+    if(view==='investigation'&&['inv-pick','inv-reason'].includes(input.name))return investigations.edit(level,input);
+    if(!input.matches('input[type="radio"]')||!round)return;
     const type=input.name;if(type!==round.phase)return;
     round[type]=Number(input.value);saveRound();
     const button=main.querySelector(`[data-action="${type==='answer'?'reason':'submit'}"]`);if(button)button.disabled=false;
@@ -115,6 +134,15 @@
     const button=event.target.closest('button[data-action]');if(!button||button.disabled)return;
     const act=button.dataset.action;
     if(act==='home')return navigate('home');
+    if(act==='investigate'){
+      if(view!=='investigation')investigationReturn=view;
+      level=Number(button.dataset.investigationLevel);
+      investigations.start(level);
+      return navigate('investigation');
+    }
+    if(act==='investigation-back')return navigate(investigationReturn);
+    if(act==='investigation-check'&&view==='investigation')return investigations.check(level);
+    if(act==='investigation-next'&&view==='investigation'){investigations.next(level);return render();}
     if(act==='areas')return navigate('areas');
     if(act==='level'){level=Number(button.dataset.level);return navigate('areas');}
     if(act==='start')return requestStart(button.dataset.category);
@@ -130,5 +158,12 @@
   document.getElementById('brand').addEventListener('click',()=>navigate('home'));
   document.getElementById('continue-round').addEventListener('click',()=>{document.getElementById('new-round-dialog').close();level=round.level;navigate('play');});
   document.getElementById('confirm-new').addEventListener('click',()=>{document.getElementById('new-round-dialog').close();start(pendingCategory);});
+  window.addEventListener('storage',event=>{
+    const updated=investigations.external(event.key,event.newValue);
+    if(!updated)return;
+    if(view==='investigation'&&updated===level&&!investigations.hasRun(level))return navigate('home');
+    if((view==='investigation'&&updated===level)||(view==='areas'&&updated===level)||
+       (view==='home'&&updated===investigations.selected()))render(false);
+  });
   restoreRound();render(false);
 })();

@@ -78,13 +78,18 @@ write('matematicka-pustolovina.html', mathFragment);
 // question bank and grading logic, and avoid host-history navigation.
 function buildThink() {
   const thinkApp = read('mislim-i-otkrivam/app.js').trimEnd();
+  const additions = ['investigations-content.js', 'investigation-engine.js', 'investigation-ui.js']
+    .map(name => read('mislim-i-otkrivam/' + name).trimEnd());
+  for (const source of additions) new Function(source);
+  const investigation = '<!--mio-investigation:start--><style>' + read('mislim-i-otkrivam/investigation.css') + '</style>' +
+    additions.map(source => '<script>' + source + '</script>').join('') + '<!--mio-investigation:end-->';
   if (!fs.existsSync(path.join(root, 'mislim-i-otkrivam/index.html'))) {
-    const fragment = shippedFragment('mislim-i-otkrivam');
+    const fragment = shippedFragment('mislim-i-otkrivam').replace(/<!--mio-investigation:start-->[\s\S]*?<!--mio-investigation:end-->/, '');
     const script = fragment.lastIndexOf('<script>');
     const end = fragment.indexOf('</script>', script);
     if (script < 0 || end < 0) throw new Error('Missing Mislim i otkrivam app script');
     new Function(thinkApp);
-    return fragment.slice(0, script) + `<script>${thinkApp}` + fragment.slice(end);
+    return fragment.slice(0, script) + investigation + `<script>${thinkApp}` + fragment.slice(end);
   }
   const thinkFull = read('mislim-i-otkrivam/index.html');
   const thinkStyle = thinkFull.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
@@ -105,7 +110,7 @@ function buildThink() {
 @media(max-width:620px){#think-page-root .hero-art::after{font-size:90px}#think-page-root .brand::before{font-size:31px}#think-page-root .results-hero::after{font-size:90px}}
 `;
 
-  return `<div id="think-page-root" lang="hr"><style>${thinkStyle}${thinkExtraCss}</style>${thinkBody}<script>${thinkScripts[0] || ''}</script><script>${thinkScripts[1] || ''}</script><script>${thinkApp}</script></div>`;
+  return `<div id="think-page-root" lang="hr"><style>${thinkStyle}${thinkExtraCss}</style>${thinkBody}<script>${thinkScripts[0] || ''}</script><script>${thinkScripts[1] || ''}</script>${investigation}<script>${thinkApp}</script></div>`;
 }
 
 const thinkFragment = withPortalNavigation(buildThink(), 'mislim-i-otkrivam');
